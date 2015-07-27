@@ -63,7 +63,7 @@
 \section{Theory}
 
 \subsection{Introduction}
-In general relativity, clocks at different heights in a gravitational field run at different rates, with the higher one running faster.  In quantum mechanics, particles at different energy levels rotate their quantum phase at different rates, with the higher-energy one rotating faster.  We propose here that these two phenomena are identical; that the phase oscillation of a particle can best be viewed as its local clock, and that changes in phase frequency correspond to actual time dilations.
+In general relativity, clocks at different heights in a gravitational field run at different rates, with the higher one running faster.  In quantum mechanics, particles at different energy levels rotate their quantum phase at different rates, with the higher-energy one rotating faster.  We propose here that these two phenomena are the same; that the phase oscillation of a particle can be viewed as its local clock, that changes in phase frequency correspond to actual time dilations, and that the stationary time dilations predicted by Quantum Mechanics and General Relativity are identical.
 
 In GR the time dilation is normally given as a function of position within a gravitational field, while in QM the phase shift is normally given as a function of the energy of a bound wave function.  To compare them, we need to put them into common terms.  We choose to do this by considering position in terms of energy, and phase shift in terms of time.
 
@@ -72,17 +72,15 @@ In GR the time dilation is normally given as a function of position within a gra
 \subsubsection{The Weak-Field Approximation}
 
 It is sufficient for our present purposes to consider only the simplest case of a uniform (non-curved) gravitational field with strength $g$.
-The time dilation $T_d$ between two  observers at different heights is often given by the weak-field approximation\footnote{
+The time dilation $T_d(h)$ between two observers at heights $h$ and $0$ is often given by the weak-field approximation\footnote{
 For a derivation see e.g. \cite{Lawden1982}, section 48.
-This approximation is only valid for $gh \ll c^2$, and has various problems that we will discuss in the next section.
+This approximation is only valid for $gh \ll c^2$, and has various problems that we will discuss in the next subsection.
 }
-\[ T_d \equiv \frac{t_f}{t_s} \approx 1 + \frac{gh}{c^2} \]
-where $h$ is the height difference and $c$ is the speed of light.
-$t_f$ and $t_s$ are the times at the fast (higher) and slow (lower) observers respectively\footnote{
-Since we only use the ratio of $t_f$ to $t_s$, it does not matter much whether we consider them to be the instantaneous rate of time flow at each observer,
-or the total elapsed time measured on each clock for some experiment with synchronized start and end times.
-The ratio is the same in either case.
-
+\[ T_d(h) \equiv \frac{t_h}{t_0} \approx 1 + \frac{gh}{c^2} \]
+where $t_h$ and $t_0$ are the times at the two observers.
+Since we only use the ratio of $t_h$ to $t_0$,
+it does not matter much whether we consider them to be the instantaneous rate of time flow at each observer,
+or the total elapsed time measured on each clock for some experiment with synchronized start and end times.\footnote{
 We assume that it is possible for stationary observers to synchronize their clocks and to measure time intervals with a synchronized beginning and end.  This is obviously true if, for example, we accept the notion of simultaneity presented by Einstein in 1907
 (\cite{Einstein1907}, see also \cite{Schwartz1977} and chapter 7 of \cite{Jammer2006}).
 This involves the assumption that the speed of light is isotropic.
@@ -91,16 +89,16 @@ but for the present purposes we can assume that all observers are arranged in a 
 and all light paths follow that geodesic.
 This eliminates the possibility of the Sagnac effect and other global topological anisotropies.
 For a general proof of the validity of synchronization in any stationary spacetime, see section 9.2 of \cite{Rindler2001}.)
-
 }
+The ratio is the same in either case.
 
-For a particle or clock of mass $m$, the energy difference between the positions of the two observers  is $\Delta E = mgh$,
+For a particle of mass $m$, the energy difference between the positions of the two observers  is $\Delta E = mgh$,
 the amount of work required to raise the mass from the lower observer to the upper one.
-Thus the energy at the slow observer is $E_s = E = mc^2$, the energy equivalent of the mass $m$, and at the fast observer (as seen by the slow observer) is $E_f = E + \Delta E$.
+Thus the energy of the particle at height $0$ is $E_0 = E = mc^2$, the energy equivalent of the mass $m$, and at height $h$ (as seen from height $0$) is $E_h = E + \Delta E$.
 We can thus rewrite the previous equation as
-\[ T_d \approx 1 + \frac{mgh}{mc^2} = 1 + \frac{\Delta E}{E} = \frac{E + \Delta E}{E} = \frac{E_f}{E_s} \]
+\[ T_d \approx 1 + \frac{mgh}{mc^2} = 1 + \frac{\Delta E}{E} = \frac{E + \Delta E}{E} = \frac{E_h}{E_0} \]
 Thus we have that
-\[  \frac{t_f}{t_s} \approx \frac{E_f}{E_s} \]
+\[  \frac{t_h}{t_0} \approx \frac{E_h}{E_0} \]
 The ratio of energies equals the ratio of times.
 This is the relation between time dilation and energy in GR.
 However, the derivation is only valid for $\Delta E \ll E$.
@@ -110,24 +108,28 @@ However, the derivation is only valid for $\Delta E \ll E$.
 
 The linear approximation given above has severe problems in the limit of large $h$ or strong $g$.
 First, two observers at different heights should predict the same relative time dilation between themselves
-\[ T_d(h)\cdot T_d(-h) = \frac{t_f}{t_s}\cdot\frac{t_s}{t_f} = 1 \]
+\[ T_d(h)\cdot T_d(-h) = \frac{t_h}{t_0}\cdot\frac{t_{-h}}{t_0} = \frac{t_h}{t_0}\cdot\frac{t_0}{t_h} = 1 \]
 But for the linear formula, we have
 \[ T_d(h) = 1 + \frac{gh}{c^2} \]
 and
 \[ T_d(-h) = 1 - \frac{gh}{c^2} \]
 so that
-\[ T_d(h)\cdot T_d(-h) = (1 + \frac{gh}{c^2})(1 - \frac{gh}{c^2}) = 1 - \frac{g^2h^2}{c^4} \neq 1 \]
+\[ T_d(h)\cdot T_d(-h) = \left(1 + \frac{gh}{c^2}\right)\left(1 - \frac{gh}{c^2}\right) = 1 - \frac{g^2h^2}{c^4} \neq 1 \]
 
 More generally, if we have three observers at heights $0$, $a$, and $a+b$, each of them must correctly predict the time dilation between the other two.  That is, we require that
 \[ T_d(a+b) = T_d(a)\cdot T_d(b) \]
 for all $a$ and $b$.  But the linear formula fails this as well.
 
-Finally, the formula gives absurd results for $h < -\frac{c^2}{g}$.  The upper observer predicts that time should be flowing in opposite directions for the two observers, but the lower one does not.  There is a kind of "event horizon" at $h = -\frac{c^2}{g}$ where time stops\footnote{
-A uniform gravitational field is equivalent to an actual acceleration in flat spacetime.
-For this situation, in the GR literature the event horizon is known as the {\em Rindler Horizon} and is often taken quite seriously
-(see e.g. \cite{wikiRindler,Egan2006,Xiang2001,Culetu2006}).
-However this is fundamentally incorrect.
-}, but (as we will show) this is purely an artifact of the approximation and has no basis in reality.
+Finally, the formula gives absurd results for $h < -\frac{c^2}{g}$.
+The upper observer predicts that time should be flowing in opposite directions for the two observers, but the lower one does not.
+There is a kind of "event horizon" at $h = -\frac{c^2}{g}$ where time stops,
+%\footnote{
+%A uniform gravitational field is equivalent to an actual acceleration in flat spacetime.
+%For this situation, in the GR literature the event horizon is known as the {\em Rindler Horizon} and is often taken quite seriously
+%(see e.g. \cite{wikiRindler,Egan2006,Xiang2001,Culetu2006}).
+%However this is fundamentally incorrect.
+%}
+but (as we will show) this is purely an artifact of the approximation and has no basis in reality.
 
 An exact solution to the time dilation $T_d(h)$ at height $h$ in a uniform field $g$ must have the following properties:
 \begin{enumerate}
@@ -149,10 +151,23 @@ We can compute the time required for a photon at any negative height to reach an
 The distance between the photon and the observer changes at the local speed of light,
 which is just $c$ times the time dilation, so that $\frac{dh}{dt} = cT_d = ce^{gh/c^2}$.
 If the photon starts at $h = -h_0$ and ends at $h = 0$ then the total time is just
-\[ t_{h_0} = \int_{-h_0}^{0}\frac{dt}{dh}dh = \int_{-h_0}^{0}\frac{e^{-gh/c^2}}{c}dh  = -\frac{c}{g}\int_{-h_0}^{0}-\frac{g}{c^2}e^{-gh/c^2}dh \]
-\[ = -\frac{c}{g}(e^0 - e^{gh_0/c^2}) = \frac{c}{g}(e^{gh_0/c^2}-1) \]
-so that for the "Rindler horizon" at $h_0 = c^2/g$ we get a travel time of $c(e-1)/g$, which is clearly finite.
-Horizon-based calculations give this as infinite.
+\[ t_{h_0} = \int_{-h_0}^{0}\frac{dt}{dh}dh = \int_{-h_0}^{0}\frac{1}{c}e^{-gh/c^2}dh  = -\frac{c}{g}\int_{-h_0}^{0}-\frac{g}{c^2}e^{-gh/c^2}dh \]
+\[ = -\frac{c}{g}\left(e^0 - e^{gh_0/c^2}\right) = \frac{c}{g}\left(e^{gh_0/c^2}-1\right) \]
+so that for the "horizon" at $h_0 = c^2/g$ we get a travel time of $c(e-1)/g$, which is clearly finite.
+%Horizon-based calculations give this as infinite.
+
+%Since we are claiming that the Rindler Horizon does not exist, we are also claiming that the mathematical derivations of it are flawed.
+%It thus behooves us to find and explain the flaw in such derivations.
+
+%We assume all travel is along the $x$ axis (i.e. a 1-dimensional problem) for simplicity.
+%We also assume a set of mutually-stationary inertial frames spaced at equal intervals $d$ along the axis,
+%each with its own clock, and all clocks synchronized to each other.
+%(This can easily be done by Einstein synchronization if there are only a finite number of them.)
+%At time $t=0$ a light flash is fired in the positive $x$ direction from $x=0$.
+%Also at $t=0$, a spaceship begins accelerating with uniform proper acceleration $a$ at location $x = c^2/a$.
+%(This puts the light exactly on the spaceship's Rindler horizon.)
+%Obviously, in the inertial frames, the light is traveling at speed $c$ and will pass a new frame every $d/c$ seconds.
+%Also, by special relativity
 }.
 It is the unique exact solution for the uniform field\footnote{
 In fact this result is well known.  It is e.g. equation 1.11 in \cite{Rindler2001}; see also chapter 9 of that work.
@@ -163,12 +178,13 @@ The weak-field approximation is just the tangent line to this at $h = 0$.
 At first it might appear that the simple relation given in the previous section needs to be modified.
 However, the formula $\Delta E = mgh$ depends on the assumption that the mass $m$ does not change as we raise it.
 In reality, the mass includes the potential energy, so that a particle gets heavier as we raise it, and lighter as we lower it.
-By an argument similar to that just given, we can conclude that the mass depends exponentially on height
-\[ m(h) = m_0e^{gh/c^2} \]
+By an argument similar to that just given, we can conclude that the mass and energy depend exponentially on height
+\[ m_h = m_0e^{gh/c^2} \]
+\[ E_h = m_0c^2e^{gh/c^2} \]
 The exact relationship then becomes
-\[ \frac{t_f}{t_s} \equiv T_d(h) = e^{gh/c^2} = \frac{m(h)}{m_0} = \frac{E_f}{E_s} \]
+\[ \frac{t_h}{t_0} \equiv T_d(h) = e^{gh/c^2} = \frac{m_h}{m_0} = \frac{E_h}{E_0} \]
 so that it is still the case that
-\[ \frac{t_f}{t_s} = \frac{E_f}{E_s} \]
+\[ \frac{t_h}{t_0} = \frac{E_h}{E_0} \]
 even using the exact equations.
 This relationship is thus shown to be valid everywhere.
 
@@ -187,7 +203,7 @@ This relationship is thus shown to be valid everywhere.
 
 \subsection{Quantum Phase Shift}
 
-Standing wave solutions to the Schr\"{o}dinger equation with energy $E$ oscillate phase as $e^{-iEt/\hbar}$.  Absolute phase appears impossible to measure and may in fact have no physical meaning whatsoever; however, relative phase can be easily observed through various interference experiments.  For identical particles, or different trajectories of the same particle, higher energy will cause the wave function to rotate phase more rapidly. Labeling the energy levels $f$ and $s$ as before and defining $\Delta E \equiv E_f - E_s$, we get a relative phase shift
+Standing wave solutions to the Schr\"{o}dinger equation with energy $E$ oscillate phase as $e^{-iEt/\hbar}$.  Absolute phase appears impossible to measure and may in fact have no physical meaning whatsoever; however, relative phase can be easily observed through various interference experiments.  For identical particles, or different trajectories of the same particle, higher energy will cause the wave function to rotate phase more rapidly. Labeling the energy levels $h$ and $0$ as before and defining $\Delta E \equiv E_h - E_0$, we get a relative phase shift
 \[ \Delta\phi(t) = {-i\Delta Et/\hbar} \]
 
 A shift in phase can be produced by a shift in time.  If we set the phase shift due to $\Delta E$ to be equal to the phase shift due to a time delay $\Delta t$,
@@ -196,18 +212,18 @@ we get that
 \[ \Delta E\cdot t = E\cdot\Delta t \]
 or
 \[ \frac{\Delta t}{t} = \frac{\Delta E}{E} \]
-so that, arbitrarily choosing $s$ as our reference, we get
-\[ \frac{t_f}{t_s} = \frac{t_s+\Delta t}{t_s} = 1 + \frac{\Delta t}{t_s} = 1 + \frac{\Delta E}{E_s} = \frac{E_s + \Delta E}{E_s} = \frac{E_f}{E_s} \]
+so that, arbitrarily choosing $E_0$ as our reference level, we get
+\[ \frac{t_h}{t_0} = \frac{t_0+\Delta t}{t_0} = 1 + \frac{\Delta t}{t_0} = 1 + \frac{\Delta E}{E_0} = \frac{E_0 + \Delta E}{E_0} = \frac{E_h}{E_0} \]
 which is the same equation arrived at in the previous section.
 
 An alternate path to the same result starts with de Broglie's original equation relating frequency to mass (Eq. 1.1.5 in \cite{deBroglie1925})
 \[ h\nu_0 = m_0c^2 \]
 where $E_0 = m_0c^2$ is the rest mass energy as above.
 Then the energy ratio equals the frequency ratio which, by definition, equals the time dilation:
-\[ \frac{E_f}{E_s} = \frac{\nu_f}{\nu_s} = \frac{t_f}{t_s} \]
+\[ \frac{E_h}{E_0} = \frac{\nu_h}{\nu_0} = \frac{t_h}{t_0} \]
 
 In summary, it appears entirely reasonable to view the phase shift as being due solely to time dilation,
-with in fact the particle's phase oscillation {\em being} its local clock.
+with the particle's phase oscillation {\em being} its local clock.
 Indeed, any other interpretation seems problematic.
 
 \subsection{History}
@@ -238,7 +254,7 @@ in a Finsler space where electromagnetism is a noncompact timelike fifth dimensi
 He notes "that not only does the electromagnetic energy tensor part ... appear in the curvature, but so does the matter term. Thus, one can say that everything in this theory is curvature."
 Although the theory's gauge is dependent on particle velocity, "The usual physically meaningful quantities all involve only the gauge-independent field $F_{\mu\nu}$. There may, though, be a way of using ideas such as those of Apsel (1979) to give a measurable significance to the gauge."
 
-The idea of using quantum phase interference of entangled pairs to measure time dilation was proposed by Hwang et al.\ in 2002 \cite{Hwang2002}, so they clearly understood that a potential-based time dilation would cause a phase shift; however, only the standard gravitational potential was considered.  In fact entangled pairs are not even required; the phase shift could be seen by standard interference between two paths of a single particle.
+The idea of using quantum phase interference of entangled pairs to measure time dilation was proposed by Hwang et al.\ in 2002 \cite{Hwang2002}, so they clearly understood that a potential-based time dilation would cause a phase shift; however, only the standard gravitational time dilation was considered.  In fact entangled pairs are not even required; the phase shift could be seen by standard interference between two paths of a single particle.
 
 The question of whether there might be some kind of time dilation associated with an electric potential was raised again in 2004 \cite{Creator2004}, but the discussion there was vague and inconclusive, and showed no awareness of Apsel's results.
 
@@ -266,20 +282,24 @@ The question of whether there might be some kind of time dilation associated wit
 
 \subsection{Limitations}
 
-In special relativity, the time dilation for a particle or observer moving at velocity $v$ is $T_d = \sqrt{1 - v^2/c^2}$.  The higher the velocity, the higher the kinetic energy, but the {\em slower} the clock is perceived to run.  Thus kinetic energy does not appear to have the same relationship to time that potential energy does; even the sign is reversed.  A further difficulty, as noted by de Broglie \cite{deBroglie1925}, is that while all observers agree on gravitational time dilation, the time dilation due to motion is reciprocal (I think your clock is slower than mine at the same time you think my clock is slower than yours).  Working through these issues is beyond the scope of the current paper.
+In special relativity, the time dilation for a particle or observer moving at velocity $v$ is $T_d = \sqrt{1 - v^2/c^2}$.  The higher the velocity, the higher the kinetic energy, but the {\em slower} the clock is perceived to run.  Thus kinetic energy does not appear to have the same relationship to time that potential energy does; even the sign is reversed.  A further difficulty, as noted by de Broglie \cite{deBroglie1925}, is that while all observers agree on stationary time dilation, the time dilation due to motion is reciprocal (I think your clock is slower than mine at the same time you think my clock is slower than yours).  Working through these issues is beyond the scope of the current paper.
 
 The version of the theory presented above accepts conservation of charge, so it does not predict that charge changes with energy.
 This means that the energy of a charged particle, as a function of potential, is linear and has many of the same problems that the weak-field gravitational approximation has.
-In particular, the energy of an $e^-$ should go to zero if it is in a potential of +511 kV ($m_ec^2/q_e$).
-It is not clear what this means physically; does the electron vanish?
+In particular, the energy (and mass) of an $e^-$ should go to zero if it is in a potential of +511 kV ($m_ec^2/q_e$).
+It is not clear what this means physically; does the electron become infinitely easy to accelerate?
+Does it vanish?
 If so, what happens to its charge, spin, and other properties?
-Similarly, the energy (and phase frequency) of a $\mu^-$ should go to zero in a potential of 105.658 MV ($m_\mu c^2/q_\mu$).
-Even if the muon does not disappear, the theory predicts an infinite lifetime.
+And what happens beyond that, when the energy (and time flow) are predicted to be negative?
+
+Similarly, the energy (and phase frequency) of a $\mu^-$ should go to zero in a potential of +105.658 MV ($m_\mu c^2/q_\mu$).
+If the muon does not disappear, the theory predicts an infinite lifetime there.
 
 These predictions are rather extraordinary.
 However, there does not seem to be any way around them unless charge also scales with mass.
 For example, if the charge/mass ratio remained constant, then the charge would scale linearly with mass,
 and we would have an exponential dependence of charge on voltage similar to the exponential dependence of mass on gravitational potential.
+However, there is no experimental evidence for such charge scaling, and considerable evidence against, so it would take quite remarkable experimental results to make this notion worthy of serious consideration.
 
 \section{Experiment}
 
@@ -308,17 +328,28 @@ and the cage raised or lowered in voltage.
 This is quite feasible, as many PTMS devices are already enclosed in a Faraday cage to reduce interference \cite{VanDyck2009}.
 Since the mass of the electron is about 511 keV,
 a bias of even 0.511 V should change the electron mass by 1 ppm,
-which should be easily detectable.
+which would be easily detectable.
 Thus, we propose that PTMS measurements of electron and positron mass be carried out at multiple bias voltages and the results compared.
 
-If PTMS shows no difference at different voltages, that would establish a constant charge/mass ratio (but not, by itself, constant mass!),
-and we would need to consider charge scaling.
-To detect or eliminate the possibility that electron charge scales with potential, it should be sufficient to carry out "Millikan oil drop" style experiments \cite{Millikan1910,Millikan1913,wiki_oil} inside Faraday cages at various voltages.
+A cruder and cheaper test would use standard educational demonstration equipment for measuring the charge/mass ratio of the electron (such as the PASCO SE-9625 or SE-9638), enclosing the device and power supplies in a Faraday cage and running the experiment at various potentials.
+
+If these tests show no difference at different voltages, that would establish a constant charge/mass ratio, and severely constrain the theory.
+In fact, it would have to be false in the absence of charge scaling.
+There are many ways to detect or eliminate the possibility that charge scales with potential, e.g.:
+\begin{itemize}
+\item Carry out "Millikan oil drop" style experiments \cite{Millikan1910,Millikan1913,wiki_oil} inside Faraday cages at various potentials.
+\item Measure the charge/mass ratios of the electron and proton, and the charge of hydrogen molecules, at various potentials.
+\item Measure the conductivity of ultrapure silicon at various potentials.  (If the charges of electrons and protons scale differently, and the silicon stays overall neutral, it must accumulate extra electrons or holes and become conductive.)
+\end{itemize}
 Assuming constant charge/mass ratio, it would take a potential of about 5 kV to get a 1\% change in electron charge.
 
-A combination of no difference in PTMS-determined charge/mass ratio at sufficiently different voltages,
-and no difference in electron charge from oil drop experiments at sufficiently different voltages,
+A combination of no difference in charge/mass ratio at sufficiently different voltages,
+and no difference in electron charge at sufficiently different voltages,
 would conclusively prove QTD false.
+
+Yet another test would be to set up an electron interference experiment and run it at various potentials.
+Near +511keV, we predict the electron energy and phase frequency should go to zero, and its de Broglie wavelength go infinite; therefore the interference fringes should get wider as we approach that voltage and disappear when we hit it exactly.
+(Care needs to be taken in the analysis, since the electron kinetic energy will not change as it gets lighter if it is accelerated through the same voltage.  Thus its velocity must differ.  This can be measured by using a pulsed electron source and measuring the time of flight.)
 
 \subsection{Protons and Antiprotons}
 
@@ -337,7 +368,7 @@ From this we can see that potential differences on the order of tens of volts sh
 \subsubsection{ASACUSA Collaboration Laser Spectroscopy of Antiprotonic Helium}
 2006 calculations of the $p^-$ mass by Hori et al., based on laser spectroscopy of $p^-$He$^+$ \cite{Hori2006},
 were claimed to be precise within 16 ppb.
-The QTD time dilation (and mass adjustment) for the antiproton $1S$ ground state
+The QTD time dilation (and mass adjustment) for the antiproton $1S$ ground state in He
 is predicted to be about 0.999914911, which could have thrown their results off by as much as 85 ppm.
 However, their measurements involve highly-excited states with principal quantum number $n \approx 40$ \cite{Hayano2007},
 which are very lightly bound and have much less dilation and mass loss.
@@ -348,6 +379,11 @@ For example, the relative $T_d$ between an $n = 40$ state (53.2 ppb) and and $n 
 This is less than 16 ppb, so it is not surprising that no significant QTD effect was seen.
 However, the latest experiments \cite{Horvath2008} are now claiming 2 ppb;
 we would expect a QTD effect to be just barely noticeable at that level.
+
+Allowing the $p^-$ to drop into lower orbitals would increase the QTD effect, but might also increase the chance of annihilation with a nuclear $p^+$.  Orbitals with nodes through the nucleus (such as $2p$, $(n,\ell) = (1,1)$) would be preferable to reduce the probability of this.
+Also, higher-energy photons would be required.
+
+Alternately, the experiment could be repeated for heavier noble gases such as neon and argon, which would give a stronger effect at the same $n$.
 
 \subsection{Muons In General}
 Radioactive ions or unstable charged particles will decay faster (or slower) when time-dilated.
@@ -388,7 +424,7 @@ and gives a rough estimate of the QTD effect in typical $\mu^+$ muon spin resona
 \hline
   Atom & Z & Mass (u) & E (keV) & QTD T$_d$& SR T$_d$ & QTD$\times$SR \\
 \hline
-$\mu^+e^-$ & 1 & 0.001 & -0.0142 & 0.99999987 & 0.99997337 & 0.99997324 \\ % the SR for this line is wrong
+$\mu^+e^-$ & 1 & 0.001 & -0.0142 & 0.99999987 & ? & 0.99997324 \\ % the SR for this line is wrong
 $^{1}$H & 1 & 1.008 & -2.5286 & 0.99997607 & 0.99997337 & 0.99994944 \\
 $^{4}$He & 2 & 4.003 & -10.9428 & 0.99989643 & 0.99989349 & 0.99978994 \\
 $^{7}$Li & 3 & 7.016 & -24.9162 & 0.99976420 & 0.99976034 & 0.99952460 \\
@@ -463,6 +499,10 @@ This is infrequent compared to 455000 S$^{-1}$ for decay of the muon itself, but
 Thus, although we predict a significant potential-based dilation (and hence reduction of the muon decay rate) for heavier nuclei
 (e.g. 0.82 for $^{206}$Pb)
 it may be difficult to observe this due to the rapidity of capture.
+
+It is worth noting that many excited state orbitals, such as $2p$, have nodes through the nucleus and thus very little overlap with it.
+If a muon could be maintained in such a state, the rate of capture would be greatly reduced, and the dilation effect could be measured for much larger $Z$.
+In particular, capture of $\mu^-$ by noble gases, combined with appropriate laser excitation to keep the muons in states with non-zero angular momentum, might give enough data points to see the effect clearly without nuclear capture dominating it.
 %An energy change of -1 Ry corresponds to a time dilation of
 %\[ (1 - {\rm 1 Ry}/m_\mu c^2) = 1 - \frac{13.6 {\rm eV}}{105\cdot 10^6 {\rm eV}} = 0.999999871 \]
 %which is not likely to be noticed.
@@ -486,9 +526,9 @@ so that for an electron
 \[ \Delta t = \frac{h}{E} = \frac{h}{m_ec^2} = \frac{6.626 \cdot 10^{-34} {\rm m}^2 {\rm kg / S}}{(9.109 \cdot 10^{-31} {\rm kg})\cdot(2.998\cdot 10^8 {\rm m/S})^2 } = 8.093\cdot 10^{-21} {\rm S} \] 
 is the time difference (as seen by the electrons, not by an external observer) between electron paths when the interference pattern has been shifted by one full fringe.
 This requires a total flux of $3.9\cdot 10^{-7}$ gauss-cm$^2$ as noted above, but we should be able to use fluxes at least $10^{13}$-$10^{14}$ that large, leading to feasible $\Delta t$s in the range of $10^{-7}$-$10^{-6}$ seconds.
-(Indeed the Brookhaven E821 experiment \cite{Bennett2004} applied a field of 1.45T over a ring with radius 7.11m; if the field was uniform, the total contained flux would then be about $2.3\cdot 10^{10}$ gauss-cm$^2$.)
+(Indeed the Brookhaven E821 experiment \cite{Bennett2004} applied a field of 1.45T over a ring with radius 7.11m; if the field had been uniform, the total contained flux would have been about $2.3\cdot 10^{10}$ gauss-cm$^2$.)
 
-For the muon $\Delta t$ is 207 times smaller (the ratio of the muon mass to the electron mass), or $3.91\cdot10^{-23}{\rm S}$.
+For the muon the $\Delta t$ for a single fringe shift is 207 times smaller (the ratio of the muon mass to the electron mass), or $3.91\cdot10^{-23}{\rm S}$.
 
 A 200 kV muon beam should travel roughly as fast as a 1 kV electron beam, or about 2\% of the speed of light or $6\cdot10^6$ m/S.  If we split this beam and send it around a solenoid with a radius of about 100 cm (and hence cross-sectional area 314 cm$^2$) we should be able to have each path be no longer than, say, 600 cm.  With a 10T = $10^6$ gauss field strength the total flux would be $3.14\cdot10^8$ gauss-cm$^2$ and the predicted 
 %$\Delta t = 8.09\cdot 10^{-21}\frac{3.14\cdot10^8}{3.9\cdot 10^{-7}} {\rm S} = 6.51\cdot10^{-6}{\rm S}$
@@ -502,19 +542,18 @@ Thus, for that flux, we would predict a roughly 3\% increase in the decay rate o
 Larger fluxes would have larger effects.
 For large enough flux, the effect should be truly spectacular.
 
-(Note that the above method would give silly results for the slow-time path for high enough flux; it obviously cannot end up with negative experienced time-of-flight.
-This problem is due to using a linearized approximation.  Exact calculation requires the exact formula.)
+%(Note that the above method would give silly results for the slow-time path for high enough flux; it obviously cannot end up with negative experienced time-of-flight.
+%This problem is due to using a linearized approximation.  Exact calculation requires the exact formula.)
 
 It is not necessary to actually interfere the two beams to measure this effect.  One could, for example, just have a single beam of muons rotating in a cyclotron ring.  A large confined and shielded flux through the ring should have a measurable effect on the decay rate of the muons; reversing the flux or the direction of rotation should reverse the effect.
 
-It would also be possible to simply fire a beam of muons through the center hole of one or more shielded toroidal magnets, as was done in the elegant Hitachi experiment to demonstrate the AB effect \cite{Tonomura1982}, although much larger magnets with much larger fluxes would be desirable.  There is no theoretical upper bound to the total encircling flux per length of muon path in this configuration, as there is no upper limit to the radial size of the core.  If we assume a core with a contained field strength of 1T \footnote{An electromagnet made of iron saturates at 1.6T, and NdFeB permanent magnets can have fields of 1.17 to 1.48T, so 1T is a little conservative.}, and a toroidal shape with rectangular cross section (inside radius $r_i$, outside radius $r_o$, and thickness $l$), the cross-sectional area is given by $A = (r_o-r_i)\cdot l$ and the total flux would be $10^4\cdot A$ gauss-cm$^2$ with the flux per length equal to $10^4(r_o-r_i)$ gauss-cm.  The time shift per length (for a muon) is given roughly by
+It would also be possible to simply fire a beam of muons through the center hole of one or more shielded toroidal magnets, as was done in the elegant Hitachi experiment to demonstrate the AB effect with electrons \cite{Tonomura1982}, although much larger magnets with much larger fluxes would be desirable.  There is no theoretical upper bound to the total encircling flux per length of muon path in this configuration, as there is no upper limit to the radial size of the core.  If we assume a core with a contained field strength of 1T \footnote{An electromagnet made of iron saturates at 1.6T, and NdFeB permanent magnets can have fields of 1.17 to 1.48T, so 1T is a little conservative.}, and a toroidal shape with rectangular cross section (inside radius $r_i$, outside radius $r_o$, and thickness $l$), the cross-sectional area is given by $A = (r_o-r_i)\cdot l$ and the total flux would be $10^4\cdot A$ gauss-cm$^2$ with the flux per length equal to $10^4(r_o-r_i)$ gauss-cm.  The time shift per length (for a muon) is given roughly by
 \[ \frac{3.91\cdot10^{-23} {\rm S}}{3.9\cdot 10^{-7}{\rm gauss\cdot cm}^2} \cdot 10^4(r_o-r_i) {\rm gauss\cdot cm} \approx 10^{-12}(r_o-r_i)\frac{\rm S}{\rm cm}\]
-For a rather large core with $(r_o-r_i) = 1 {\rm m}$ and $l = 1 {\rm m}$ we would get a time shift of 10 nS.
-% Such a core would weigh about 25000 kg (25 metric tons).
+For a rather large core with $(r_o-r_i) = 1 {\rm m}$ and $l = 1 {\rm m}$ (weighing about 25 metric tons) we would get a time shift of 10 nS.
 This has to be compared with the time of flight at fast but sub-relativistic speeds;
 at 10\% of the speed of light a particle will only spend about 33 nS passing through the toroid,
-so a time shift of 10 nS represents a 30\% increase or decrease in the time experienced by the particle..
-(Again, these are based on a linear formula and thus are slightly off.)
+so a time shift of 10 nS represents a roughly 30\% increase or decrease in the time experienced by the particle..
+%(Again, these are based on a linear formula and thus are slightly off.)
 The special-relativistic time dilation at that speed is less than 1\%.
 
 \subsection{Geometric Confinement}
@@ -523,7 +562,7 @@ This could be used on uncharged particles such as neutrons, while the above 2 ap
 %This does not appear to have been considered by Apsel.
 However, the effect for any realistic confinement may be too small to measure.
 
-There are many other possibilities, including nuclear forces, but these few should suffice to demonstrate that quantum time dilation makes different predictions than the standard phase shift view, and that the differences are accessible to experimental test.
+There are many other possibilities, including nuclear forces, but these few should suffice to demonstrate that quantum time dilation makes different predictions than the standard view of phase shift, and that the differences are accessible to experimental test.
 
 %Of course, there remain questions about which object or particle should be considered when calculating the time dilation.  Is it, for example, an entire atom (or ion) with its nucleus and electrons taken as a whole?  Or should we, in the case of nuclear decay, only consider the nucleus?  This is an empirical question, but there is evidence that the entire atom is the proper entity.  The detection of interference fringes for large molecules such as ${\rm C}_{70}$ \cite{Arndt2001,Nairz2003} implies that such a bound collection can reasonably be viewed as having its own quantum phase as a single unified entity.  Also, such questions may sometimes be moot; at least in GR, while $\Delta E$ is dependent on the particle's mass, $\Delta E/E$ and hence $T_d$ are not.
 
@@ -537,6 +576,19 @@ Thus, the CPT theorem does not contradict the QTD claim that particles and their
 QTD is completely compatible with the notion of CPT invariance.
 
 \section{Absolute Electric Potential}
+
+\subsection{Lack of gauge invariance with respect to electric potential}
+It is well known and easy to prove that the Maxwell equations are gauge invariant with respect to adding a global constant to the electric potential everywhere.  Let us call this particular gauge invariance {\em Voltage Invariance} (VI).  Classical EM is VI.
+
+However, if the total energy of particle with rest mass $m_0$ and charge $q$ in a potential $V$ is $E = m_0 c^2 + qV$, and the quantum phase frequency is given by $\nu = E/h$, then the phase frequency is not VI.  Thus phase effects in QM are not necessarily VI.  In particular, we claim that the rate of time flow experienced by a charged particle such as a muon is proportional to its phase frequency, and is not VI.
+
+%This claim can be broken down into two parts, which are independently testable:
+%\begin{enumerate}
+%\item{The rate of time flow experienced by a particle is proportional to its phase frequency.}
+%\item{The phase frequency of a charged particle is voltage-dependent.}
+%\end{enumerate}
+
+\subsection{Calculating absolute potential from muon lifetimes}
 Since a non-zero electric potential causes inverse time dilation for positive and negative particles, the lifetimes of (say) $\mu^+$ and $\mu^-$ can be used to calculate the potential.
 This means that there is a global absolute zero potential which can be detected by experiment;
 it is that point at which charged particles and antiparticles have the same mass and decay at the same rate.
@@ -544,29 +596,38 @@ it is that point at which charged particles and antiparticles have the same mass
 Without measurement, there is no guarantee that the earth is at zero potential.  (Consider that the potential difference between the earth and a cloud floating above it may exceed 300 MV during a lightning storm.)  Thus, we have no reason to expect that the lifetimes of particles and antiparticles will be exactly the same when measured in terrestrial laboratories.  This has implications for those e.g. attempting to use the muon lifetime to determine parameters of the standard model.
 If they do not correct for time dilation due to the absolute potential of the earth, their results may be wrong by 1 ppm per 105 V.
 (On the other hand, the QTD dilation for the binding energy of $\mu^+e^-$ is about 0.999999866 or 134 parts per billion.
-Thus it can safely be ignored in most estimates of $\mu^+$ lifetime in matter,
+Thus it may be ignored in crude measurements of $\mu^+$ lifetime in matter,
 although it is much larger than the SR dilation of 0.6 ppb estimated by Czarnecki et al. \cite{Czarnecki2000}.)
 
-An easy way to correct for voltage offset would be to take the geometric mean of $\mu^+$ and $\mu^-$ lifetimes measured under identical conditions.
+An easy way to correct for voltage offset would be to take the
+%geometric mean
+average
+of $\mu^+$ and $\mu^-$ lifetimes measured under identical conditions.
 Since
-\[ T_d(\mu^+,V)\cdot T_d(\mu^+,-V) = 1\]
+%\[ T_d(\mu^+,V)\cdot T_d(\mu^+,-V) = 1\]
+\[ T_d(\mu^+,V) + T_d(\mu^+,-V) = 2\]
 and
 \[ T_d(\mu^-,V) = T_d(\mu^+,-V) \]
 we get
-\[ T_d(\mu^+,V)\cdot T_d(\mu^-,V) = 1\]
+%\[ T_d(\mu^+,V)\cdot T_d(\mu^-,V) = 1\]
+\[ T_d(\mu^+,V) + T_d(\mu^-,V) = 2\]
 so that
-\[ \sqrt{\lambda(\mu^+,V)\lambda(\mu^-,V)} = \sqrt{\frac{\lambda(\mu^+,0)}{T_d(\mu^+,V)}\frac{\lambda(\mu^-,0)}{T_d(\mu^-,V)}}
- = \sqrt{\lambda(\mu^+,0)\lambda(\mu^-,0)} = \lambda(\mu^\pm,0) \]
-Similarly, the zero-potential mass of a particle and its antiparticle can be computed as e.g. $\sqrt{m_{e^+}(V)\cdot m_{e^-}(V)} = m_{e^\pm}(0)$ at any potential $V$.
+%\[ \sqrt{\lambda(\mu^+,V)\lambda(\mu^-,V)} = \sqrt{\frac{\lambda(\mu^+,0)}{T_d(\mu^+,V)}\frac{\lambda(\mu^-,0)}{T_d(\mu^-,V)}}
+% = \sqrt{\lambda(\mu^+,0)\lambda(\mu^-,0)} = \lambda(\mu^\pm,0) \]
+\[ \lambda(\mu^+,V) + \lambda(\mu^-,V) = \lambda(\mu^+,0) T_d(\mu^+,V) + \lambda(\mu^-,0) T_d(\mu^-,V) \]
+\[ = \lambda(\mu^\pm,0) (T_d(\mu^+,V) + T_d(\mu^-,V))  = 2\lambda(\mu^\pm,0) \]
+Similarly, the zero-potential mass of a particle and its antiparticle can be computed as e.g.
+$m_{e^\pm}(0) = \frac{1}{2} (m_{e^+}(V) + m_{e^-}(V))$ at any potential $V$.
 
 The absolute potential $V$ can then be calculated from e.g.
-\[ T_d(\mu^+,V) = \lambda(\mu^+,0) / \lambda(\mu^+,V) \]
+\[ T_d(\mu^+,V) = \frac{\lambda(\mu^+,0)}{\lambda(\mu^+,V)} \]
 and
-\[ T_d(\mu^+,V) = e^{qV/m_0c^2} \]
+%\[ T_d(\mu^+,V) = e^{qV/m_0c^2} \]
+\[ T_d(\mu^+,V) = 1 + \frac{qV}{m_\mu c^2} \]
 to be
-\[ V = \frac{m_{\mu}c^2}{q}\ln(\sqrt{\lambda(\mu^+,V)\lambda(\mu^-,V)}/\lambda(\mu^+,V)) \]
-\[ = \frac{m_{\mu}c^2}{2q}\ln(\lambda(\mu^-,V) / \lambda(\mu^+,V)) \]
-
+%\[ V = \frac{m_{\mu}c^2}{q}\ln(\sqrt{\lambda(\mu^+,V)\lambda(\mu^-,V)}/\lambda(\mu^+,V)) \]
+%\[ = \frac{m_{\mu}c^2}{2q}\ln(\lambda(\mu^-,V) / \lambda(\mu^+,V)) \]
+\[ V = \frac{m_\mu c^2}{q}\left(\frac{\lambda(\mu^+,0)}{\lambda(\mu^+,V)} - 1\right) = \frac{m_\mu c^2}{2q}\left(\frac{\lambda(\mu^-,V)}{\lambda(\mu^+,V)} - 1\right) \]
 \section{Summary}
 
 We propose interpreting the well known quantum phase shift as a time-dilation.  The mathematics of this is essentially identical to that of gravitational time dilation in general relativity, indicating perhaps a deep and simple connection between QM and GR.  This interpretation is shown to have measurable consequences which are supported by prior experimental data, and further experiments are proposed that could test its validity more directly.
