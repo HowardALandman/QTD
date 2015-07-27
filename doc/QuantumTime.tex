@@ -63,11 +63,13 @@
 \section{Theory}
 
 \subsection{Introduction}
-In general relativity, clocks at different heights in a gravitational field run at different rates, with the higher one running faster.  In quantum mechanics, particles at different energy levels rotate their quantum phase at different rates, with the higher-energy one rotating faster.  We propose here that these two phenomena are identical.
+In general relativity, clocks at different heights in a gravitational field run at different rates, with the higher one running faster.  In quantum mechanics, particles at different energy levels rotate their quantum phase at different rates, with the higher-energy one rotating faster.  We propose here that these two phenomena are identical; that the phase oscillation of a particle can best be viewed as its local clock, and that changes in phase frequency correspond to actual time dilations.
 
 In GR the time dilation is normally given as a function of position within a gravitational field, while in QM the phase shift is normally given as a function of the energy of a bound wave function.  To compare them, we need to put them into common terms.  We choose to do this by considering position in terms of energy, and phase shift in terms of time.
 
-\subsection{Time Dilation in a Uniform Gravitational Field: The Weak-Field Approximation}
+%\subsection{Time Dilation in a Uniform Gravitational Field: The Weak-Field Approximation}
+\subsection{Time Dilation in a Uniform Gravitational Field}
+\subsubsection{The Weak-Field Approximation}
 
 It is sufficient for our present purposes to consider only the simplest case of a uniform (non-curved) gravitational field with strength $g$.
 The time dilation $T_d$ between two  observers at different heights is often given by the weak-field approximation\footnote{
@@ -96,14 +98,15 @@ For a particle or clock of mass $m$, the energy difference between the positions
 the amount of work required to raise the mass from the lower observer to the upper one.
 Thus the energy at the slow observer is $E_s = E = mc^2$, the energy equivalent of the mass $m$, and at the fast observer (as seen by the slow observer) is $E_f = E + \Delta E$.
 We can thus rewrite the previous equation as
-\[ T_d = 1 + \frac{mgh}{mc^2} = 1 + \frac{\Delta E}{E} = \frac{E + \Delta E}{E} = \frac{E_f}{E_s} \]
+\[ T_d \approx 1 + \frac{mgh}{mc^2} = 1 + \frac{\Delta E}{E} = \frac{E + \Delta E}{E} = \frac{E_f}{E_s} \]
 Thus we have that
-\[  \frac{t_f}{t_s} = \frac{E_f}{E_s} \]
+\[  \frac{t_f}{t_s} \approx \frac{E_f}{E_s} \]
 The ratio of energies equals the ratio of times.
 This is the relation between time dilation and energy in GR.
 However, the derivation is only valid for $\Delta E \ll E$.
 
-\subsection{Time Dilation in a Uniform Gravitational Field: The Exact Solution}
+%\subsection{Time Dilation in a Uniform Gravitational Field: The Exact Solution}
+\subsubsection{The Exact Solution}
 
 The linear approximation given above has severe problems in the limit of large $h$ or strong $g$.
 First, two observers at different heights should predict the same relative time dilation between themselves
@@ -155,9 +158,9 @@ It is the unique exact solution for the uniform field\footnote{
 In fact this result is well known.  It is e.g. equation 1.11 in \cite{Rindler2001}; see also chapter 9 of that work.
 The derivation there is more general and applies to any stationary potential, not just a uniform one.
 }.
+The weak-field approximation is just the tangent line to this at $h = 0$.
 
-
-At first it appears that the simple relation given in the previous section needs to be modified to take this into account.
+At first it might appear that the simple relation given in the previous section needs to be modified.
 However, the formula $\Delta E = mgh$ depends on the assumption that the mass $m$ does not change as we raise it.
 In reality, the mass includes the potential energy, so that a particle gets heavier as we raise it, and lighter as we lower it.
 By an argument similar to that just given, we can conclude that the mass depends exponentially on height
@@ -210,7 +213,7 @@ Indeed, any other interpretation seems problematic.
 \subsection{History}
 
 As shown above, on the QM side it is not even required to have the Schr\"{o}dinger equation;
-de Broglie's work of 1925 is sufficient.
+de Broglie's work of 1923-25 is sufficient.
 In fact, our time dilation could be considered to already be described by Schr\"{o}dinger
 in late 1925 \cite{Schrodinger1925}, when he gave the electron's frequencies in a hydrogen atom as
 \[ \nu_n =mc^2/h - R/n^2 \]
@@ -265,32 +268,33 @@ The question of whether there might be some kind of time dilation associated wit
 
 In special relativity, the time dilation for a particle or observer moving at velocity $v$ is $T_d = \sqrt{1 - v^2/c^2}$.  The higher the velocity, the higher the kinetic energy, but the {\em slower} the clock is perceived to run.  Thus kinetic energy does not appear to have the same relationship to time that potential energy does; even the sign is reversed.  A further difficulty, as noted by de Broglie \cite{deBroglie1925}, is that while all observers agree on gravitational time dilation, the time dilation due to motion is reciprocal (I think your clock is slower than mine at the same time you think my clock is slower than yours).  Working through these issues is beyond the scope of the current paper.
 
-Because the current version of the theory accepts conservation of charge, it does not predict that charge changes with energy.
+The version of the theory presented above accepts conservation of charge, so it does not predict that charge changes with energy.
 This means that the energy of a charged particle, as a function of potential, is linear and has many of the same problems that the weak-field gravitational approximation has.
-In particular (1) It predicts that the energy of an $e^-$ should go to zero if it is in a potential of +511 kV ($m_ec^2/q_e$).
+In particular, the energy of an $e^-$ should go to zero if it is in a potential of +511 kV ($m_ec^2/q_e$).
 It is not clear what this means physically; does the electron vanish?
 If so, what happens to its charge, spin, and other properties?
-(2) It predicts that the energy (and phase frequency) of a $\mu^-$ should go to zero in a potential of 105.658 MV ($m_\mu c^2/q_\mu$).
+Similarly, the energy (and phase frequency) of a $\mu^-$ should go to zero in a potential of 105.658 MV ($m_\mu c^2/q_\mu$).
 Even if the muon does not disappear, the theory predicts an infinite lifetime.
 
-Both of these predictions seem rather extraordinary.
-However, there does not seem to be any way around them unless charge also scales with mass
-(e.g. if the charge/mass ratio remained constant).
-In that case, we would have an exponential dependence on voltage similar to the exponential dependence of mass on gravitational potential.
+These predictions are rather extraordinary.
+However, there does not seem to be any way around them unless charge also scales with mass.
+For example, if the charge/mass ratio remained constant, then the charge would scale linearly with mass,
+and we would have an exponential dependence of charge on voltage similar to the exponential dependence of mass on gravitational potential.
 
-\section{Existing Experimental Results}
+\section{Experiment}
+
+How can quantum time dilation be most easily measured?
 If quantum time dilation is real, it should have occurred in many experiments that have already been carried out.
 In some cases, it would have been swamped by other effects such as velocity-based time dilation, but in others, it should have been noticeable.
-In this section, we try to compute the magnitude of the effect for various prior experiments
- to see whether the theory can be confirmed or disproved by them.
- 
+
 For all charged particles, QTD predicts changes in both both mass and lifetime at non-zero electric potential.  For unstable particles, changes in lifetime may be easiest to measure.  For stable particles, obviously, lifetime extension is meaningless, and only mass measurements can be expected to test the theory.
+The possibility that charge scales as well should also be considered.
 
 \subsection{Electrons and Positrons}
 
 Electrons and positrons, with the largest charge-to-mass ratio of any stable particle,
 are ideal for detecting mass alteration due to electric potential.
-The most precise known measurement technique is Penning trap mass spectroscopy (PTMS) \cite{Farnham1995} \cite{Natarajan1993},
+The most precise known measurement technique is Penning trap mass spectroscopy (PTMS) \cite{Farnham1995,Natarajan1993},
 which can achieve 1 ppb or less.
 At its simplest level a Penning trap consists of 3 hyperbolic electrodes
 (a ring with negative curvature and two endcaps with positive curvature)
@@ -298,13 +302,23 @@ whose voltage can be independently controlled,
 and a strong uniform magnetic field.
 It is  possible to bias all 3 electrodes simultaneously with the same voltage offset,
 which is equivalent to changing the potential of the trapped particle;
-however, this is not usually done \cite{VanDyck2009} since previous theory predicts it should have no effect.
+however, this is not usually done \cite{VanDyck2009} since standard theory predicts it should have no effect.
 Alternately, the entire PTMS apparatus along with its power supplies could be enclosed in and grounded to a Faraday cage,
 and the cage raised or lowered in voltage.
 This is quite feasible, as many PTMS devices are already enclosed in a Faraday cage to reduce interference \cite{VanDyck2009}.
 Since the mass of the electron is about 511 keV,
 a bias of even 0.511 V should change the electron mass by 1 ppm,
 which should be easily detectable.
+Thus, we propose that PTMS measurements of electron and positron mass be carried out at multiple bias voltages and the results compared.
+
+If PTMS shows no difference at different voltages, that would establish a constant charge/mass ratio (but not, by itself, constant mass!),
+and we would need to consider charge scaling.
+To detect or eliminate the possibility that electron charge scales with potential, it should be sufficient to carry out "Millikan oil drop" style experiments \cite{Millikan1910,Millikan1913,wiki_oil} inside Faraday cages at various voltages.
+Assuming constant charge/mass ratio, it would take a potential of about 5 kV to get a 1\% change in electron charge.
+
+A combination of no difference in PTMS-determined charge/mass ratio at sufficiently different voltages,
+and no difference in electron charge from oil drop experiments at sufficiently different voltages,
+would conclusively prove QTD false.
 
 \subsection{Protons and Antiprotons}
 
@@ -335,6 +349,26 @@ This is less than 16 ppb, so it is not surprising that no significant QTD effect
 However, the latest experiments \cite{Horvath2008} are now claiming 2 ppb;
 we would expect a QTD effect to be just barely noticeable at that level.
 
+\subsection{Muons In General}
+Radioactive ions or unstable charged particles will decay faster (or slower) when time-dilated.
+The muon, with a half life of 2.197 $\mu$S \cite{Chitwood2007},
+is an attractive candidate for QTD experiments as it has the highest charge-to-mass ratio of any unstable particle.
+While muons are difficult to produce by fission, fusion, or nuclear decay, beams of muons can be generated via pion decay, and have been used e.g. to test the standard model's prediction of their anomalous magnetic moment (see \cite{Bennett2004} and its references).
+A survey of methods of muon production can be found in \cite{Eaton1999} and \cite{Heffner1984}; see also section VI of \cite{Kuno2001}.
+Beams of muons produced by pion decay are inherently 100\% polarized with spin opposite to the direction of emission (\cite{Eaton1999}, p.16).
+%, which is important for $\mu$SR (muon spin rotation) experiments
+Beam sources may be continuous or pulsed.  Muon detectors adequate to measure time dilation effects can be simple and inexpensive enough to be used in an undergraduate physics lab \cite{Coan2006}.
+
+The muon decay time can be very accurately calculated within the standard model given certain parameters \cite{Ritbergen1999};
+some of these parameters can in turn be derived from muon lifetime data.
+Thus the precision of the standard model is dependent on the precision to which the muon lifetime is known.
+
+%"The force on a non-relativistic particle of mass $m$, velocity $v$, charge $e$, passing through a magnetic field $B$ perpendicular to its path is given by $Bev$ in a direction perpendicular to $B$ and $v$.
+%The particle executes a circular path or radius $R$ in the field such that $Bev = mv^2/R$."  \cite{Eaton1999}
+%Thus $R = mv/Be$.
+
+In the following subsections we look at several ways of altering muon lifetimes.  Much of what is said would apply equally well to other unstable particles such as pions.  (Muons and pions are not, however, suitable for PTMS mass measurement, because their very short lifetime is not compatible with the long setup time required.)
+
 \subsection{Muonic Atoms}
 Negative muons ($\mu^-$) in matter are rapidly  ($ < 10^{-9}$ S) decelerated and bound to atomic nuclei.  In most cases ($\sim$99\%) the muon decays into the ground state $1S$ orbital.  Because the muon orbit is much smaller than any of the electron orbits, to first order we can ignore the effect of the electron charges and treat the interaction between the nucleus and the muon as a hydrogen-like atom.  The energy level is then given by the formula
 \[ E = -\frac{m_\mu}{m_e}\frac{Z^2}{1 + m_\mu/M}{\rm Ry} \]
@@ -342,11 +376,10 @@ where $Z$ is the nuclear charge, $M$ the nuclear mass, $m_\mu$ the muon mass, an
 For muonic hydrogen ($p^+\mu^-$) the predicted effect is quite small, but it increases rapidly for greater $Z$,
 reaching 1\% for potassium and 2\% for cobalt or nickel.
 
-The predicted QTD time dilations for a $\mu^-$ in antimuonium and the most common nuclides of the first 40 elements are given in Table 1.
-(The antimuonium calculation uses the formula above assuming a positron as "nucleus";
+The predicted QTD time dilations for a $\mu^-$ in antimuonium and the most common nuclides of the first 40 elements are given in Table 1.\footnote{The antimuonium calculation uses the formula above assuming a positron as "nucleus";
 this may not be completely accurate.
 The result for matter and antimatter should be equal, so the dilation for antimuonium also applies to muonium ($\mu^+e^-$),
-and gives a rough estimate of the QTD effect in typical $\mu^+$ muon spin resonance ($\mu$SR) experiments.)
+and gives a rough estimate of the QTD effect in typical $\mu^+$ muon spin resonance ($\mu$SR) experiments.}
 % Note $\frac{m_\mu}{m_e} = 206.768$
 % Note $m_\mu = 0.113428913$ amu
 % Note $m_p = 0.113428913$ amu
@@ -409,11 +442,15 @@ This dilation needs to be applied in addition to the usual special-relativistic 
 Dilations for other isotopes of an element are very close to those given, differing only in the effective-mass correction.
 
 To calculate the SR time dilation,  we first need to estimate the velocity of the muon.
-Relative to an electron, the muon is more massive, but the radius of its orbits is also smaller by the same ratio.
-(NOTE: This whole paragraph is a first attempt, and still needs checking,)
+Relative to an electron, the muon is more massive, but the radius of its orbit is also smaller by the same ratio.
+%(NOTE: This whole paragraph is a first attempt, and still needs checking,)
 To first order, these effects cancel out and the velocity of a muon in a $1S$ orbital is the same as that of a $1S$ electron orbiting the same nucleus.
-For hydrogen this gives $T_d^{SR} = (1 - v^2/c^2)^{-1/2} \approx 1.0000266$.
+For muonic hydrogen this gives $T_d^{SR} = (1 - v^2/c^2)^{1/2} \approx 0.9999734$.
 The velocity increases as $Z$ (because the binding energy increases as $Z^2$, the kinetic energy is proportional to the binding energy (the virial theorem), and the kinetic energy is (for small velocities) proportional to the velocity squared.
+All of these calculations are somewhat imprecise and make unwarranted assumptions,
+(for example, that the average of a function of the velocity is equal to the function of the average of the velocity),
+but this appears to be the "normal" method used in the literature.
+Numbers obtained in this manner are included in the table above, but should be viewed a little skeptically, especially for high $Z$.
 
 %\subsubsection{Nuclear Capture}
 For high-$Z$ nuclei, there is a significant overlap of the muon orbital with the nucleus itself,
@@ -432,17 +469,9 @@ it may be difficult to observe this due to the rapidity of capture.
 %However, for heavy nuclei $m_\mu \ll M$ so we can ignore the correction term and the energy is roughly $-207Z^2{\rm Ry}$.
 %For the heavy non-radioactive nucleus  $^{206}_{82}$Pb we predict a potential-based time dilation of about 0.82; muons would decay about 18\% slower in that situation due to this effect.  However, other possible time-dilation effects such as those due to the velocity of the muon in the orbital must also be considered, as well as any effects from the nucleus that might accelerate or retard muon decay.
 
-\section{Proposed New Experiments}
-
-In this section, we assume the time-dilation interpretation is correct.  Changes in the rate of time flow and changes in level of potential energy are therefore the same thing.  The electrons in different orbitals in the same atom must be viewed as having different time dilations, even though they span the same space and have the same (non-moving) center of reference.  Relativity shows that time is not a universal absolute, but rather depends on the position and velocity of the observer.  To this, we must now also add the energy of the observer.
-
-This is experimentally testable.  Measurable predictions include
-\begin{itemize}
-\item{}
-A charged clock, placed inside a conductive cage, will run faster when the cage is given the same polarity charge, thereby raising the energy level of the clock, and slower when the cage is given the opposite charge.
-Radioactive ions or unstable charged particles will decay faster (or slower) under similar circumstances.
-\item{}
-Likewise, their decay rate will be different on different sides of the solenoid in a magnetic Ehrenberg-Siday-Aharonov-Bohm setup even though they never encounter any field.  Although fairly weak fluxes are used in typical ESAB experiments (because only $3.9\cdot 10^{-7}$ gauss-cm$^2$ is required to rotate the electron phase by $2\pi$ \cite{Ehrenberg1949}), much stronger fields could be used to test the time dilation effect.  MRI machines with 10 tesla (= $10^5$ gauss) fields over areas greater than 100 cm$^2$ have been demonstrated, so total fluxes of $10^7$ gauss-cm$^2$ and up are quite feasible.
+\subsection{Aharonov-Bohm Effect On Muons}
+The Aharonov-Bohm effect (actually first described by  Ehrenberg and Siday \cite{Ehrenberg1949}) is a phase shift induced by a magnetic vector potential in a region of space which has zero magnetic field.
+We interpret this phase shift as an actual time dilation, and so predict that the experienced time (and hence decay rate in the laboratory frame) will be different on different sides of the solenoid in an Aharonov-Bohm setup even though the particles never encounter any field.  Although fairly weak fluxes are used in typical ESAB experiments (because only $3.9\cdot 10^{-7}$ gauss-cm$^2$ is required to rotate the electron phase by $2\pi$ \cite{Ehrenberg1949}), much stronger fields could be used to test the time dilation effect.  MRI machines with 10 tesla (= $10^5$ gauss) fields over areas greater than 100 cm$^2$ have been demonstrated, so total fluxes of $10^7$ gauss-cm$^2$ and up are quite feasible.
 
 %The wavelength of an electron accelerated through an electric field $U$ is given by
 %\[ \lambda = \frac{h}{\sqrt{2m_0eU}}\frac{1}{\sqrt{1+\frac{eU}{2m_0c^2}}}  \]
@@ -450,35 +479,6 @@ Likewise, their decay rate will be different on different sides of the solenoid 
 %An electron in a 10 kV SEM thus has wavelength $12.3\cdot 10^{-12}$ m, and a velocity 
 %of about 20\% of the speed of light (i.e. $6\cdot 10^7$ m/S), 
 %so that the time to traverse one wavelength is about $\frac{12.3\cdot 10^{-12}}{6\cdot 10^7} S \approx 2\cdot10^{-19}{\rm S}$. 
-
-\item{}
-Alternately, geometric confinement could be used to raise the energy, along lines discussed in section 3 of \cite{Allman}.
-This could be used on uncharged particles such as neutrons, while the above 2 approaches require charged particles.
-%This does not appear to have been considered by Apsel.
-However, the effect for any realistic confinement may be too small to measure.
-\end{itemize}
-
-There are many other possibilities, but these few should suffice to demonstrate that the time dilation view makes different predictions than the standard phase shift view, and that the differences are accessible to experimental test.
-
-%Of course, there remain questions about which object or particle should be considered when calculating the time dilation.  Is it, for example, an entire atom (or ion) with its nucleus and electrons taken as a whole?  Or should we, in the case of nuclear decay, only consider the nucleus?  This is an empirical question, but there is evidence that the entire atom is the proper entity.  The detection of interference fringes for large molecules such as ${\rm C}_{70}$ \cite{Arndt2001,Nairz2003} implies that such a bound collection can reasonably be viewed as having its own quantum phase as a single unified entity.  Also, such questions may sometimes be moot; at least in GR, while $\Delta E$ is dependent on the particle's mass, $\Delta E/E$ and hence $T_d$ are not.
-
-\subsection{Muon-based Experiments}
-
-The muon, with a half life of 2.197 $\mu$S \cite{Chitwood2007},
-is an attractive candidate for QTD experiments as it has the highest charge-to-mass ratio of any unstable particle.
-While muons are difficult to produce by fission, fusion, or nuclear decay, beams of muons can be generated via pion decay, and have been used e.g. to test the standard model's prediction of their anomalous magnetic moment (see \cite{Bennett2004} and its references).
-A survey of methods of muon production can be found in \cite{Eaton1999} and \cite{Heffner1984}; see also section VI of \cite{Kuno2001}.
-Beams of muons produced by pion decay are inherently 100\% polarized with spin opposite to the direction of emission (\cite{Eaton1999}, p.16).
-%, which is important for $\mu$SR (muon spin rotation) experiments
-Beam sources may be continuous or pulsed.  Muon detectors adequate to measure time dilation effects can be simple and inexpensive enough to be used in an undergraduate physics lab \cite{Coan2006}.
-
-The muon decay time can be very accurately calculated within the standard model given certain parameters \cite{Ritbergen1999};
-some of these parameters can in turn be derived from muon lifetime data.
-Thus the precision of the standard model is dependent on the precision to which the muon lifetime is known.
-
-%"The force on a non-relativistic particle of mass $m$, velocity $v$, charge $e$, passing through a magnetic field $B$ perpendicular to its path is given by $Bev$ in a direction perpendicular to $B$ and $v$.
-%The particle executes a circular path or radius $R$ in the field such that $Bev = mv^2/R$."  \cite{Eaton1999}
-%Thus $R = mv/Be$.
 
 Let's first analyze the situation for an electron.  A phase shift of $2\pi$ happens when
 \[ \Delta E\cdot t = 2\pi\hbar = h = E\cdot\Delta t \]
@@ -502,22 +502,32 @@ Thus, for that flux, we would predict a roughly 3\% increase in the decay rate o
 Larger fluxes would have larger effects.
 For large enough flux, the effect should be truly spectacular.
 
-(Note that these calculations would give silly results for the slow-time path for high enough flux; it obviously cannot end up with negative experienced time-of-flight.
-This problem is due to using the linearized weak-field approximation.  Exact calculation requires the exact formula.)
+(Note that the above method would give silly results for the slow-time path for high enough flux; it obviously cannot end up with negative experienced time-of-flight.
+This problem is due to using a linearized approximation.  Exact calculation requires the exact formula.)
 
-Note that it is not necessary to actually  interfere the two beams to measure this effect.  One could, for example, just have a single beam of muons rotating in a cyclotron ring.  A large confined and shielded flux through the ring should have a measurable effect on the decay rate of the muons; reversing the flux or the direction of rotation should reverse the effect.
+It is not necessary to actually interfere the two beams to measure this effect.  One could, for example, just have a single beam of muons rotating in a cyclotron ring.  A large confined and shielded flux through the ring should have a measurable effect on the decay rate of the muons; reversing the flux or the direction of rotation should reverse the effect.
 
-It would also be possible to simply fire a beam of muons through the center holes of one or more shielded toroidal inductors, as was done in the elegant Hitachi experiment to demonstrate the ESAB effect \cite{Tonomura1982}.  Much larger inductors with much larger fluxes would of course be desirable, but these are commercially available and relatively inexpensive.  There is no theoretical upper bound to the total encircling flux per length of muon path in this configuration, as there is no upper limit to the radial size of the inductor cores.  If we assume a core with a contained field strength of 1T \footnote{Iron saturates at 1.6T, and NdFeB permanent magnets can have fields of 1.17 to 1.48T, so 1T is a little conservative.}, and a toroidal shape with rectangular cross section (inside radius $r_i$, outside radius $r_o$, and thickness $l$), the cross-sectional area is given by $A = (r_o-r_i)\cdot l$ and the total flux would be $10^4\cdot A$ gauss-cm$^2$ with the flux per length equal to $10^4(r_o-r_i)$ gauss-cm.  The time shift per length (for a muon) is given roughly by
+It would also be possible to simply fire a beam of muons through the center hole of one or more shielded toroidal magnets, as was done in the elegant Hitachi experiment to demonstrate the AB effect \cite{Tonomura1982}, although much larger magnets with much larger fluxes would be desirable.  There is no theoretical upper bound to the total encircling flux per length of muon path in this configuration, as there is no upper limit to the radial size of the core.  If we assume a core with a contained field strength of 1T \footnote{An electromagnet made of iron saturates at 1.6T, and NdFeB permanent magnets can have fields of 1.17 to 1.48T, so 1T is a little conservative.}, and a toroidal shape with rectangular cross section (inside radius $r_i$, outside radius $r_o$, and thickness $l$), the cross-sectional area is given by $A = (r_o-r_i)\cdot l$ and the total flux would be $10^4\cdot A$ gauss-cm$^2$ with the flux per length equal to $10^4(r_o-r_i)$ gauss-cm.  The time shift per length (for a muon) is given roughly by
 \[ \frac{3.91\cdot10^{-23} {\rm S}}{3.9\cdot 10^{-7}{\rm gauss\cdot cm}^2} \cdot 10^4(r_o-r_i) {\rm gauss\cdot cm} \approx 10^{-12}(r_o-r_i)\frac{\rm S}{\rm cm}\]
 For a rather large core with $(r_o-r_i) = 1 {\rm m}$ and $l = 1 {\rm m}$ we would get a time shift of 10 nS.
 % Such a core would weigh about 25000 kg (25 metric tons).
 This has to be compared with the time of flight at fast but sub-relativistic speeds;
 at 10\% of the speed of light a particle will only spend about 33 nS passing through the toroid,
 so a time shift of 10 nS represents a 30\% increase or decrease in the time experienced by the particle..
-(Again, these are based on the linear formula and thus are slightly off.)
+(Again, these are based on a linear formula and thus are slightly off.)
 The special-relativistic time dilation at that speed is less than 1\%.
 
-\subsection{CPT Invariance}
+\subsection{Geometric Confinement}
+In theory, geometric confinement could be used to raise the energy of a particle, along lines discussed in section 3 of \cite{Allman}.
+This could be used on uncharged particles such as neutrons, while the above 2 approaches require charged particles.
+%This does not appear to have been considered by Apsel.
+However, the effect for any realistic confinement may be too small to measure.
+
+There are many other possibilities, including nuclear forces, but these few should suffice to demonstrate that quantum time dilation makes different predictions than the standard phase shift view, and that the differences are accessible to experimental test.
+
+%Of course, there remain questions about which object or particle should be considered when calculating the time dilation.  Is it, for example, an entire atom (or ion) with its nucleus and electrons taken as a whole?  Or should we, in the case of nuclear decay, only consider the nucleus?  This is an empirical question, but there is evidence that the entire atom is the proper entity.  The detection of interference fringes for large molecules such as ${\rm C}_{70}$ \cite{Arndt2001,Nairz2003} implies that such a bound collection can reasonably be viewed as having its own quantum phase as a single unified entity.  Also, such questions may sometimes be moot; at least in GR, while $\Delta E$ is dependent on the particle's mass, $\Delta E/E$ and hence $T_d$ are not.
+
+\section{CPT Invariance}
 It is often stated (e.g. in \cite{Andreev2007,Murayama2003,Sachs1987}) that the CPT theorem guarantees that particle and antiparticle masses and lifetimes are identical.
 However, this conclusion is only justified at zero potential.
 A true CPT reflection must invert all charges in the universe, which necessarily inverts all electric potentials as well.
@@ -526,7 +536,7 @@ This holds true in QTD, since the dilations for those two cases are identical.
 Thus, the CPT theorem does not contradict the QTD claim that particles and their oppositely-charged antiparticles will be time-dilated oppositely at a non-zero potential and that their masses and lifetimes will differ there.
 QTD is completely compatible with the notion of CPT invariance.
 
-\subsection{Absolute Electric Potential}
+\section{Absolute Electric Potential}
 Since a non-zero electric potential causes inverse time dilation for positive and negative particles, the lifetimes of (say) $\mu^+$ and $\mu^-$ can be used to calculate the potential.
 This means that there is a global absolute zero potential which can be detected by experiment;
 it is that point at which charged particles and antiparticles have the same mass and decay at the same rate.
@@ -682,6 +692,19 @@ M.I.T. PhD thesis 1993
 
 \bibitem{VanDyck2009}
 R.S. Van Dyck, Jr., personal communications, June 2009
+
+\bibitem{Millikan1910}
+R.A. Millikan,
+"A new modification of the cloud method of determining the elementary electrical charge and the most probable value of that charge",
+{\em Phys. Mag.} XIX 6, 209 (1910)
+
+\bibitem{Millikan1913}
+R.A. Millikan,
+"On the Elementary Electric charge and the Avogadro Constant",
+{\em Phys. Rev.} II 2, 109 (1913)
+
+\bibitem{wiki_oil}
+\url{http://en.wikipedia.org/wiki/Oil-drop_experiment}
 
 \bibitem{Tjoelker1990}
 R.L. Tjoelker,
