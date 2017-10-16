@@ -85,6 +85,7 @@ TDC_AI = 0x80		# 0b10000000
 TDC_WRITE = 0x40	# 0b01000000
 TDC_ADDRESS = 0x3F	# 0b00111111
 # TDC7201 register addresses - 8-bit
+# These can be read or written.
 TDCx_CONFIG1			= 0x00
 TDCx_CONFIG2			= 0x01
 TDCx_INT_STATUS			= 0x02
@@ -96,6 +97,8 @@ TDCx_CLOCK_CNTR_OVF_L		= 0x07
 TDCx_CLOCK_CNTR_STOP_MASK_H	= 0x08
 TDCx_CLOCK_CNTR_STOP_MASK_L	= 0x09
 # TDC7201 register addresses - 24-bit
+# These can be read but usually should not be written,
+# as they contain results of measurement or calibration.
 TDCx_TIME1			= 0x10
 TDCx_CLOCK_COUNT1		= 0x11
 TDCx_TIME2			= 0x12
@@ -112,7 +115,6 @@ TDCx_CALIBRATION2		= 0x1C
 # Note that side #1 and #2 of the chip EACH have a full set of registers!
 # Which one you are talking to depends on the chip select!
 # Within spidev, you need to close one side and then open the other to switch.
-
 
 
 # Call this at the very beginning to intialize the chip	
@@ -140,13 +142,20 @@ def init():
     GPIO.setup(OSC_ENABLE,GPIO.OUT,initial=GPIO.HIGH)
     print "TDC7201-ZAX-EVM clock started (OSC_ENABLE = high) on pin", OSC_ENABLE, "."
 
-    # At the moment we don't use TRIG1 on the RPi.
-    # It can be used to trigger other hardware.
-    #GPIO.setup(TRIG1,GPIO.IN)
-
+    # Set up TRIG1 pin to know when chip is ready to measure.
+    GPIO.setup(TRIG1,GPIO.IN)
+    print "Set TRIG1 to input on pin", TRIG1, "."
     # Set up INT1 pin for interrupt-driven reads from tdc7201.
     GPIO.setup(INT1,GPIO.IN)
     print "Set INT1 to input on pin", INT1, "."
+
+    # We're not using side #2 of the chip so far, but we wired these.
+    # Set up TRIG2 pin to know when chip is ready to measure.
+    GPIO.setup(TRIG2,GPIO.IN)
+    print "Set TRIG2 to input on pin", TRIG2, "."
+    # Set up INT2 pin for interrupt-driven reads from tdc7201.
+    GPIO.setup(INT2,GPIO.IN)
+    print "Set INT2 to input on pin", INT2, "."
 
     # much later ...
     spi = spidev.SpiDev()	# create SPI object
@@ -235,7 +244,15 @@ def init():
     result = spi.xfer2([TDCx_CONFIG2,0x00])
     print "TDC1_CONFIG2                (default 0x40):", result[1]
 
+    # Try reading a 24-bit register that might be non-zero.
+    print "Checking calibration registers."
+    result = spi.xfer2([TDCx_CALIBRATION1,0x00,0x00,0x00])
+    print "TDC1_CALIBRATION1       (default 0x000000):", result
+    result = spi.xfer2([TDCx_CALIBRATION2,0x00,0x00,0x00])
+    print "TDC1_CALIBRATION2       (default 0x000000):", result
+
     # To start measurement, need to set START_MEAS in TDCx_CONFIG1 register.
+
     #time.sleep(10)
     spi.close()
     # Turn the chip off.
