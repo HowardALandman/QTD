@@ -40,30 +40,45 @@ import time
 # but everything else has to be assigned to a GPIO pin.
 # The assignments are arbitrary but must match hardware wiring.
 # Here we use only GPIO with no "alternate function",
+#
+# ENABLE high turns chip on, ENABLE low forces complete reset.
 ENABLE = 12	# GPIO 18 = header pin 12 (arbitrary)
+#
+# OSC_ENABLE turns on the EVM's clock generator chip.
+# It is a board function, not a chip function.
+# You don't need it if you are supplying an external clock.
 OSC_ENABLE = 16	# GPIO 23 = header pin 16 (arbitrary)
-# Don't need DOUT2 if only using side #1, but assign for completenes.
-# It can be shorted to DOUT1, but lets make that a jumper
-# since the EVM brings it out separately.
-#DOUT2 = 18	# GPIO  24 = header pin 18 (arbitrary)
-# We could set up both sides of the chip, but for now only side #1.
+#
+# The TRIGx signal indicates that the converter is ready to start.
+# Typically you would either use it to directly trigger some hardware,
+# or wait for it in your processor before starting a measurement.
+# We assume the latter here, so assign a pin to it.
+# Note that measurement does not start until converter gets the START signal.
+# The INTx signal indicates that measurement has stopped.
+# This can be because of success, or timeout; you need to read INT_STATUS
+# to determine which.
 # TRIG1 and INT1 only need to be set if you are using the #1 side of chip.
 TRIG1 = 7	# GPIO  4 = header pin  7  (arbitrary)
 INT1 = 37	# GPIO 26 = header pin 37 (arbitrary)
-# GPIO 27 = header pin 13 (arbitrary)
 # TRIG2 and INT2 only need to be set if you are using the #2 side of chip.
 TRIG2 = 11	# GPIO 17 = header pin 11 (arbitrary)
 INT2 = 32	# GPIO 12 = header pin 32 (arbitrary)
-# SPI pins must NOT be set using GPIO lib.
+#
+# SPI pins are owned by spidev and must NOT be set using GPIO lib.
 SCLK = 23	# GPIO 11 = header pin 23 is hardwired for SPI0 SCLK
 CS1 = 24	# GPIO  8 = header pin 24 is hardwired for SPI0 CS0
 CS2 = 26	# GPIO  7 = header pin 26 is hardwired for SPI0 CS1
 MOSI = 19	# DIN	# GPIO 10 = header pin 19 is hardwired for SPI0 MOSI
 MISO = 21	# DOUT1	# GPIO  9 = header pin 21 is hardwired for SPI0 MISO
-## NOTE that chip CS1 and CS2 are wired to Pi3 CS0 and CS1 respectively!
-## Don't get confused and think that Pi3 CS1 drives chip CS1! It doesn't!
+# NOTE that chip CS1 and CS2 are wired to Pi3 CS0 and CS1 respectively!
+# Don't get confused and think that Pi3 CS1 drives chip CS1! It doesn't!
 # DOUT2 = MISO2 can be shorted to DOUT1 = MISO1, as long as
-# CS1 and CS2 are *NEVER* both asserted low at the same time.
+# CS1 and CS2 are *NEVER* both asserted low at the same time
+# but I'm not sure what spidev does about that, so leave it separate.
+# The EVM brings it out separately.
+# Note that we CANNOT read side #2 of the chip in this configuration.
+# Don't need DOUT2 if only using side #1, but assign for completenes.
+#DOUT2 = 18	# GPIO  24 = header pin 18 (arbitrary)
 
 # TDC bit masks
 TDC_AI = 0x80		# 0b10000000
