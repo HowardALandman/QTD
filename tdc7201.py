@@ -21,7 +21,6 @@ import RPi.GPIO as GPIO
 import spidev
 import time
 import sys
-import pdb
 
 # Map of EVM board header pinout.
 # "." means No Connect, parentheses mean probably optional.
@@ -110,6 +109,10 @@ class TDC7201(spidev.SpiDev):
     # needs to be soldered into the EVM board at TP10, and the GPIO
     # needs to be declared.
     START = 18	# GPIO 24 = header pin 18 (arbitrary)
+    # For STOP, there is no space on the EVM.
+    # Testing STOP requires a connector on the support board,
+    # wired to the RPi. (Or a real signal.)
+    STOP = 22	# GPIO 25 = header pin 22 (arbitrary)
 
     # SPI pins are owned by spidev and must NOT be set using GPIO lib.
     SCLK = 23	# GPIO 11 = header pin 23 is hardwired for SPI0 SCLK
@@ -298,6 +301,8 @@ class TDC7201(spidev.SpiDev):
 
 	GPIO.setup(self.START,GPIO.OUT,initial=GPIO.LOW)
 	print "Set START to output (low) on pin", self.START, "."
+	GPIO.setup(self.STOP,GPIO.OUT,initial=GPIO.LOW)
+	print "Set STOP to output (low) on pin", self.STOP, "."
 
     def off(self):
 	GPIO.output(self.ENABLE,GPIO.LOW)
@@ -314,7 +319,7 @@ class TDC7201(spidev.SpiDev):
 	self.write8(self.CONFIG1, cf1_state)
 	# Read it back to make sure.
 	result = self.read8(self.CONFIG1)
-	print self.REGNAME[self.CONFIG1], ":", hex(result)
+	print self.REGNAME[self.CONFIG1], ":", result, "=", hex(result), "=", bin(result)
 	if (result != cf1_state):
 	    print "Couldn't set CONFIG1."
 	    tdc.close()
@@ -325,20 +330,20 @@ class TDC7201(spidev.SpiDev):
 	self.write8(self.CONFIG2, cf2_state)
 	# Read it back to make sure.
 	result = self.read8(self.CONFIG2)
-	print self.REGNAME[self.CONFIG2], ":", hex(result)
+	print self.REGNAME[self.CONFIG2], ":", result, "=", hex(result), "=", bin(result)
 	if (result != cf2_state):
 	    print "Couldn't set CONFIG2."
 	    tdc.close()
 	    sys.exit()
 	# Set STOP mask to skip a STOP pulse immediately after a START.
-	sm = 0x10
-	self.write8(self.CLOCK_CNTR_STOP_MASK_L, sm)
-	result = self.read8(self.CLOCK_CNTR_STOP_MASK_L)
-	print self.REGNAME[self.CLOCK_CNTR_STOP_MASK_L], ":", result
-	if (result != sm):
-	    print "Couldn't set CLOCK_CNTR_STOP_MASK_L."
-	    tdc.close()
-	    sys.exit()
+	#sm = 0x01
+	#self.write8(self.CLOCK_CNTR_STOP_MASK_L, sm)
+	#result = self.read8(self.CLOCK_CNTR_STOP_MASK_L)
+	#print self.REGNAME[self.CLOCK_CNTR_STOP_MASK_L], ":", result
+	#if (result != sm):
+	#    print "Couldn't set CLOCK_CNTR_STOP_MASK_L."
+	#    tdc.close()
+	#    sys.exit()
 
     def write8(self,reg,val):
 	assert (reg >= self.MINREG8) and (reg <= self.MAXREG8)
@@ -393,20 +398,16 @@ class TDC7201(spidev.SpiDev):
     # Check if we got any pulses and calculate the TOFs.
     def compute_TOFs(self):
 	print "Computing TOFs."
-	if self.spi_broken():
-	    return
+	#if self.spi_broken():
+	#    return
         # Check measurement mode.
-	#pdb.set_trace()
-	print type(self.reg1)
-	print type(self.reg1[self.CONFIG1]), self.reg1[self.CONFIG1]
-	print type(self._CF1_MEAS_MODE), self._CF1_MEAS_MODE
-	print type(self.reg1[self.CONFIG1] & self._CF1_MEAS_MODE)
-	#self.mode = (self.reg1[self.CONFIG1] & self._CF1_MEAS_MODE) >> 1
-	self.mode = self.reg1[self.CONFIG1] & self._CF1_MEAS_MODE
-	assert (self.mode == self._CF1_MM2)	# We only know MM2 so far.
+	#self.meas_mode = (self.reg1[self.CONFIG1] & self._CF1_MEAS_MODE) >> 1
+	self.meas_mode = self.reg1[self.CONFIG1] & self._CF1_MEAS_MODE
+	assert (self.meas_mode == self._CF1_MM2)	# We only know MM2 so far.
+	#assert (self.meas_mode == 1)
 	print "Measurement mode 2"
-	if self.spi_broken():
-	    return
+	#if self.spi_broken():
+	#    return
 	# Determine number of calibration periods.
 	cal_per_code = self.reg1[self.CONFIG2] & self._CF2_CALIBRATION_PERIODS
 	if (cal_per_code == self._CF2_CAL_PERS_40):
@@ -418,28 +419,38 @@ class TDC7201(spidev.SpiDev):
 	else:	# == _CF2_CAL_PERS_2
 		self.cal_pers = 2
 	print "Calibration periods:", self.cal_pers
-	if self.spi_broken():
-	    return
+	#if self.spi_broken():
+	#    return
 	self.calCount = (self.reg1[self.CALIBRATION2] - self.reg1[self.CALIBRATION1]) / (self.cal_pers -1)
 	print "calCount:", self.calCount
-	if self.spi_broken():
-	    return
+	#if self.spi_broken():
+	#    return
 	if (self.calCount == 0):
 	    print "No calibration, therefore can't compute timing."
 	    return	# No calibration, therefore can't compute timing.
 	self.normLSB = self.clockPeriod / self.calCount
 	print "clockPeriod:", self.clockPeriod
 	print "normLSB:", self.normLSB
-	if self.spi_broken():
-	    return
+	#if self.spi_broken():
+	#    return
 	pulses = 0
 	if (self.reg1[self.TIME2] == 0) and (self.reg1[self.CLOCK_COUNT1] == 0):
 	    # No first pulse = no pulses at all.
 	    print "No pulses detected."
 	    return
 	else:
-	    self.TOF1 = sel.nomLSB*(self.reg1[self.TIME1]-self.reg1[self.TIME2]) + self.reg1[self.CLOCK_COUNT1]*self.clockPeriod
+	    self.TOF1 = self.normLSB*(self.reg1[self.TIME1]-self.reg1[self.TIME2]) + self.reg1[self.CLOCK_COUNT1]*self.clockPeriod
 	    print "TOF1 =", self.TOF1
+	    pulses += 1
+	if (self.reg1[self.TIME3] == 0) and (self.reg1[self.CLOCK_COUNT2] == 0):
+	    return
+	else:
+	    self.TOF2 = self.normLSB*(self.reg1[self.TIME2]-self.reg1[self.TIME3]) + self.reg1[self.CLOCK_COUNT2]*self.clockPeriod
+	    print "TOF2 =", self.TOF2
+	    pulses += 1
+        print pulses, "pulses detected"
+	if (pulses >= 2):
+	    print "Decay time =", (self.TOF2 - self.TOF1)
 
     def clear_status(self):
 	print "Trying to clear interrupt status."
@@ -486,13 +497,13 @@ class TDC7201(spidev.SpiDev):
 	    print "ERROR: INT1 is active (low)!"
 	    return
 	# Last chance to check registers before sending START pulse?
-	if self.spi_broken():
-	    return
+	#if self.spi_broken():
+	#    return
 	#print tdc.REGNAME[tdc.CONFIG1], ":", hex(tdc.read8(tdc.CONFIG1))
 	#print tdc.REGNAME[tdc.CONFIG2], ":", hex(tdc.read8(tdc.CONFIG2))
 	# We got a trigger, so issue a START pulse.
 	GPIO.output(self.START,GPIO.HIGH)
-	time.sleep(0.000001)
+	#time.sleep(0.000001)
 	GPIO.output(self.START,GPIO.LOW)
 	print "Generated START pulse."
 	#if GPIO.input(self.INT1):
@@ -510,14 +521,17 @@ class TDC7201(spidev.SpiDev):
 	    return
 	else:
 	    print "TRIG1 fell as expected."
-	# DELETE THIS LATER!
-	# Send a second pulse (to both START and STOP)
-	# to see if we can get away with that.
+	# Send two STOP pulses.
 	#time.sleep(0.0001)
-	#GPIO.output(self.START,GPIO.HIGH)
+	GPIO.output(self.STOP,GPIO.HIGH)
 	#time.sleep(0.000001)
-	#GPIO.output(self.START,GPIO.LOW)
-	#print "Generated second pulse."
+	GPIO.output(self.STOP,GPIO.LOW)
+	#print "Generated first STOP pulse."
+	#time.sleep(0.0001)
+	GPIO.output(self.STOP,GPIO.HIGH)
+	#time.sleep(0.000001)
+	GPIO.output(self.STOP,GPIO.LOW)
+	#print "Generated second STOP pulse."
 	#if GPIO.input(self.INT1):
 	#    print "INT1 is inactive (high) as expected."
 	#else:
@@ -533,19 +547,19 @@ class TDC7201(spidev.SpiDev):
 	    return
 	else:
 	    print "Got measurement-complete interrupt."
-	if self.spi_broken():
-	    return
+	#if self.spi_broken():
+	#    return
 	# Read everything in and see what we got.
 	print "Reading chip side #1 register state:"
 	self.read_regs1()
-	if self.spi_broken():
-	    return
+	#if self.spi_broken():
+	#    return
 	self.print_regs1()
-	if self.spi_broken():
-	    return
+	#if self.spi_broken():
+	#    return
 	self.compute_TOFs()
-	if self.spi_broken():
-	    return
+	#if self.spi_broken():
+	#    return
 	meas_end = time.time()
 	print "Measurement took", meas_end-meas_start, "S."
 	#self.clear_status()	# clear interrupts
@@ -560,12 +574,30 @@ print "SPI interface started to tdc7201 side 1."
 # Check all SPI settings.
 print "Default SPI settings:"
 print "SPI bits per word (should be 8):", tdc.bits_per_word
+if (tdc.bits_per_word != 8):
+    print "Setting bits per word to 8"
+    tdc.bits_per_word = 8
 print "SPI chip select high? (should be False):", tdc.cshigh
+if (tdc.cshigh):
+    print "Setting chip selects to active low"
+    tdc.cshigh = False
 print "SPI loopback? (should be False):", tdc.loop
+if (tdc.loop):
+    print "Setting loopback to False"
+    tdc.loop = False
 print "SPI LSB-first? (should be False):", tdc.lsbfirst
+if (tdc.lsbfirst):
+    print "Setting bit order to MSB-first"
+    tdc.lsbfirst = False
 print "SPI default clock speed:", tdc.max_speed_hz
-print "SPI mode (CPOL|CPHA):", tdc.mode
+print "SPI mode (CPOL|CPHA) (should be 0b00):", tdc.mode
+if (tdc.mode != 0):
+    print "Setting polarity and phase to normal"
+    tdc.mode = 0
 print "SPI threewire? (should be False):", tdc.threewire
+if (tdc.threewire):
+    print "Setting 3-wire to False"
+    tdc.threewire = False
 
 # Setting and checking clock speed.
 # 25 MHz is max for the chip, but probably Rpi can't set that exactly.
@@ -623,16 +655,15 @@ print "Setting measurement mode 2 with forced calibration."
 tdc.write8(tdc.CONFIG1, tdc._CF1_FORCE_CAL | tdc._CF1_MM2)
 # Read it back to make sure.
 result = tdc.read8(tdc.CONFIG1)
-print tdc.REGNAME[tdc.CONFIG1], ":", hex(result)
+print tdc.REGNAME[tdc.CONFIG1], ":", result, "=", hex(result), "=", bin(result)
 # Change calibration periods from 2 to 40, and two stops.
 print "Setting 40-clock-period calibration and 2 stop pulses."
-#tdc.write8(tdc.CONFIG2, 0xC1)
 tdc.write8(tdc.CONFIG2, tdc._CF2_CAL_PERS_40 | tdc._CF2_NSTOP_2)
 # Read it back to make sure.
 result = tdc.read8(tdc.CONFIG2)
-#print "TDC1_CONFIG2                (default 0x40):", result[1]
-print tdc.REGNAME[tdc.CONFIG2], ":", hex(result)
+print tdc.REGNAME[tdc.CONFIG2], ":", result, "=", hex(result), "=", bin(result)
 # Set STOP mask to skip a STOP pulse immediately after a START.
+print "Ignoring STOP pulses for N cycles after START pulse:"
 tdc.write8(tdc.CLOCK_CNTR_STOP_MASK_L, 0x10)
 result = tdc.read8(tdc.CLOCK_CNTR_STOP_MASK_L)
 print tdc.REGNAME[tdc.CLOCK_CNTR_STOP_MASK_L], ":", result
