@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # Support for the Texas Instruments tdc7201 time-to-digital converter chip.
 # Web page: http://www.ti.com/product/tdc7201
@@ -37,7 +37,8 @@ import sys
 
 
 # Try defining a class for the chip as a subclass of SpiDev
-class TDC7201(spidev.SpiDev):
+#class TDC7201(spidev.SpiDev):
+class TDC7201():
     # Chip registers and a few combinations of registers
     REGNAME = [	"CONFIG1",			# 0x00
 		"CONFIG2",			# 0x01
@@ -254,13 +255,47 @@ class TDC7201(spidev.SpiDev):
     clockFrequency = 8000000		# usually 8 MHz, though 16 is better
     clockPeriod = 1.0 / clockFrequency	# usually 125 nS
 
+    _minSPIspeed = 50000
+    _maxSPIspeed = 25000000
+
 
     def __init__(self):
-        spidev.SpiDev.__init__(self)
-        #self.max_speed_hz = 1953125	# raises an IOError !?
         # Instance variables
+        self._spi = spidev.SpiDev()
         self.reg1 = [None for i in range(self.MAXREG24+1)]
         #self.reg2 = [None for i in range(self.MAXREG24+1)]
+	# Open SPI to side 1 of the chip
+	# Later we should write routines 
+        self._spi.open(0,0)	# Open SPI port 0, RPi CS0 = chip CS1.
+        self.chip_select = 1
+        #print("SPI interface started to tdc7201 side 1.")
+        # Check all SPI settings.
+        #print("Default SPI settings:")
+        #print("SPI bits per word (should be 8):", self._spi.bits_per_word)
+        if (self._spi.bits_per_word != 8):
+            print("Setting bits per word to 8")
+            self._spi.bits_per_word = 8
+        #print("SPI chip select high? (should be False):", self._spi.cshigh)
+        if (self._spi.cshigh):
+            print("Setting chip selects to active low")
+            self._spi.cshigh = False
+        #print("SPI loopback? (should be False):", self._spi.loop)
+        if (self._spi.loop):
+            print("Setting loopback to False")
+            self._spi.loop = False
+        #print("SPI LSB-first? (should be False):", self._spi.lsbfirst)
+        if (self._spi.lsbfirst):
+            print("Setting bit order to MSB-first")
+            self._spi.lsbfirst = False
+        #print("SPI default clock speed:", self._spi.max_speed_hz)
+        #print("SPI mode (CPOL|CPHA) (should be 0b00):", self._spi.mode)
+        if (self._spi.mode != 0):
+            print("Setting polarity and phase to normal")
+            self._spi.mode = 0
+        #print("SPI threewire? (should be False):", self._spi.threewire)
+        if (self._spi.threewire):
+            print("Setting 3-wire to False")
+            self._spi.threewire = False
 
     def initGPIO(self):
         GPIO.setmode(GPIO.BOARD)	# Use header pin numbers, not GPIO numbers.
@@ -324,7 +359,7 @@ class TDC7201(spidev.SpiDev):
         #print(self.REGNAME[self.CONFIG1], ":", result, "=", hex(result), "=", bin(result))
         if (result != cf1_state):
             print("Couldn't set CONFIG1.")
-            tdc.close()
+            self._spi.close()
             sys.exit()
         # Change calibration periods from 2 to 40, and two stops.
         print("Setting 40-clock-period calibration and 2 stop pulses.")
@@ -335,7 +370,7 @@ class TDC7201(spidev.SpiDev):
         #print(self.REGNAME[self.CONFIG2], ":", result, "=", hex(result), "=", bin(result))
         if (result != cf2_state):
             print("Couldn't set CONFIG2.")
-            tdc.close()
+            self._spi.close()
             sys.exit()
         # Set STOP mask to skip a STOP pulse immediately after a START.
         #sm = 0x01
@@ -344,21 +379,21 @@ class TDC7201(spidev.SpiDev):
         #print(self.REGNAME[self.CLOCK_CNTR_STOP_MASK_L], ":", result)
         #if (result != sm):
         #    print("Couldn't set CLOCK_CNTR_STOP_MASK_L.")
-        #    tdc.close()
+        #    self._spi.close()
         #    sys.exit()
 
     def write8(self,reg,val):
         assert (reg >= self.MINREG8) and (reg <= self.MAXREG8)
-        result = self.xfer([reg|self._WRITE, val&0xFF])
+        result = self._spi.xfer([reg|self._WRITE, val&0xFF])
 
     def read8(self,reg):
         assert (reg >= self.MINREG8) and (reg <= self.MAXREG8)
-        result = self.xfer([reg, 0x00])
+        result = self._spi.xfer([reg, 0x00])
         return result[1]
 
     def read24(self,reg):
         assert (reg >= self.MINREG24) and (reg <= self.MAXREG24)
-        result = self.xfer([reg, 0x00, 0x00, 0x00])
+        result = self._spi.xfer([reg, 0x00, 0x00, 0x00])
         # data is MSB-first
         return (result[1] << 16) | (result[2] << 8) | result[3]
 
@@ -458,7 +493,7 @@ class TDC7201(spidev.SpiDev):
         cf1 = self.read8(self.CONFIG1)
         # Check it's not already set.
         if (cf1 & self._CF1_START_MEAS):
-            print("CONFIG1 already has START_MEAS bit set.")
+            print("ERROR: CONFIG1 already has START_MEAS bit set.")
             return
         print("Starting measurement.")
         self.write8(self.CONFIG1,cf1|self._CF1_START_MEAS)
@@ -469,7 +504,7 @@ class TDC7201(spidev.SpiDev):
         if GPIO.input(self.TRIG1):
             print("Got trigger, issuing start.")
         else:
-            print("Timed out waiting for trigger to rise.")
+            print("ERROR: Timed out waiting for trigger to rise.")
             return
         # Check that INT1 is inactive (high) as expected.
         if GPIO.input(self.INT1):
@@ -536,56 +571,34 @@ class TDC7201(spidev.SpiDev):
         print("Measurement took", meas_end-meas_start, "S.")
         #self.clear_status()	# clear interrupts
 
+    def set_SPI_clock_speed(self,speed):
+        # Lower than this may work but is kind of silly.
+        if (speed < self._minSPIspeed):
+            print("WARNING: SPI clock speed", speed, "is too low, using", self._minSPIspeed, "instead.")
+            speed = self._minSPIspeed
+        # 25 MHz is max for the chip, but probably Rpi can't set that exactly.
+        # Highest RPi option below that may 15.6 MHz.
+        if (speed > self._maxSPIspeed):
+            print("WARNING: SPI clock speed", speed, "is too high, using", self._maxSPIspeed, "instead.")
+            speed = self._maxSPIspeed
+        print("Setting SPI clock speed to", speed/1000000, "MHz.")
+        self._spi.max_speed_hz = speed
+
 # much later ...
 #tdc = tdc7201.TDC7201()
 tdc = TDC7201()	# Create TDC object with SPI interface.
 tdc.initGPIO()	# Set pin directions and default values for non-SPI signals.
-tdc.open(0,0)	# Open SPI port 0, RPi CS0 = chip CS1.
-print("SPI interface started to tdc7201 side 1.")
-
-# Check all SPI settings.
-#print("Default SPI settings:")
-#print("SPI bits per word (should be 8):", tdc.bits_per_word)
-if (tdc.bits_per_word != 8):
-    print("Setting bits per word to 8")
-    tdc.bits_per_word = 8
-#print("SPI chip select high? (should be False):", tdc.cshigh)
-if (tdc.cshigh):
-    print("Setting chip selects to active low")
-    tdc.cshigh = False
-#print("SPI loopback? (should be False):", tdc.loop)
-if (tdc.loop):
-    print("Setting loopback to False")
-    tdc.loop = False
-#print("SPI LSB-first? (should be False):", tdc.lsbfirst)
-if (tdc.lsbfirst):
-    print("Setting bit order to MSB-first")
-    tdc.lsbfirst = False
-#print("SPI default clock speed:", tdc.max_speed_hz)
-#print("SPI mode (CPOL|CPHA) (should be 0b00):", tdc.mode)
-if (tdc.mode != 0):
-    print("Setting polarity and phase to normal")
-    tdc.mode = 0
-#print("SPI threewire? (should be False):", tdc.threewire)
-if (tdc.threewire):
-    print("Setting 3-wire to False")
-    tdc.threewire = False
 
 # Setting and checking clock speed.
-# 25 MHz is max for the chip, but probably Rpi can't set that exactly.
-# Highest option below that is 15.6 MHz.
-tdc.max_speed_hz = 1000000
-#tdc.max_speed_hz = 8000000
-spi_clk_speed_MHz = tdc.max_speed_hz / 1000000
-print("Setting SPI clock speed to", spi_clk_speed_MHz, "MHz.")
+tdc.set_SPI_clock_speed(1000000)
 print("")
 
 # Internal timing
-print("UNIX time settings:")
-print("Epoch (time == 0):", time.asctime(time.gmtime(0)))
+#print("UNIX time settings:")
+#print("Epoch (time == 0):", time.asctime(time.gmtime(0)))
 now = time.time()
-print("Time since epoch in seconds:", now)
-print("Current time (UTC):", time.asctime(time.gmtime(now)))
+#print("Time since epoch in seconds:", now)
+#print("Current time (UTC):", time.asctime(time.gmtime(now)))
 print("Current time (local):", time.asctime(time.localtime(now)), time.strftime("%Z"))
 #print("Time since reset asserted:", now - reset_start)
 time.sleep(0.1)	# ensure a reasonable reset time
@@ -615,7 +628,7 @@ tdc.print_regs1()
 #    clear_mask += 1
 #if (tdc.reg1[tdc.INT_STATUS]):
 #    print("Failed to clear interrupt status:", tdc.reg1[tdc.INT_STATUS])
-#    #tdc.close()
+#    #tdc._spi.close()
 #    #sys.exit()
 
 # Then try setting all the right modes, and reading state again
@@ -642,16 +655,12 @@ tdc.measure()
 # Read it back to make sure.
 tdc.read_regs1()
 tdc.print_regs1()
-#tdc.off()
 time.sleep(1)
-#tdc.on()
 tdc.measure()
-
-#time.sleep(10)
 
 # Close SPI.
 print("Closing SPI.")
-tdc.close()
+tdc._spi.close()
 # Turn the chip off.
 print("Turning off chip.")
 GPIO.output(tdc.ENABLE,GPIO.LOW)
