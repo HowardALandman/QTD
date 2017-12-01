@@ -220,11 +220,11 @@ class TDC7201(spidev.SpiDev):
     # INT_MASK register bit masks
     # Upper 5 bits are reserved.
     # Is the clock counter overflow enabled?
-    IM_CLOCK_OVF	= 0b00000100
+    _IM_CLOCK_OVF	= 0b00000100
     # Is the coarse counter overflow enabled?
-    IM_COARSE_OVF	= 0b00000010
+    _IM_COARSE_OVF	= 0b00000010
     # Is the measurement complete interrupt enabled?
-    IM_INTERRUPT	= 0b00000001
+    _IM_INTERRUPT	= 0b00000001
     #
     # TDC7201 register addresses - 24-bit
     # These can be read but usually should not be written,
@@ -265,13 +265,14 @@ class TDC7201(spidev.SpiDev):
     def initGPIO(self):
         GPIO.setmode(GPIO.BOARD)	# Use header pin numbers, not GPIO numbers.
         GPIO.setwarnings(False) 
-        print("Initializing Paspberry Pi pin directions for tdc7201 driver.")
+        #print("Initializing Raspberry Pi pin directions for tdc7201 driver.")
+        print("Initializing tdc7201 driver.")
 
         # Initialize the ENABLE pin to low, which resets the tdc7201.
         GPIO.setup(self.ENABLE,GPIO.OUT,initial=GPIO.LOW)
         # We need to hold reset for a bit, so remember when we started.
         reset_start = time.time()
-        print("Reset asserted (ENABLE = low) on pin", self.ENABLE, ".")
+        #print("Reset asserted (ENABLE = low) on pin", self.ENABLE, ".")
 
         # Both chip selects must start out HIGH (inactive).
         # Not sure we can do that through GPIO lib though.
@@ -283,27 +284,27 @@ class TDC7201(spidev.SpiDev):
         # Start the on-board clock generator running.
         # May not be necessary if you supply an external clock.
         GPIO.setup(self.OSC_ENABLE,GPIO.OUT,initial=GPIO.HIGH)
-        print("Clock started (OSC_ENABLE = high) on pin", self.OSC_ENABLE, ".")
+        #print("Clock started (OSC_ENABLE = high) on pin", self.OSC_ENABLE, ".")
 
         # Set up TRIG1 pin to know when chip is ready to measure.
         GPIO.setup(self.TRIG1,GPIO.IN)
-        print("Set TRIG1 to input on pin", self.TRIG1, ".")
+        #print("Set TRIG1 to input on pin", self.TRIG1, ".")
         # Set up INT1 pin for interrupt-driven reads from tdc7201.
         GPIO.setup(self.INT1,GPIO.IN)
-        print("Set INT1 to input on pin", self.INT1, ".")
+        #print("Set INT1 to input on pin", self.INT1, ".")
 
         # We're not using side #2 of the chip so far, but we wired these.
         # Set up TRIG2 pin to know when chip is ready to measure.
         GPIO.setup(self.TRIG2,GPIO.IN)
-        print("Set TRIG2 to input on pin", self.TRIG2, ".")
+        #print("Set TRIG2 to input on pin", self.TRIG2, ".")
         # Set up INT2 pin for interrupt-driven reads from tdc7201.
         GPIO.setup(self.INT2,GPIO.IN)
-        print("Set INT2 to input on pin", self.INT2, ".")
+        #print("Set INT2 to input on pin", self.INT2, ".")
 
         GPIO.setup(self.START,GPIO.OUT,initial=GPIO.LOW)
-        print("Set START to output (low) on pin", self.START, ".")
+        #print("Set START to output (low) on pin", self.START, ".")
         GPIO.setup(self.STOP,GPIO.OUT,initial=GPIO.LOW)
-        print("Set STOP to output (low) on pin", self.STOP, ".")
+        #print("Set STOP to output (low) on pin", self.STOP, ".")
 
     def off(self):
         GPIO.output(self.ENABLE,GPIO.LOW)
@@ -320,7 +321,7 @@ class TDC7201(spidev.SpiDev):
         self.write8(self.CONFIG1, cf1_state)
         # Read it back to make sure.
         result = self.read8(self.CONFIG1)
-        print(self.REGNAME[self.CONFIG1], ":", result, "=", hex(result), "=", bin(result))
+        #print(self.REGNAME[self.CONFIG1], ":", result, "=", hex(result), "=", bin(result))
         if (result != cf1_state):
             print("Couldn't set CONFIG1.")
             tdc.close()
@@ -331,7 +332,7 @@ class TDC7201(spidev.SpiDev):
         self.write8(self.CONFIG2, cf2_state)
         # Read it back to make sure.
         result = self.read8(self.CONFIG2)
-        print(self.REGNAME[self.CONFIG2], ":", result, "=", hex(result), "=", bin(result))
+        #print(self.REGNAME[self.CONFIG2], ":", result, "=", hex(result), "=", bin(result))
         if (result != cf2_state):
             print("Couldn't set CONFIG2.")
             tdc.close()
@@ -386,29 +387,15 @@ class TDC7201(spidev.SpiDev):
         for r in range(self.MINREG24,self.MAXREG24+1):
             print(self.REGNAME[r], self.reg1[r])
 
-    def spi_broken(self):
-        r1 = tdc.read8(tdc.CONFIG1)
-        r2 = tdc.read8(tdc.CONFIG2)
-        if (r1 == r2):
-            print("SPI broken", r1, r2)
-            return True
-        else:
-            print("SPI OK", r1, r2)
-            return False
-
     # Check if we got any pulses and calculate the TOFs.
     def compute_TOFs(self):
         print("Computing TOFs.")
-        #if self.spi_broken():
-        #    return
         # Check measurement mode.
         #self.meas_mode = (self.reg1[self.CONFIG1] & self._CF1_MEAS_MODE) >> 1
         self.meas_mode = self.reg1[self.CONFIG1] & self._CF1_MEAS_MODE
         assert (self.meas_mode == self._CF1_MM2)	# We only know MM2 so far.
         #assert (self.meas_mode == 1)
         print("Measurement mode 2")
-        #if self.spi_broken():
-        #    return
         # Determine number of calibration periods.
         cal_per_code = self.reg1[self.CONFIG2] & self._CF2_CALIBRATION_PERIODS
         if (cal_per_code == self._CF2_CAL_PERS_40):
@@ -420,20 +407,14 @@ class TDC7201(spidev.SpiDev):
         else:	# == _CF2_CAL_PERS_2
             self.cal_pers = 2
         print("Calibration periods:", self.cal_pers)
-        #if self.spi_broken():
-        #    return
         self.calCount = (self.reg1[self.CALIBRATION2] - self.reg1[self.CALIBRATION1]) / (self.cal_pers -1)
         print("calCount:", self.calCount)
-        #if self.spi_broken():
-        #    return
         if (self.calCount == 0):
             print("No calibration, therefore can't compute timing.")
             return	# No calibration, therefore can't compute timing.
         self.normLSB = self.clockPeriod / self.calCount
         print("clockPeriod:", self.clockPeriod)
         print("normLSB:", self.normLSB)
-        #if self.spi_broken():
-        #    return
         pulses = 0
         if (self.reg1[self.TIME2] == 0) and (self.reg1[self.CLOCK_COUNT1] == 0):
             # No first pulse = no pulses at all.
@@ -498,8 +479,6 @@ class TDC7201(spidev.SpiDev):
             print("ERROR: INT1 is active (low)!")
             return
         # Last chance to check registers before sending START pulse?
-        #if self.spi_broken():
-        #    return
         #print(tdc.REGNAME[tdc.CONFIG1], ":", hex(tdc.read8(tdc.CONFIG1)))
         #print(tdc.REGNAME[tdc.CONFIG2], ":", hex(tdc.read8(tdc.CONFIG2)))
         # We got a trigger, so issue a START pulse.
@@ -548,19 +527,11 @@ class TDC7201(spidev.SpiDev):
             return
         else:
             print("Got measurement-complete interrupt.")
-        #if self.spi_broken():
-        #    return
         # Read everything in and see what we got.
         print("Reading chip side #1 register state:")
         self.read_regs1()
-        #if self.spi_broken():
-        #    return
         self.print_regs1()
-        #if self.spi_broken():
-        #    return
         self.compute_TOFs()
-        #if self.spi_broken():
-        #    return
         meas_end = time.time()
         print("Measurement took", meas_end-meas_start, "S.")
         #self.clear_status()	# clear interrupts
@@ -573,29 +544,29 @@ tdc.open(0,0)	# Open SPI port 0, RPi CS0 = chip CS1.
 print("SPI interface started to tdc7201 side 1.")
 
 # Check all SPI settings.
-print("Default SPI settings:")
-print("SPI bits per word (should be 8):", tdc.bits_per_word)
+#print("Default SPI settings:")
+#print("SPI bits per word (should be 8):", tdc.bits_per_word)
 if (tdc.bits_per_word != 8):
     print("Setting bits per word to 8")
     tdc.bits_per_word = 8
-print("SPI chip select high? (should be False):", tdc.cshigh)
+#print("SPI chip select high? (should be False):", tdc.cshigh)
 if (tdc.cshigh):
     print("Setting chip selects to active low")
     tdc.cshigh = False
-print("SPI loopback? (should be False):", tdc.loop)
+#print("SPI loopback? (should be False):", tdc.loop)
 if (tdc.loop):
     print("Setting loopback to False")
     tdc.loop = False
-print("SPI LSB-first? (should be False):", tdc.lsbfirst)
+#print("SPI LSB-first? (should be False):", tdc.lsbfirst)
 if (tdc.lsbfirst):
     print("Setting bit order to MSB-first")
     tdc.lsbfirst = False
-print("SPI default clock speed:", tdc.max_speed_hz)
-print("SPI mode (CPOL|CPHA) (should be 0b00):", tdc.mode)
+#print("SPI default clock speed:", tdc.max_speed_hz)
+#print("SPI mode (CPOL|CPHA) (should be 0b00):", tdc.mode)
 if (tdc.mode != 0):
     print("Setting polarity and phase to normal")
     tdc.mode = 0
-print("SPI threewire? (should be False):", tdc.threewire)
+#print("SPI threewire? (should be False):", tdc.threewire)
 if (tdc.threewire):
     print("Setting 3-wire to False")
     tdc.threewire = False
@@ -603,10 +574,10 @@ if (tdc.threewire):
 # Setting and checking clock speed.
 # 25 MHz is max for the chip, but probably Rpi can't set that exactly.
 # Highest option below that is 15.6 MHz.
-print("Setting SPI clock speed to 1 MHz.")
 tdc.max_speed_hz = 1000000
-#print("Setting SPI clock speed to 8 MHz.")
 #tdc.max_speed_hz = 8000000
+spi_clk_speed_MHz = tdc.max_speed_hz / 1000000
+print("Setting SPI clock speed to", spi_clk_speed_MHz, "MHz.")
 print("")
 
 # Internal timing
@@ -628,8 +599,6 @@ time.sleep(0.1)	# Wait 100 mS for chip to settle and calibrate
                 # Data sheet says only 1.5 mS required.
                 # SPI available sooner, but we're not in a hurry.
 
-#if tdc.spi_broken():
-#    pass
 # For now, try reading the entire register state just to make sure we can.
 print("Reading chip side #1 register state:")
 tdc.read_regs1()
