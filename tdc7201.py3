@@ -20,7 +20,10 @@ import RPi.GPIO as GPIO
 # print("GPIO version =", GPIO.VERSION)
 import spidev
 import time
+# sys for exit()
 import sys
+# random for creating stimuli for testing
+import random
 
 # Map of EVM board header pinout.
 # "." means No Connect, parentheses mean probably optional.
@@ -36,8 +39,6 @@ import sys
 #      (DIN) 10  30 .		          . 31	11 .
 
 
-# Try defining a class for the chip as a subclass of SpiDev
-#class TDC7201(spidev.SpiDev):
 class TDC7201():
     # Chip registers and a few combinations of registers
     REGNAME = [	"CONFIG1",			# 0x00
@@ -106,9 +107,10 @@ class TDC7201():
     # separately through START_EXT1 and START_EXT2 SMA connectors,
     # or together through the COMMON_START SMA connector.
     # If you want to drive one of these from the RPi, then the
-    # MSP_START signal needs to be wired up, a PCB mount SMA connector
-    # needs to be soldered into the EVM board at TP10, and the GPIO
-    # needs to be declared.
+    # MSP_START signal needs to be wired up to TP10, a PCB mount SMA connector
+    # needs to be soldered into the EVM board at TP10, you need to put
+    # a cable from TP10 to one of the START SMA connectors mentioned above,
+    # and the GPIO needs to be declared.
     START = 18	# GPIO 24 = header pin 18 (arbitrary)
     # For STOP, there is no space on the EVM.
     # Testing STOP requires a connector on the support board,
@@ -215,7 +217,7 @@ class TDC7201():
     # Did the coarse counter overflow?
     _IS_COARSE_OVF		= 0b00000010
     # Was an interrupt generated?
-    # May be identical information to IS_COMPLETE.
+    # May be identical information to _IS_COMPLETE.
     _IS_INTERRUPT		= 0b00000001
     #
     # INT_MASK register bit masks
@@ -342,14 +344,19 @@ class TDC7201():
         #print("Set STOP to output (low) on pin", self.STOP, ".")
 
     def off(self):
+        if self.chip_select:
+            self._spi.close()
+            self.chip_select = 0
         GPIO.output(self.ENABLE,GPIO.LOW)
         time.sleep(0.1)
 
     def on(self):
+	# Turn on chip enable.
         GPIO.output(self.ENABLE,GPIO.HIGH)
-        time.sleep(0.01)# Wait 10 mS for chip to settle and calibrate
-                        # Data sheet says only 1.5 mS required.
-                        # SPI available sooner, but we're not in a hurry.
+	# Wait 10 mS for chip to settle.
+        # Data sheet says only 1.5 mS required, and
+        # SPI available sooner, but we're not in a hurry.
+        time.sleep(0.01)
         # Set measurement mode 2.
         print("Setting measurement mode 2 with forced calibration.")
         cf1_state = self._CF1_FORCE_CAL | self._CF1_MM2
@@ -422,15 +429,19 @@ class TDC7201():
         for r in range(self.MINREG24,self.MAXREG24+1):
             print(self.REGNAME[r], self.reg1[r])
 
+    def tof_mm2(self,time1,time2,count):
+        if (self.reg1[time2] or self.reg1[count]):
+            return self.normLSB*(self.reg1[time1]-self.reg1[time2]) + self.reg1[count]*self.clockPeriod
+        else:
+            return 0
+
     # Check if we got any pulses and calculate the TOFs.
     def compute_TOFs(self):
         print("Computing TOFs.")
         # Check measurement mode.
-        #self.meas_mode = (self.reg1[self.CONFIG1] & self._CF1_MEAS_MODE) >> 1
         self.meas_mode = self.reg1[self.CONFIG1] & self._CF1_MEAS_MODE
         assert (self.meas_mode == self._CF1_MM2)	# We only know MM2 so far.
-        #assert (self.meas_mode == 1)
-        print("Measurement mode 2")
+        #print("Measurement mode 2")
         # Determine number of calibration periods.
         cal_per_code = self.reg1[self.CONFIG2] & self._CF2_CALIBRATION_PERIODS
         if (cal_per_code == self._CF2_CAL_PERS_40):
@@ -441,30 +452,26 @@ class TDC7201():
             self.cal_pers = 10
         else:	# == _CF2_CAL_PERS_2
             self.cal_pers = 2
-        print("Calibration periods:", self.cal_pers)
+        #print("Calibration periods:", self.cal_pers)
         self.calCount = (self.reg1[self.CALIBRATION2] - self.reg1[self.CALIBRATION1]) / (self.cal_pers -1)
-        print("calCount:", self.calCount)
+        #print("calCount:", self.calCount)
         if (self.calCount == 0):
             print("No calibration, therefore can't compute timing.")
             return	# No calibration, therefore can't compute timing.
         self.normLSB = self.clockPeriod / self.calCount
-        print("clockPeriod:", self.clockPeriod)
-        print("normLSB:", self.normLSB)
+        #print("clockPeriod:", self.clockPeriod)
+        #print("normLSB:", self.normLSB)
         pulses = 0
-        if (self.reg1[self.TIME2] == 0) and (self.reg1[self.CLOCK_COUNT1] == 0):
-            # No first pulse = no pulses at all.
-            print("No pulses detected.")
-            return
-        else:
-            self.TOF1 = self.normLSB*(self.reg1[self.TIME1]-self.reg1[self.TIME2]) + self.reg1[self.CLOCK_COUNT1]*self.clockPeriod
-            print("TOF1 =", self.TOF1)
-            pulses += 1
-        if (self.reg1[self.TIME3] == 0) and (self.reg1[self.CLOCK_COUNT2] == 0):
-            return
-        else:
-            self.TOF2 = self.normLSB*(self.reg1[self.TIME2]-self.reg1[self.TIME3]) + self.reg1[self.CLOCK_COUNT2]*self.clockPeriod
-            print("TOF2 =", self.TOF2)
-            pulses += 1
+        self.TOF1 = self.tof_mm2(self.TIME1,self.TIME2,self.CLOCK_COUNT1)
+        pulses += bool(self.TOF1)
+        self.TOF2 = self.tof_mm2(self.TIME2,self.TIME3,self.CLOCK_COUNT2)
+        pulses += bool(self.TOF2)
+        self.TOF3 = self.tof_mm2(self.TIME3,self.TIME4,self.CLOCK_COUNT3)
+        pulses += bool(self.TOF3)
+        self.TOF4 = self.tof_mm2(self.TIME4,self.TIME5,self.CLOCK_COUNT4)
+        pulses += bool(self.TOF4)
+        self.TOF5 = self.tof_mm2(self.TIME5,self.TIME6,self.CLOCK_COUNT5)
+        pulses += bool(self.TOF5)
         print(pulses, "pulses detected")
         if (pulses >= 2):
             print("Decay time =", (self.TOF2 - self.TOF1))
@@ -536,17 +543,12 @@ class TDC7201():
             return
         else:
             print("TRIG1 fell as expected.")
-        # Send two STOP pulses.
-        #time.sleep(0.0001)
-        GPIO.output(self.STOP,GPIO.HIGH)
-        #time.sleep(0.000001)
-        GPIO.output(self.STOP,GPIO.LOW)
-        #print("Generated first STOP pulse.")
-        #time.sleep(0.0001)
-        GPIO.output(self.STOP,GPIO.HIGH)
-        #time.sleep(0.000001)
-        GPIO.output(self.STOP,GPIO.LOW)
-        #print("Generated second STOP pulse.")
+        # Send 0 to 6 STOP pulses. FOR TESTING ONLY.
+        threshold = 1.0/6.0
+        for p in range(6):
+            if random.random() < threshold:
+                GPIO.output(self.STOP,GPIO.HIGH)
+                GPIO.output(self.STOP,GPIO.LOW)
         #if GPIO.input(self.INT1):
         #    print("INT1 is inactive (high) as expected.")
         #else:
@@ -658,10 +660,7 @@ tdc.print_regs1()
 time.sleep(1)
 tdc.measure()
 
-# Close SPI.
-print("Closing SPI.")
-tdc._spi.close()
 # Turn the chip off.
 print("Turning off chip.")
-GPIO.output(tdc.ENABLE,GPIO.LOW)
+tdc.off()
 
