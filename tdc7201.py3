@@ -358,7 +358,7 @@ class TDC7201():
         # SPI available sooner, but we're not in a hurry.
         time.sleep(0.01)
         # Set measurement mode 2.
-        print("Setting measurement mode 2 with forced calibration.")
+        #print("Setting measurement mode 2 with forced calibration.")
         cf1_state = self._CF1_FORCE_CAL | self._CF1_MM2
         self.write8(self.CONFIG1, cf1_state)
         # Read it back to make sure.
@@ -369,7 +369,7 @@ class TDC7201():
             self._spi.close()
             sys.exit()
         # Change calibration periods from 2 to 40, and two stops.
-        print("Setting 40-clock-period calibration and 2 stop pulses.")
+        #print("Setting 40-clock-period calibration and 2 stop pulses.")
         cf2_state = self._CF2_CAL_PERS_40 | self._CF2_NSTOP_2
         self.write8(self.CONFIG2, cf2_state)
         # Read it back to make sure.
@@ -437,7 +437,7 @@ class TDC7201():
 
     # Check if we got any pulses and calculate the TOFs.
     def compute_TOFs(self):
-        print("Computing TOFs.")
+        #print("Computing TOFs.")
         # Check measurement mode.
         self.meas_mode = self.reg1[self.CONFIG1] & self._CF1_MEAS_MODE
         assert (self.meas_mode == self._CF1_MM2)	# We only know MM2 so far.
@@ -472,9 +472,18 @@ class TDC7201():
         pulses += bool(self.TOF4)
         self.TOF5 = self.tof_mm2(self.TIME5,self.TIME6,self.CLOCK_COUNT5)
         pulses += bool(self.TOF5)
-        print(pulses, "pulses detected")
+        log_line = "P " + str(pulses)
         if (pulses >= 2):
-            print("Decay time =", (self.TOF2 - self.TOF1))
+            log_line += " "
+            log_line += str(self.TOF2 - self.TOF1)
+        if (pulses >= 3):
+            log_line += " "
+            log_line += str(self.TOF3 - self.TOF2)
+        if (pulses >= 2):
+            print(log_line)
+        #print(pulses, "pulses detected")
+        #if (pulses >= 2):
+        #    print("Decay time =", (self.TOF2 - self.TOF1))
 
     def clear_status(self):
         print("Trying to clear interrupt status.")
@@ -491,7 +500,8 @@ class TDC7201():
         meas_start = time.time()
         # Check GPIO state doesn't indicate a measurement is happening.
         if (not GPIO.input(self.INT1)):
-            print("WARNING: INT1 already active (low).")
+            #print("WARNING: INT1 already active (low).")
+            pass
         if (GPIO.input(self.TRIG1)):
             print("ERROR: TRIG1 already active (high).")
             return
@@ -502,14 +512,15 @@ class TDC7201():
         if (cf1 & self._CF1_START_MEAS):
             print("ERROR: CONFIG1 already has START_MEAS bit set.")
             return
-        print("Starting measurement.")
+        #print("Starting measurement.")
         self.write8(self.CONFIG1,cf1|self._CF1_START_MEAS)
         # Wait for TRIG1. This is inefficient, but OK for now.
         timeout = time.time() + 0.1	#Don't wait longer than a tenth of a second.
         while (not GPIO.input(self.TRIG1)) and (time.time() < timeout):
             pass
         if GPIO.input(self.TRIG1):
-            print("Got trigger, issuing start.")
+            #print("Got trigger, issuing start.")
+            pass
         else:
             print("ERROR: Timed out waiting for trigger to rise.")
             return
@@ -527,7 +538,7 @@ class TDC7201():
         GPIO.output(self.START,GPIO.HIGH)
         #time.sleep(0.000001)
         GPIO.output(self.START,GPIO.LOW)
-        print("Generated START pulse.")
+        #print("Generated START pulse.")
         #if GPIO.input(self.INT1):
         #    #print("INT1 is inactive (high) as expected.")
         #    pass
@@ -542,7 +553,8 @@ class TDC7201():
             print("Timed out waiting for trigger to fall.")
             return
         else:
-            print("TRIG1 fell as expected.")
+            #print("TRIG1 fell as expected.")
+            pass
         # Send 0 to 6 STOP pulses. FOR TESTING ONLY.
         threshold = 1.0/6.0
         for p in range(6):
@@ -563,14 +575,15 @@ class TDC7201():
             print("Timed out waiting for INT1.")
             return
         else:
-            print("Got measurement-complete interrupt.")
+            #print("Got measurement-complete interrupt.")
+            pass
         # Read everything in and see what we got.
-        print("Reading chip side #1 register state:")
+        #print("Reading chip side #1 register state:")
         self.read_regs1()
-        self.print_regs1()
+        #self.print_regs1()
         self.compute_TOFs()
         meas_end = time.time()
-        print("Measurement took", meas_end-meas_start, "S.")
+        #print("Measurement took", meas_end-meas_start, "S.")
         #self.clear_status()	# clear interrupts
 
     def set_SPI_clock_speed(self,speed):
@@ -593,7 +606,7 @@ tdc.initGPIO()	# Set pin directions and default values for non-SPI signals.
 
 # Setting and checking clock speed.
 tdc.set_SPI_clock_speed(1000000)
-print("")
+#print("")
 
 # Internal timing
 #print("UNIX time settings:")
@@ -615,9 +628,9 @@ time.sleep(0.1)	# Wait 100 mS for chip to settle and calibrate
                 # SPI available sooner, but we're not in a hurry.
 
 # For now, try reading the entire register state just to make sure we can.
-print("Reading chip side #1 register state:")
+#print("Reading chip side #1 register state:")
 tdc.read_regs1()
-tdc.print_regs1()
+#tdc.print_regs1()
 
 # If INT_STATUS is not zero, we still have state from last measurement.
 # Try to clear it.
@@ -636,29 +649,30 @@ tdc.print_regs1()
 # Then try setting all the right modes, and reading state again
 # to make sure it all happened.
 # Set measurement mode 2.
-print("Setting measurement mode 2 with forced calibration.")
+#print("Setting measurement mode 2 with forced calibration.")
 tdc.write8(tdc.CONFIG1, tdc._CF1_FORCE_CAL | tdc._CF1_MM2)
 # Read it back to make sure.
 result = tdc.read8(tdc.CONFIG1)
-print(tdc.REGNAME[tdc.CONFIG1], ":", result, "=", hex(result), "=", bin(result))
+#print(tdc.REGNAME[tdc.CONFIG1], ":", result, "=", hex(result), "=", bin(result))
 # Change calibration periods from 2 to 40, and two stops.
-print("Setting 40-clock-period calibration and 2 stop pulses.")
+#print("Setting 40-clock-period calibration and 2 stop pulses.")
 tdc.write8(tdc.CONFIG2, tdc._CF2_CAL_PERS_40 | tdc._CF2_NSTOP_2)
 # Read it back to make sure.
 result = tdc.read8(tdc.CONFIG2)
-print(tdc.REGNAME[tdc.CONFIG2], ":", result, "=", hex(result), "=", bin(result))
+#print(tdc.REGNAME[tdc.CONFIG2], ":", result, "=", hex(result), "=", bin(result))
 # Set STOP mask to skip a STOP pulse immediately after a START.
-print("Ignoring STOP pulses for N cycles after START pulse:")
+#print("Ignoring STOP pulses for N cycles after START pulse:")
 tdc.write8(tdc.CLOCK_CNTR_STOP_MASK_L, 0x10)
 result = tdc.read8(tdc.CLOCK_CNTR_STOP_MASK_L)
-print(tdc.REGNAME[tdc.CLOCK_CNTR_STOP_MASK_L], ":", result)
+#print(tdc.REGNAME[tdc.CLOCK_CNTR_STOP_MASK_L], ":", result)
 
-tdc.measure()
+for m in range(1000):
+    tdc.measure()
 # Read it back to make sure.
-tdc.read_regs1()
-tdc.print_regs1()
-time.sleep(1)
-tdc.measure()
+#tdc.read_regs1()
+#tdc.print_regs1()
+#time.sleep(1)
+#tdc.measure()
 
 # Turn the chip off.
 print("Turning off chip.")
