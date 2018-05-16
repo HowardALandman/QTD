@@ -1,0 +1,1427 @@
+
+\documentclass[12pt]{amsart}
+\usepackage{geometry} % see geometry.pdf on how to lay out the page. There's lots.
+\geometry{a4paper} % or letter or a5paper or ... etc
+% \geometry{landscape} % rotated page geometry
+\usepackage{url}
+\usepackage{amsthm}
+
+% See the ``Article customise'' template for come common customisations
+
+   % The amssymb package provides \mathbb and other
+   % math symbols.  The amsmath package provides sophisticated math
+   % constructions.  The amsthm package provides \theoremstyle and
+   % the \proof environment.
+   %
+   % The amsmath and amsthm packages are automatically activated by
+   % \documentclass{amsart}, so there is no need to activate them here.
+
+      \usepackage{amssymb}
+
+   % Next we use \newtheorem to specify our theorem-like environments
+   % (theorem, definition, etc.) and how to display and number them.
+   %
+   % Note: The \theoremstyle declarations affect the appearance of the
+   % Theorems, Definitions, etc.
+
+      \theoremstyle{plain}
+      \newtheorem{theorem}{Theorem}[section]
+      \newtheorem{lemma}[theorem]{Lemma}
+      \newtheorem{corollary}[theorem]{Corollary}
+      
+      \theoremstyle{definition}
+      \newtheorem{definition}[theorem]{Definition}
+      
+      \theoremstyle{remark}
+      \newtheorem{remark}[theorem]{Remark}
+
+   % The preamble is also a good place to define new commands and macros.
+   % This part of the preamble is strictly optional according to your taste.
+
+      \newcommand{\R}{{\mathbb R}}
+      \newcommand{\nil}{\varnothing}
+
+   % The following mysterious maneuver gets rid of AMS junk at the top
+   % and bottom of the first page.
+   
+      \makeatletter
+      \def\@setcopyright{}
+      \def\serieslogo@{}
+      \makeatother
+
+
+\title{An Elementary Approach to\\Quantum Time Dilation.}
+\author{Howard A. Landman}
+\date{v3.0\ \today} % delete this line to display the current date
+
+%%% BEGIN DOCUMENT
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+We present several arguments pointing towards a possible time dilation associated with the weak, strong, and electromagnetic potentials,
+similar to the well-known gravitational time dilation of General Relativity.
+This notion provides simple and direct links between GR and basic Quantum Mechanics.
+Although a fairly complete and detailed theory with these exact properties was published by Apsel three decades ago,
+it has been largely ignored and many objections to it have been made.
+We show that most of these objections are obviously wrong, and that the remainder are less certain than they might appear.
+
+Regardless of the truth or falsity of the theory, we show that it makes definite predictions and is readily and inexpensively testable,
+and propose that such tests be performed.
+\end{abstract}
+
+\tableofcontents
+
+%In General Relativity, clocks at different heights in a gravitational potential run at different rates, with higher ones running faster.
+%In Quantum Mechanics, particles at different energy levels rotate their quantum phase at different rates, with the higher-energy one rotating faster.
+%We propose here that these two phenomena are the same; that the phase oscillation of a particle can be viewed as its local clock,
+%and that changes in phase frequency correspond to actual time dilations.
+%We further demonstrate that the stationary time dilations predicted by QM and GR are identical.
+%This elementary static theory of Quantum Time Dilation (QTD) leads us directly to predictions very similar to those made by an earlier dynamical theory by D. Apsel,
+%which we discuss in historical context.
+%Both theories predict that the lifetime of a muon will be affected by an electrostatic potential, and are therefore easily testable with relatively inexpensive equipment.
+
+\section{The Unfinished Program of General Relativity}
+
+To set the context, it will be helpful to review the history of General Relativity and attempts at unified theories.
+
+Before relativity, Heaviside had attempted to unify Newtonian gravity with EM in his theory of Gravitomagnetism\cite{Heaviside1893}.
+While GM had problems, and was rendered obsolescent by relativity theory,
+it contained many interesting ideas and novel non-Newtonian predictions, such as measurable effects near rotating massive bodies.
+In this sense, it can be viewed as an early glimpse of the kind of torsional GR effects measured by Gravity Probe B.
+It is also worth noting that a revised and updated version of GM,
+with fewer obvious problems, has been developed by Jefimenko\cite{Jefimenko1992};
+this line of thought has not completely died out.
+
+Between 1915-1917, when GR was first published in more-or-less final form, and the early 1930s, many people tried to find theories uniting GR with classical EM.
+Analyzing this massive body of work is far beyond the scope of the present article;
+even a book-length review\cite{Vizgin1994} was only able to cover some of the principal theories from this period.
+One of the more famous attempts\cite{Weyl1922}, by H. Weyl, introduced the concept of gauge invariance,
+which was crucial to many later developments.
+Weyl wrote:
+\begin{quote}
+\ldots\ as the fact of the propagation of action and of the existence of rigid bodies leads us to found the affine on the {\em metrical} character of the world which lies a grade lower, it immediately suggests itself to us, not only to identify the co-efficients of the quadratic groundform $g_{ik}dx_{i}dx_{k}$ with the potentials of the gravitational field, but also to identify {\bf the co-efficients of the linear groundform $\phi_{i}dx_{i}$ with the electromagnetic potentials.}
+\ldots\ We thus arrive at the inference:
+{\bf The world is a $(3+1)$-dimensional metrical manifold; all physical field-phenomena are expressions of the metrics of the world.}\cite[p.283]{Weyl1922}
+\end{quote}
+None of these Unified Geometrized Theories (UGTs) was entirely successful; the problem was harder than people thought.
+Both the triumphant development of Quantum Mechanics in 1925-27,
+and the discovery of new elementary particles and the weak and strong forces a few years later,
+made GR-EM unification seem increasingly irrelevant.
+%The end of this period was marked by a talk given by Weyl (who himself had developed a UGT which didn't work).
+%Weyl argued passionately that any successful unification would have to not be classical, but include QM.
+
+For most working physicists from then on, GR was considered to be a theory of gravitation only, with little or no relevance for other phenomena.
+Only a handful of researchers, including Einstein and Schr\"{o}dinger, felt otherwise.
+In their view, the program of GR would not be complete until all forces had been geometrized:
+%Schr\"{o}dinger's view of General Relativity anticipates gravitation and other forces all being treated as equally geometric.
+%He writes
+\begin{quote}
+the conception Einstein put forward in 1915 embraced from the outset \ldots\ every kind of dynamical interaction, not just gravitation only.
+\ldots\ the very foundation of the theory, viz. the basic principle of equivalence and a gravitational field,
+clearly means that there is no room for any kind of 'force' to produce acceleration save gravitation,
+which however is not to be regarded as a force but resides on the geometry of space-time.
+Thus in fact, though not always in the wording, the mystic concept of force is wholly abandoned.
+\ldots\ we are in patent need of field-laws for the matter-tensor
+(e.g. for the electromagnetic field), laws that one would also like to conceive as purely geometrical restrictions on the structure of space-time.\cite{Schrodinger1950}
+\end{quote}
+
+Our first argument for electromagnetic (and weak, and strong) time dilation, while admittedly vague and qualitative, follows from this viewpoint.
+We assume that such a unified geometrized theory can be formulated, with GR as a limiting case.
+Such a theory would presumably treat each force somewhat similarly.
+Since we know that there is a time dilation associated with the gravitational potential,
+it would be reasonable to expect a similar time dilation to be associated with each of the other potentials.
+
+The mainstream view is that in GR only gravity needs to be geometrized; other forces do not.
+For example, S. Carroll writes
+\begin{quote}
+in GR, gravity is represented by the curvature of space-time, not by a force.
+From the GR point of view, ``particles move along geodesics, until forces knock them off.''
+Gravity doesn't count as a force.
+If you consider the motion of particles under the influence of forces other than gravity, then they won’t move along geodesics\cite[p.14]{Carroll2001}.
+\end{quote}
+This is diametrically opposed to the Einstein-Schr\"odinger position.
+
+
+\section{Time dilation and gravitation in GR}
+
+It is easy to show that in general relativity, for slow-moving objects that are not close to a black hole,
+almost all of the acceleration of gravity is due to time dilation.\cite{Hamza2015,TongGR,Nordebo2016,TerzicPHYS652}
+For example, the Schwarzchild metric is:
+\[ ds^2 = -(1-2GM/r)c^2dt^2 + (1 - 2GM/r)^{-1}dr^2 + r^2d\Omega^2 \]
+and if we take the weak-field limit ($2GM/r$ is small)
+and non-relativistic limit ($|dr/dt| << c$) we get
+\[ ds^2 \approx -c^2dt^2 + dr^2 + r^2d\Omega^2 + 2\phi(r)c^2dt^2 \]
+where $\phi(r) = GM/r$ is the Newtonian gravitational potential.
+The first three terms are just the flat-space metric of special relativity,
+so all of the curvature is in the time dimension;
+yet the geodesics in this metric reproduce Newtonian gravitational dynamics.
+So the traditional notion that gravity causes time dilation has it precisely backwards;
+to a very good approximation, time dilation causes gravity.
+
+Thus we have a concrete example of a mass-induced time dilation gradient presenting itself as a $1/r^2$ "force".
+It therefore seems plausible that a similar charge-induced time dilation could present itself as the EM "force", which is also $1/r^2$.
+Note, however, that any extension of GR to cover EM requires substantially different geometry.
+Since positive and negative particles move in different directions under the influence of an electric field,
+such a theory cannot have GR-style geodesics that are the same for all particles.
+
+
+\section{Phase frequency as local clock: linking GR and QM}
+The argument above are of course very unsatisfactory by themselves.
+They make no quantitative predictions, and gives no hint of how to begin unifying GR with quantum theory.
+Fortunately, elementary considerations afford us some further insights into this problem.
+In GR, clocks deeper in a gravitational potential run slower.
+In QM, particles deeper in an electric potential have lower phase frequency.
+To make the analogy more precise is not difficult.
+
+In GR the time dilation is normally given as a function of position within a gravitational potential, while in QM the phase shift is normally given as a function of the energy of a bound wave function.  To compare them, we need to put them into common terms.  We choose to do this by considering position in terms of energy, and phase shift in terms of time.
+
+%\subsection{Time Dilation in a Uniform Gravitational Field: The Weak-Field Approximation}
+\subsection{Time Dilation in a Uniform Gravitational Field}
+\subsubsection{The Weak-Field Approximation}
+
+It is sufficient for our present purposes to consider only the simplest case of a uniform gravitational field with strength $g$.
+The time dilation $T_d(h)$ between two observers at heights $h$ and $0$ is often given by the weak-field approximation\footnote{
+For a derivation see e.g. \cite[section 48]{Lawden1982}.
+This approximation is only valid for $gh \ll c^2$, and has various problems that we will discuss in the next subsection.
+}
+\[ T_d(h) \equiv \frac{t_h}{t_0} \approx 1 + \frac{gh}{c^2} \]
+where $t_h$ and $t_0$ are the times at the two observers.
+Since we only use the ratio of $t_h$ to $t_0$,
+it does not matter much whether we consider them to be the instantaneous rate of time flow at each observer,
+or the total elapsed time measured on each clock for some experiment with synchronized start and end times.\footnote{
+We assume that it is possible for stationary observers to synchronize their clocks and to measure time intervals with a synchronized beginning and end.  This is obviously true if, for example, we accept the notion of simultaneity presented by Einstein in 1907
+(\cite{Einstein1907}, see also \cite{Schwartz1977} and chapter 7 of \cite{Jammer2006}).
+This involves the assumption that the speed of light is isotropic.
+There is some question about the correctness of this assumption (see e.g. the discussion in \cite{Soler2006} or \cite{Klauber1998}),
+but for the present purposes we can assume that all observers are arranged in a single vertical line
+and all light paths follow that geodesic.
+This eliminates the possibility of the Sagnac effect and other global topological anisotropies.
+For a general proof of the validity of synchronization in any stationary spacetime, see \cite[section 9.2]{Rindler2001}.)
+}
+The dimensionless ratio is the same in either case.
+
+For a particle of mass $m$, the energy difference between the positions of the two observers  is $\Delta E = mgh$,
+the amount of work required to raise the mass from the lower observer to the upper one.
+Thus the energy of the particle at height $0$ is $E_0 = E = mc^2$, the energy equivalent of the mass $m$, and at height $h$ (as seen from height $0$) is $E_h = E + \Delta E$.
+We can thus rewrite the previous equation as
+\[ T_d \approx 1 + \frac{mgh}{mc^2} = 1 + \frac{\Delta E}{E} = \frac{E + \Delta E}{E} = \frac{E_h}{E_0} \]
+Thus we have that
+\[  \frac{t_h}{t_0} \approx \frac{E_h}{E_0} \]
+The ratio of energies equals the ratio of times.
+This is the relation between time dilation and energy in GR.
+However, the derivation is only valid for $\Delta E \ll E$.
+
+%\subsection{Time Dilation in a Uniform Gravitational Field: The Exact Solution}
+\subsubsection{The Exact Solution}
+
+The linear approximation given above has severe problems in the limit of large $h$ or strong $g$.
+First, two observers at different heights should predict the same relative time dilation between themselves
+\[ T_d(h)\cdot T_d(-h) = \frac{t_h}{t_0}\cdot\frac{t_{-h}}{t_0} = \frac{t_h}{t_0}\cdot\frac{t_0}{t_h} = 1 \]
+But for the linear formula, we have
+\[ T_d(h) = 1 + \frac{gh}{c^2} \]
+and
+\[ T_d(-h) = 1 - \frac{gh}{c^2} \]
+so that
+\[ T_d(h)\cdot T_d(-h) = \left(1 + \frac{gh}{c^2}\right)\left(1 - \frac{gh}{c^2}\right) = 1 - \frac{g^2h^2}{c^4} \neq 1 \]
+
+More generally, if we have three observers at heights $0$, $a$, and $a+b$, each of them must correctly predict the time dilation between the other two.  That is, we require that
+\[ T_d(a+b) = T_d(a)\cdot T_d(b) \]
+for all $a$ and $b$.  But the linear formula fails this as well.
+
+Finally, the formula gives absurd results for $h < -\frac{c^2}{g}$.
+The upper observer predicts that time should be flowing in opposite directions for the two observers, but the lower one does not.
+There is a kind of "event horizon" at $h = -\frac{c^2}{g}$ where time stops\footnote{
+A uniform gravitational field is locally equivalent to an actual acceleration in flat spacetime.
+For this situation, in the SR literature the event horizon is known as the {\em Rindler Horizon}
+%and is often taken quite seriously
+(see e.g. \cite{wikiRindler,Egan2006,Xiang2001,Culetu2006}).
+%However this is fundamentally incorrect.
+},
+but this is purely an artifact of the approximation and has no basis in reality.
+
+%An exact solution to the time dilation $T_d(h)$ at height $h$ in a uniform field $g$ must have the following properties:
+%\begin{enumerate}
+%\item It must be continuous and differentiable.
+%(In fact we expect, but do not {\em a priori} require, it to be $C_\infty$.)
+%\item $T_d(h) \approx 1 + \frac{gh}{c^2}$ for small $h$; the approximate formula is valid near $h=0$.
+%In particular, $T_d(0) = 1$; two observers at the same height see the same time.
+%\item $T_d(a+b) = T_d(a)\cdot T_d(b)$ Time dilation must be consistent across multiple observers at different heights.
+%In particular, $T_d(h)\cdot T_d(-h) = T_d(h-h) =T_d(0) = 1$.
+%\end{enumerate}
+%From the above we can readily see that for small $\delta$
+%\[ T_d(h+\delta) = T_d(h)\cdot T_d(\delta) = T_d(h)\cdot (1 + \frac{g\delta}{c^2}) \]
+%and, taking a limit as $\delta\rightarrow 0$ in the usual way to find the derivative
+%\[ \frac{dT_d(h)}{dh} = \lim_{\delta\rightarrow 0} \frac{T_d(h+\delta) - T_d(h)}{\delta}  = \frac{g}{c^2}\cdot T_d(h) \]
+%we get a differential equation with the solution
+The exponential equation
+\[ T_d(h) = e^{gh/c^2} \]
+%It is easy to confirm that this function satisfies conditions (1)-(3) and that there is no event horizon or other discontinuity of any kind\footnote{
+%We can compute the time required for a photon at any negative height to reach an observer at height 0.
+%The distance between the photon and the observer changes at the local speed of light,
+%which is just $c$ times the time dilation, so that $\frac{dh}{dt} = cT_d = ce^{gh/c^2}$.
+%If the photon starts at $h = -h_0$ and ends at $h = 0$ then the total time is just
+%\[ t_{h_0} = \int_{-h_0}^{0}\frac{dt}{dh}dh = \int_{-h_0}^{0}\frac{1}{c}e^{-gh/c^2}dh  = -\frac{c}{g}\int_{-h_0}^{0}-\frac{g}{c^2}e^{-gh/c^2}dh \]
+%\[ = -\frac{c}{g}\left(e^0 - e^{gh_0/c^2}\right) = \frac{c}{g}\left(e^{gh_0/c^2}-1\right) \]
+%so that for the ``horizon'' at $h_0 = c^2/g$ we get a travel time of $c(e-1)/g$, which is clearly finite.
+%Horizon-based calculations give this as infinite.
+%
+%Since we are claiming that the Rindler Horizon does not exist, we are also claiming that the mathematical derivations of it are flawed.
+%It thus behooves us to find and explain the flaw in such derivations.
+%
+%We assume all travel is along the $x$ axis (i.e. a 1-dimensional problem) for simplicity.
+%We also assume a set of mutually-stationary inertial frames spaced at equal intervals $d$ along the axis,
+%each with its own clock, and all clocks synchronized to each other.
+%(This can easily be done by Einstein synchronization if there are only a finite number of them.)
+%At time $t=0$ a light flash is fired in the positive $x$ direction from $x=0$.
+%Also at $t=0$, a spaceship begins accelerating with uniform proper acceleration $a$ at location $x = c^2/a$.
+%(This puts the light exactly on the spaceship's Rindler horizon.)
+%Obviously, in the inertial frames, the light is traveling at speed $c$ and will pass a new frame every $d/c$ seconds.
+%Also, by special relativity
+%}.
+is the well-known unique exact solution for the uniform field\footnote{
+It is e.g. equation 1.11 in \cite{Rindler2001}; see also chapter 9 of that work.
+The derivation there is more general and applies to any stationary potential, not just a uniform one.
+}.
+The weak-field approximation is just the tangent line to this at $h = 0$.
+
+At first it might appear that the simple relation given in the previous section needs to be modified.
+However, the formula $\Delta E = mgh$ depends on the assumption that the mass $m$ does not change as we raise it.
+If we consider the mass to include the potential energy, so that a particle gets heavier as we raise it, and lighter as we lower it, 
+then by an argument similar to that just given, we can conclude that the mass and energy depend exponentially on height
+\[ m_h = m_0e^{gh/c^2} \]
+\[ E_h = m_0c^2e^{gh/c^2} \]
+
+A further confirmation of this comes observing that, if we have 3 observers at heights $a$, $b$, and $c$, the time dilations among them must be logically consistent.  By definition,
+\[ T_d(c-b) \equiv t_c/t_b \]
+\[ T_d(c-a) \equiv t_c/t_a \]
+\[ T_d(b-a) \equiv t_b/t_a \]
+So that the relation 
+\[ T_d(c-a) = T_d(c-b) \cdot T_d(b-a) \]
+must hold for any exact solution.
+The exponential formula satisfies this, but the linear one does not.
+
+The exact relationship then becomes
+\[ \frac{t_h}{t_0} \equiv T_d(h) = e^{gh/c^2} = \frac{m_h}{m_0} = \frac{E_h}{E_0} \]
+so that it is still the case that
+\[ \frac{t_h}{t_0} = \frac{E_h}{E_0} \]
+even using the exact equations.
+This relationship is thus shown to be valid everywhere.
+
+\subsection{Quantum Phase Shift}
+
+Standing wave solutions to the Schr\"{o}dinger equation with energy $E$ oscillate phase as $e^{-iEt/\hbar}$.
+%Absolute phase appears impossible to measure and may in fact have no physical meaning whatsoever; however, relative phase can be easily observed through various interference experiments.
+For different energy levels of identical particles, higher energy will cause the wave function to rotate phase more rapidly.
+Labeling the energy levels $h$ and $0$ as before and defining $\Delta E \equiv E_h - E_0$, we get a relative phase shift
+\[ \Delta\phi(t) = {-i\Delta Et/\hbar} \]
+
+A shift in phase can be produced by a shift in time.  If we set the phase shift due to $\Delta E$ to be equal to the phase shift due to a time delay $\Delta t$,
+\[ {-i(E + \Delta E)t /\hbar} = {-iE(t + \Delta t)/\hbar} \]
+we get that
+\[ \Delta E\cdot t = E\cdot\Delta t \]
+or
+\[ \frac{\Delta t}{t} = \frac{\Delta E}{E} \]
+so that, arbitrarily choosing $E_0$ as our reference level, we get
+\[ \frac{t_h}{t_0} = \frac{t_0+\Delta t}{t_0} = 1 + \frac{\Delta t}{t_0} = 1 + \frac{\Delta E}{E_0} = \frac{E_0 + \Delta E}{E_0} = \frac{E_h}{E_0} \]
+which is the same equation arrived at in the previous section.
+
+An alternate path to the same result starts with de Broglie's original equation relating frequency to mass (Eq. 1.1.5 in \cite{deBroglie1925})
+\[ h\nu_0 = m_0c^2 \]
+where $E_0 = m_0c^2$ is the rest mass energy as above.
+%(More recent detailed particle models such as \cite{Hestenes2008} are also consistent with this view.)
+Then the energy ratio equals the frequency ratio which, by definition, equals the time dilation:
+\[ \frac{E_h}{E_0} = \frac{\nu_h}{\nu_0} = \frac{t_h}{t_0} \]
+
+In summary, it appears entirely reasonable to view the phase shift as being due solely to time dilation,
+with the particle's phase oscillation {\em being} its local clock.
+We call this viewpoint Quantum Time Dilation (QTD).
+%Indeed, any other interpretation seems problematic.
+%On the one hand, it is quite obvious that any time dilation must affect all vibrational frequencies in direct proportion to the dilation.
+%On the other, phase rotation seems to be the only deterministic clock-like attribute that elementary particles possess.
+
+There is, of course, one other (non-deterministic, statistical) property of some elementary particles that could be used to measure their rate of time flow,
+and that is their rate of decay.
+Since the equations above indicate that any EM time dilation will be inversely proportional to the particle's rest mass,
+it should be easiest to detect this in the lightest possible unstable particle, namely, the muon.
+It is rather surprising that such elementary considerations as those given above can already make predictions about muon lifetimes
+under a unified theory whose mathematical form we do not yet know in detail.
+However, it seems unavoidable that any such theory must predict that the muon, with a mass of 105.7 MeV/c, will have its lifetime altered by about 1\%
+in an electrostatic potential of 1.057 MV.
+
+Of course, one would still like to have a detailed theory.  Which brings us to the curious case of David Apsel.
+
+\subsection{History}
+
+As shown above, on the QM side it is not even required to have the Schr\"{o}dinger equation;
+de Broglie's work of 1923-25 is sufficient.
+In fact, our time dilation could be considered to already be described by Schr\"{o}dinger
+in late 1925 \cite{Schrodinger1925,Mehra2000}, when he gave the electron's frequencies in a hydrogen atom as
+\[ \nu_n =mc^2/h - R/n^2 \]
+except that Schr\"{o}dinger did not interpret this as a time dilation.
+
+Similarly, on the GR side it is only necessary to have the weak equivalence principle and $E = h\nu$ \cite{Rindler2001};
+the full Einstein field equation is not necessary.
+Thus the results of the previous section {\em could} have been derived as early as 1926.
+%Why they weren't seems rather mysterious.
+
+A similar time dilation was proposed by Apsel in 1978-9 \cite{Apsel1978,Apsel1979}.  His derivation starts from the Aharonov-Bohm effect, assuming that the variational principle
+\[
+\delta\int_A^Bd\tau = 0
+\]
+of relativity applies to both gravitational and electromagnetic fields.
+He concluded, as we do, that ``the physical time associated with the trajectory of a classical particle is related to the beats of the quasi-classical quantum mechanical wave function associated with the particle''.
+This seems to be exactly the sort of theory anticipated by Schr\"{o}dinger,
+but despite experimental support\cite{Apsel1981}, it appears to have been largely ignored for three decades.
+Only a handful of other papers \cite{Rodrigues1983,Ryff1985, Beil1987} refer to it.
+Ryff \cite{Ryff1985} rederives and generalizes Apsel's results starting from the equation
+\[ dx_4' = -\frac{i}{mc} p_\mu dx_\mu \]
+Beil  \cite{Beil1987} gives a metric for which the Lorentz equation of motion is just the geodesic equation
+in a Finsler space where electromagnetism is a noncompact timelike fifth dimension.
+He notes ``that not only does the electromagnetic energy tensor part \ldots\ appear in the curvature, but so does the matter term. Thus, one can say that everything in this theory is curvature.''
+Although the theory's gauge is dependent on particle velocity, ``The usual physically meaningful quantities all involve only the gauge-independent field $F_{\mu\nu}$. There may, though, be a way of using ideas such as those of Apsel (1979) to give a measurable significance to the gauge.''
+
+The consequences for particle lifetimes were not lost on Apsel;
+he first proposed testing muon lifetimes in an electrostatic potential in his 1979 paper\cite{Apsel1979}.
+
+\subsection{Related theories}
+
+Time dilation due to very strong external fields has been considered several times,
+for example by van Holten.
+In a 1991 paper\cite{vanHolten1991} he derives the formula
+\[ dt = d\tau\frac{E-q\phi}{M} \]
+where $dt$ is the laboratory time and $d\tau$ is the proper time.
+But $E$ and $M$ in this formula must be the same,
+because in the absence of a potential ($\phi=0$) when laboratory time {\em is} proper time ($dt = d\tau$),
+the formula gives
+\[ \frac{dt}{d\tau} = 1 = \frac{E}{M} \]
+In our notation his equation thus reduces to
+\[ T+\Delta T = T\frac{E+\Delta E}{E} \]
+which is equivalent to what we derived in section 1.
+Two years later\cite{vanHolten1993} he gives the example of a muon spin down in an intense magnetic field
+and predicts a change $\delta\tau$ in the muon lifetime $\tau_\mu$ given by
+\[ \frac{\delta\tau}{\tau_\mu} = -\frac{\vec{\mu}\cdot\vec{B}}{mc^2} = 0.28\times 10^{-14} \times B \]
+requiring a field strength on the order of 5 GT (producing an energy change of $|\vec{\mu}\cdot\vec{B}| \ge 1$ keV)
+to see a significant variation in lifetime\cite{vanHolten1993}.
+His calculations for the muon appear to give identical results to what we would predict for the same energy shift,
+since his equation can be rewritten in our notation as
+\[ \frac{\Delta T}{T} = \frac{\Delta E}{E} \]
+which is also the same as ours from section 1.
+However, Van Holten's theory differs notably from Apsel's in that it 
+% is EM gauge invariant, and thus 
+predicts effects from fields but not from potentials.
+Essentially, he considers the effect to be a form of spin-orbit coupling.
+Despite commenting that
+``It is quite clear from this formula,
+that any quantity which contributes to the energy $E$ in an observable way,
+also contributes to the time dilation''\cite{vanHolten1993} (with which we heartily agree),
+he does not in either paper consider that an electric potential can have any time dilation effect, particularly in a field free region.
+%Instead, he fixates entirely on the idea of field strength.
+This has significant implications for testability, because the same degree of dilation produced by the 5 GT field
+(which is many orders of magnitude beyond what can be generated in labs today) in his theory
+could, in the present theory and Apsel's theory, also be achieved by changing the potential of the muon by a kV or so
+(something that could be easily done by almost anyone).
+%Thus van Holten seems to imply that the effect is not easily testable,
+%when in fact testing it even with relatively simple equipment should be quite straightforward.
+
+%The idea of using quantum phase interference of entangled pairs to measure time dilation was proposed by Hwang et al.\ in 2002 \cite{Hwang2002}, so they clearly understood that a potential-based time dilation would cause a phase shift; however, only the standard gravitational time dilation was considered.  In fact entangled pairs are not even required; the phase shift could be seen by standard interference between two paths of a single particle.
+
+The question of whether there might be some kind of time dilation associated with an electric potential was raised online in 2004 \cite{Creator2004}, but the discussion there was vague and inconclusive, and showed no awareness of Apsel's results.
+
+More recent online discussions instigated by J. Duda (e.g. \cite{Duda2010}) are quite aware of Apsel, and also of the Heaviside \& Jefimenko theories\cite{Heaviside1893,Jefimenko1992} mentioned earlier, but appear so far to also be inconclusive.
+Duda, like van Holten, seems to think that strong fields (and not just potentials) are required, saying e.g. ``Such experiment would need extremely strong electromagnetic field - like very near particles or near pulsars''.\cite[8 Jan 2010]{Duda2010}
+
+In 2012 P. Ogonowski began publishing a theory of "Dilation As Field".\cite{Ogonowski2012,Ogonowski2013}
+It concludes "that gravitational field as well as electromagnetic field may be considered through one phenomena - time dilation."
+
+
+\section{Counterarguments}
+
+I am aware of five classes of counterarguments to Apsel-style theories.
+Some of them claim that no such effect can possibly exist;
+others, that even if it exists it would not constitute a time dilation.
+
+\subsection{Dismissal out of hand}
+
+Some physicists reject the theory as so ridiculous that it does not even require an explanation of why it is wrong.
+As this is useless for advancing the debate,
+%and impossible to rebut,
+I mention it only in passing.
+
+\subsection{Naive Electromagnetic Gauge Invariance}
+
+Many physical theories, such as classical EM and Van Holten's theory mentioned in the previous section,
+have a property that I will call Naive Electromagnetic Gauge Invariance.
+In NEGI theories, everything can be expressed in terms of fields acting locally;
+potentials can be viewed as having no physical reality but being merely aids to computation.
+NEGI would of course rule out any time dilation effects from an EM potential in a field free region,
+such as inside the sphere of a Van De Graaff generator.
+Many physicists seem to think that this is sufficient to disprove the theory.
+
+%The standard counterargument is that the gauge invariance of most modern theories makes the proposed effect impossible.
+The problem with this viewpoint is that it is flat-out wrong.
+The universe does {\em not} have the NEGI property;
+the Aharonov-Bohm effect suffices as a counterexample.
+The importance of this is often glossed over.
+For example, Jackson and Okun\cite[p.24]{Jackson2001} write:
+\begin{quote}
+\ldots\ gauge invariance is a manifestation of non-observability of $A_\mu$.
+However integrals \ldots\ are observable when they are taken over a closed path, as in the Aharonov-Bohm effect \ldots\@
+The loop integral of the vector potential there can be converted by Stokes's theorem into the magnetic flux through the loop,
+showing that the result is expressible in terms of the magnetic field, albeit in a nonlocal manner.
+It is a matter of choice whether one wishes to stress the field or the potential, but the local vector potential is not an observable.
+\end{quote}
+
+%This is rather fatuous; it says that we can retain the idea that only fields (and not potentials) matter,
+%as long as we are willing to allow the fields to act non-locally, something that in most other contexts would be pure heresy!
+
+In any case, the NEGI idea (that fields acting locally on particles can explain everything) is admitted to be false.
+
+\subsection{CPT and C Invariance}
+
+It is often stated (e.g. in \cite{Andreev2007,Murayama2003,Sachs1987}) that the CPT theorem guarantees that particle and antiparticle masses and lifetimes are identical.
+However, this conclusion is only justified at zero potential,
+or with the further assumption of NEGI (which renders potential irrelevant).
+A true CPT reflection must invert all charges in the universe, which necessarily inverts all electric potentials as well.
+Therefore, the CPT theorem only {\em really} proves that a particle's mass and lifetime at 4-potential $A$ must equal its antiparticle's mass and lifetime at 4-potential $-A$.
+This holds true in QTD, since the dilations for those two cases are identical.
+Thus, the CPT theorem does not contradict the QTD claim that particles and antiparticles will be time-dilated oppositely at a non-zero potential and that their lifetimes will differ there.
+QTD is completely compatible with the notion of CPT invariance.
+
+\subsection{The S-Matrix and Accessible States}
+
+An argument due to M. Gelfand\cite{Gelfand2013} is based on the muon decay time being given by the S-matrix of the standard model.
+Since this matrix couples the muon initial state to possible final states,
+and placing the muon in a potential reduces or increases the number of accessible final states,
+Gelfand notes that one would expect an alteration in muon decay rate from this alone.
+So, while the previous arguments all claim that there can be no alteration in muon lifetime,
+this argument predicts that there {\em will} be an alteration,
+but explains it as being due to the mechanics of the S-matrix and not due to any time dilation.
+(Obviously, since this argument disagrees with the others about whether or not there will be an effect, at least one of them must be wrong.)
+
+While this argument is subtle, I do not find it compelling.
+It is completely general and applies to any potential, including gravitational ones.
+Therefore, if we accept it, we must also accept that alteration of lifetime by a gravitational potential is entirely due to the S-matrix
+and not due to any time dilation.
+But we have substantial experimental evidence that gravitational time dilation exists,
+and our current best theory is that it is explained by GR alone.
+
+This does not mean that the S-matrix approach is wrong; it merely means that the S-matrix is capable of expressing a time dilation.
+Thus, the ability to calculate accurate decay lifetimes entirely from S-matrix considerations does not preclude the existence of a potential-related time dilation.
+
+One characteristic of a pure time dilation is that, all other things being equal, it must necessarily slow down (or speed up) all decay modes equally.
+Since muons have 3 known decay modes\cite{PDG2014}, this can be used as a test for whether lifetime alterations can reasonably be viewed as solely due to time dilation, or whether other factors must be invoked.
+
+%\subsection{Limitations}
+
+%In special relativity, the time dilation for a particle or observer moving at velocity $v$ is $T_d = \sqrt{1 - v^2/c^2}$.
+%The higher the velocity, the higher the kinetic energy, but the {\em slower} the clock is perceived to run.
+%Thus kinetic energy does not appear to have the same relationship to time that potential energy does; even the sign is reversed.
+%A further difficulty, as noted by de Broglie \cite{deBroglie1925}, is that while all observers agree on stationary time dilation,
+%the time dilation due to motion is reciprocal (I think your clock is slower than mine at the same time you think my clock is slower than yours).
+%Working through these issues is beyond the scope of the current paper.
+
+%The version of the theory presented above accepts conservation of charge, so it does not predict that charge changes with energy.
+%This means that the energy of a charged particle, as a function of potential, is linear and has many of the same problems that the weak-field gravitational approximation has.
+%In particular, the energy (and mass) of an $e^-$ should go to zero if it is in a potential of +511 kV ($m_ec^2/q_e$).
+%It is not clear what this means physically; does the electron become infinitely easy to accelerate?
+%Does it vanish?
+%What happens to its charge, spin, and other properties?
+%And what happens beyond that, when the energy (and time flow) are predicted to be negative?
+%
+%Similarly, the energy (and phase frequency) of a $\mu^-$ should go to zero in a potential of +105.658 MV ($m_\mu c^2/q_\mu$).
+%If the muon does not disappear, the theory predicts an infinite lifetime there.
+%
+%These predictions are rather extraordinary.
+%However, there does not seem to be any way around them unless charge also scales with mass.
+%For example, if the charge/mass ratio remained constant, then the charge would scale linearly with mass,
+%and we would have an exponential dependence of charge on voltage similar to the exponential dependence of mass on gravitational potential.
+%However, there is no experimental evidence for such charge scaling, and considerable evidence against, so it would take quite remarkable experimental results to make this notion worthy of serious consideration.
+
+\subsection{Consequences of Linearity}
+
+In the above theories, the energy of a charged particle is a linear function of potential, and the time flow is likewise linear and has many of the same problems as the weak-field gravitational approximation.
+In particular, for any particle there should be a potential at which the absolute phase frequency goes to zero;
+for example, the frequency of a $\mu^-$ should go to zero in a potential of $m_\mu c^2/q_\mu =$+105.658 MV.
+The time flow at this potential must also be zero, so the predicted muon lifetime is infinite.
+Even worse, at higher potentials the time flow is predicted to be negative, and so is the lifetime.
+It is not clear what this could possibly mean.
+
+One could conceive that the ``real'' theory, as in the case of gravitational time dilation, might be exponential rather than linear.
+That would solve all the problems of the previous paragraph;
+however, it would also appear to require abandoning the linear relation of frequency and energy ($E=h\nu$).
+
+
+
+\section{Experiment}
+
+How can quantum time dilation be most easily measured?
+If quantum time dilation is real, it should have occurred in many experiments that have already been carried out.
+In some cases, it would have been swamped by other effects such as velocity-based time dilation, but in others, it should have been noticeable.
+
+For all charged particles, QTD predicts changes in lifetime at non-zero electric potential.
+Obviously this only has meaning for unstable particles.
+With stable particles, one appears to  be limited to indirect tests based on interference effects
+
+
+\subsection{Electrons and Positrons}
+
+Electrons and positrons, with the largest charge-to-mass ratio of any particle,
+would experience the greatest time dilation under the present theory.
+However, since they have infinite lifetimes,
+this would only be detectable as a phase shift which is identical to that predicted by standard theory.
+%are ideal for detecting mass alteration due to electric potential.
+
+%\subsubsection{Penning trap mass spectroscopy}
+%The most precise known measurement technique is Penning trap mass spectroscopy (PTMS) \cite{Farnham1995,Natarajan1993},
+%which can achieve 1 ppb or less.
+%At its simplest level a Penning trap consists of 3 hyperbolic electrodes
+%(a ring with negative curvature and two endcaps with positive curvature)
+%whose voltage can be independently controlled,
+%and a strong uniform magnetic field.
+%It is  possible to bias all 3 electrodes simultaneously with the same voltage offset,
+%which is equivalent to changing the potential of the trapped particle;
+%however, this is not usually done \cite{VanDyck2009} since standard theory predicts it should have no effect.
+%Alternately, the entire PTMS apparatus along with its power supplies could be enclosed in and grounded to a Faraday cage,
+%and the cage raised or lowered in voltage.
+%This is quite feasible, as many PTMS devices are already enclosed in a Faraday cage to reduce interference \cite{VanDyck2009}.
+%Since the mass of the electron is about 511 keV,
+%a bias of even 0.511 V should change the electron mass by 1 ppm,
+%which would be easily detectable.
+%Thus, we propose that PTMS measurements of electron and positron mass be carried out at multiple bias voltages and the results compared.
+
+%\subsubsection{Inexpensive measurement of electron e/m}
+%A cruder and cheaper test would use standard educational demonstration equipment for measuring the charge/mass ratio of the electron (such as the Cenco WL0623B or PASCO SE-9638), enclosing the device and power supplies in a Faraday cage and running the experiment at various potentials.
+%(Assuming a spherical cage with radius 1m, and given that the capacitance of a conducting sphere in pF is roughly equal to its radius in cm\cite{Swartz2003}, we expect a capacitance of about 100 pF, and thus a total charge on the sphere at 500 kV of about 50 micro-coulombs.)
+
+%Let's work through the expected results in detail.  The PASCO device accelerates electrons through a potential $V$ of 100-400 V.  The resulting velocity $v$ (at say 250 V) is given by
+%\[ -qV = eV = \frac{1}{2}mv^2 \]
+%\[ v = \sqrt{2eV/m} = \sqrt{500\rm{eV} /  (511\rm{keV}/ c^2)} = 0.0313 c \]
+%The SR correction term at this speed is
+%\[ \gamma = \sqrt{1 - v^2/c^2} = \sqrt{1 - 9.78\cdot 10^{-4}} = \sqrt{0.99902} = 0.99951 \]
+%so we may use Newtonian mechanics with an error of about 0.05\%.
+%Considering that the experiment is only accurate to 5\%, this should be adequate.
+
+%We assume that the effective rest mass of the electron (with charge $q = -e$)is shifted by the external electric potential $\phi$ as
+%\[ m(\phi) = E = m_0 - \frac{e\phi}{c^2} \]
+%which is easily derivable from the de Broglie relation.  Thus the velocity is a function of $\phi$
+%\[ v = v(\phi) = \sqrt{\frac{2eV}{m(\phi)}} = \sqrt{\frac{2eV}{m_0 - \frac{e\phi}{c^2}}} \]
+%as is the momentum
+%\[ p = p(\phi) = m(\phi)v(\phi) = (m_0 - \frac{e\phi}{c^2})\sqrt{\frac{2eV}{m_0 - \frac{e\phi}{c^2}}} = \sqrt{2eV (m_0 - \frac{e\phi}{c^2}) }\]
+
+%The magnetic field near the center of a pair of Helmholtz coils of radius $a$ with $N$ turns and current $I$ is
+%\[ B = \frac{N\mu_0I}{(5/4)^{3/2}a} \]
+%and the magnetic force on the electron is
+%\[ \vec{F}_B = e \vec{v}\times\vec{B} \]
+%and since $\vec{v}$ and $\vec{B}$ are perpendicular we get simply that
+%\[ F_B = evB \]
+%which must equal
+%\[ F_c = \frac{mv^2}{r} \]
+%in order to hold the electron in a circular orbit, so that the charge-to-mass ratio is given by
+%\[ \frac{e}{m} = \frac{v}{Br} \]
+%and the radius by
+%\[ r = \frac{mv}{eB} = \frac{m(\phi)v(\phi)}{eB} = \frac{p(\phi)}{eB} = \frac{1}{eB} \sqrt{2eV (m_0 - \frac{e\phi}{c^2})} \]
+%Thus we predict that, for a fixed $V$ and $B$, the radius $r$ will vary with potential as
+%\[ r(\phi) = r(0)\sqrt{1 - \frac{e\phi}{m_0c^2}} \]
+%It has not escaped our attention that this formula gives an imaginary radius for $\phi > m_0c^2/e \approx +511$ kV.
+%Testing the actual physical behavior for this range of potentials is thus a primary goal of the experiment.
+%It is possible that our formula is only an approximation to the ``real'' formula (whatever that may be) and
+%is only valid when $\left|e\phi\right|$ is small relative to $m_0c^2$.  One possible candidate for such a formula might be constructed by noting that
+%\[ e^x \approx 1 + x \]
+%for small $x$, giving
+%\[ r(\phi) \approx r(0)\sqrt{e^{- \frac{e\phi}{m_0c^2}}} = r(0)e^{- \frac{e\phi}{2m_0c^2}} \]
+%which has the merit of having no discontinuities and real values everywhere.
+%Physical justification of such a formula might be tricky, although it is worth noting that mass scaling with a constant charge/mass ratio,
+%and hence charge scaling as mass does, would give exactly this result.
+%it is also possible that special-relativistic considerations might avoid the ``event horizon'' at  $e\phi = m_0c^2$.
+
+
+%\subsubsection{Electron Interference}
+One indirect test would be to set up an electron interference experiment and run it at various potentials.
+Near $\phi = +511$keV, $h\nu = E = m_0c^2 - e\phi$ predicts the electron phase frequency should go to zero, and its de Broglie wavelength go infinite; therefore the interference fringes should get wider as we approach that voltage and disappear when we hit it exactly.
+If this fails to happen, then the linear version of the theory cannot be right.
+
+This sort of experiment would be easy to do inside a large Van De Graaff generator, such as the one at Museum of Science in Boston,
+and not much more difficult in a moderately large enthusiast VDGG of say 0.5 meter diameter.
+The main difficulty would be getting the experiment to run off battery power and fit in the space allowed.
+
+%\subsection{Protons and Antiprotons}
+
+%\subsubsection{Tjoelker PTMS}
+%Precision measurement of the $p^-/p^+$ mass ratio was carried out by Tjoelker in 1990 using PTMS \cite{Tjoelker1990}.
+%He calculated it as 0.999999977(42) using 5 sets of data taken over the course of a month
+%with significant drift in magnetic field intensity during that time.
+%Data set 5 was the tightest, with no evidence of drift, and had a result of 0.999999963(31).
+%Since the proton mass is 938.272 MeV,
+%QTD would predict this level of discrepancy if the data set 5 measurements had been carried out at an electric potential of roughly
+%\[ V = \frac{3.7\cdot10^{-8}}{2}9.38272 \cdot 10^8 {\mathrm V} = +17 {\mathrm V} \]
+%(Data set 5 was captured over a period of about 7 hours, though, so the potential may have varied during that time.)
+%(The factor of $\frac{1}{2}$ is because both protons and antiprotons are affected, and in opposite directions.)
+%From this we can see that potential differences on the order of tens of volts should produce easily detectable changes in mass in this experiment.
+
+%\subsubsection{ASACUSA Collaboration Laser Spectroscopy of Antiprotonic Helium}
+%2006 calculations of the $p^-$ mass by Hori et al., based on laser spectroscopy of $p^-$He$^+$ \cite{Hori2006},
+%were claimed to be precise within 16 ppb.
+%The QTD time dilation (and mass adjustment) for the antiproton $1S$ ground state in He
+%is predicted to be about 0.999914911, which could have thrown their results off by as much as 85 ppm.
+%However, their measurements involve highly-excited states with principal quantum number $n \approx 40$ \cite{Hayano2007},
+%which are very lightly bound and have much less dilation and mass loss.
+%(The binding energy is proportional to $1/n^2$, so for $n = 40$ we predict $T_d \approx 0.9999999468$ or 53.2 ppb.)
+%It is also worth noting that they only directly measured transition frequencies between states $(n,\ell)$ and $(n\pm1,\ell-1)$,
+%so that some kinds of energy offsets would cancel out and not be seen.
+%For example, the relative $T_d$ between an $n = 40$ state (53.2 ppb) and and $n = 41$ state (50.6 ppb) is only about 2.6 ppb.
+%This is less than 16 ppb, so it is not surprising that no significant QTD effect was seen.
+%However, the latest experiments \cite{Horvath2008} are now claiming 2 ppb;
+%we would expect a QTD effect to be noticeable at that level.
+
+%Allowing the $p^-$ to drop into lower orbitals would increase the QTD effect,
+%but might also increase the chance of annihilation with a nuclear $p^+$.
+%Orbitals with with $\ell\ne 0$ (such as $2p$, $(n,\ell) = (2,1)$) have nodes through the nucleus and would reduce the probability of nuclear capture; however, they tend to decay very rapidly.
+%Also, higher-energy photons would be required;
+%how low $n$ can be made is probably limited by the practicalities of high-frequency lasers.
+
+%Alternately, the experiment could be repeated for heavier noble gases such as neon and argon,
+%which would give a stronger effect at the same $n$, but would also require more energetic photons.
+
+\subsection{Muons}
+Radioactive ions or unstable charged particles will decay slower (or faster) when time-dilated.
+The muon, with a half life of 2.197 $\mu$S \cite{Chitwood2007},
+is an attractive candidate for QTD experiments as it has the highest charge-to-mass ratio of any unstable particle.
+%While muons are difficult to produce by fission, fusion, or nuclear decay, beams of muons can be generated via pion decay, and have been used e.g. to test the standard model's prediction of their anomalous magnetic moment (see \cite{Bennett2004} and its references).
+Surveys of methods of muon production can be found in \cite{Eaton1999} and \cite{Heffner1984}; see also section VI of \cite{Kuno2001}.
+%Beams of muons produced by pion decay are inherently 100\% polarized with spin opposite to the direction of emission (\cite{Eaton1999}, p.16).
+%, which is important for $\mu$SR (muon spin rotation) experiments
+Beam sources may be continuous or pulsed.
+Muon lifetime detectors adequate to measure time dilation effects can be simple and inexpensive enough to be used in an undergraduate physics lab \cite{Coan2006}.
+
+%Pions decay into muons by e.g.
+%\[ \pi^- \rightarrow \mu^- + \bar{\nu}_\mu \]
+%In the rest mass frame of the pion, the starting energy is just the rest mass of the pion, and the starting momentum is zero, so by conservation we must have
+%\[ \vec{p}_{\mu} = - \vec{p}_\nu \]
+%\[ E_\pi = m_\pi c^2 = E_\mu + E_\nu \]
+%\[ E_\mu = \sqrt{m_\mu^2 + p_\mu^2} = \sqrt{m_\mu^2 + p_\nu^2}  \]
+
+The muon decay time can be very accurately calculated within the standard model given certain parameters \cite{Ritbergen1999};
+some of these parameters can in turn be derived from muon lifetime data.
+Thus the precision of the standard model is dependent on the precision to which the muon lifetime is known.
+
+%``The force on a non-relativistic particle of mass $m$, velocity $v$, charge $e$, passing through a magnetic field $B$ perpendicular to its path is given by $Bev$ in a direction perpendicular to $B$ and $v$.
+%The particle executes a circular path or radius $R$ in the field such that $Bev = mv^2/R$.''  \cite{Eaton1999}
+%Thus $R = mv/Be$.
+
+In the following subsections we look at several ways of altering muon lifetimes.
+Much of what is said would apply equally well to other unstable particles such as pions.
+
+\subsubsection{Electrostatic Potential Effect On Muons}
+
+As mentioned above, QTD predicts that muon lifetime should be altered by an electrostatic potential.
+Since the muon mass-energy is 0.1134 AMU\cite{PDG2014} = 105.6 MeV,
+a potential of 1.056 MV should alter the lifetime by 1\%.
+Such a potential could be expected on a VDGG of about 70 cm diameter in air, which is within the reach of a serious hobbyist.
+A 1\% effect is huge by HEP standards and should be easy to detect.
+Apsel (1979)\cite{Apsel1979} first proposed this kind of experiment;
+37 years later, it still has never been performed.
+
+Deep but small EM potentials exist around atomic nuclei.
+Thus, QTD (like Apsel\cite{Apsel1981}) predicts that decay times of bound $\mu^-$ in matter should be longer,
+and the lifetime should increase with atomic number.
+Such an effect does seem to be observable in light atoms, but is traditionally explained by other means,
+including special-relativistic time dilation from the orbital kinetic energy\footnote{
+99\% of bound muons end up in the 1S ground state, which has zero angular momentum.
+For atomic orbitals with zero angular momentum, the probability current is everywhere zero.
+Thus, explaining the change in decay time by SR time dilation requires assuming that the muon is ``moving" even though there is zero current,
+which seems questionable.}
+and a reduction in accessible states for the decay products.
+Unfortunately, in heavy atoms, the muon orbital is so small that the muon spend much of its time {\em inside} the nucleus,
+so nuclear capture dominates and it is difficult to measure the muon decay lifetime.
+If a muon could be kept in a 2P orbital, or any other orbital which has a node through the nucleus and should thus have a greatly reduced rate of capture,
+the decay rate might be more easily observable for higher N.
+%(Muons and pions are not, however, suitable for PTMS mass measurement, because their very short lifetime is not compatible with the long setup time required.)
+
+%\subsubsection{Muonic Atoms}
+%Negative muons ($\mu^-$) in matter are rapidly  ($ < 10^{-9}$ S) decelerated and bound to atomic nuclei.\cite{Fermi1947}  In most cases ($\sim$99\%) the muon decays into the ground state $1S$ orbital.  Because the muon orbit is much smaller than any of the electron orbits, to first order we can ignore the effect of the electron charges and treat the interaction between the nucleus and the muon as a hydrogen-like atom.  The energy level is then given by the formula
+%\[ E = -\frac{m_\mu}{m_e}\frac{Z^2}{1 + m_\mu/M}{\rm Ry} \]
+%where $Z$ is the nuclear charge, $M$ the nuclear mass, $m_\mu$ the muon mass, and $1 {\rm Ry} = 13.6 {\rm eV}$.
+%For muonic hydrogen ($p^+\mu^-$) the predicted effect is quite small, but it increases rapidly for greater $Z$,
+%reaching 1\% for potassium and 2\% for cobalt or nickel.
+
+%The predicted QTD time dilations for a $\mu^-$ in antimuonium and the most common nuclides of the first 40 elements are given in Table 1.\footnote{The antimuonium calculation uses the formula above assuming a positron as ``nucleus'';
+%this may not be completely accurate.
+%The result for matter and antimatter should be equal, so the dilation for antimuonium also applies to muonium ($\mu^+e^-$),
+%and gives a rough estimate of the QTD effect in typical $\mu^+$ muon spin resonance ($\mu$SR) experiments.}
+% Note $\frac{m_\mu}{m_e} = 206.768$
+% Note $m_\mu = 0.113428913$ amu
+% Note $m_p = 0.113428913$ amu
+%\begin{table}
+%\begin{tabular}{ | c | c | r | r | c | c | c |}
+%\hline
+%  Atom & Z & Mass (u) & E (keV) & QTD T$_d$& SR T$_d$ & QTD$\times$SR \\
+%\hline
+%$\mu^+e^-$ & 1 & 0.001 & -0.0142 & 0.99999987 & ? & 0.99997324 \\ % the SR for this line is wrong
+%$^{1}$H & 1 & 1.008 & -2.5286 & 0.99997607 & 0.99997337 & 0.99994944 \\
+%$^{4}$He & 2 & 4.003 & -10.9428 & 0.99989643 & 0.99989349 & 0.99978994 \\
+%$^{7}$Li & 3 & 7.016 & -24.9162 & 0.99976420 & 0.99976034 & 0.99952460 \\
+%$^{9}$Be & 4 & 9.012 & -44.4521 & 0.99957936 & 0.99957390 & 0.99915343 \\
+%$^{11}$B & 5 & 11.009 & -69.6134 & 0.99934134 & 0.99933414 & 0.99867591 \\
+%$^{12}$C & 6 & 12.000 & -100.3278 & 0.99905087 & 0.99904102 & 0.99809279 \\
+%$^{14}$N & 7 & 14.003 & -136.7404 & 0.99870661 & 0.99869449 & 0.99740279 \\
+%$^{16}$O & 8 & 15.995 & -178.7786 & 0.99830932 & 0.99829450 & 0.99660671 \\
+%$^{19}$F & 9 & 18.998 & -226.5189 & 0.99785834 & 0.99784099 & 0.99570395 \\
+%$^{20}$Ne & 10 & 19.992 & -279.7355 & 0.99735586 & 0.99733388 & 0.99469679 \\
+%$^{23}$Na & 11 & 22.990 & -338.7291 & 0.99679913 & 0.99677309 & 0.99358254 \\
+%$^{24}$Mg & 12 & 23.985 & -403.1978 & 0.99619108 & 0.99615852 & 0.99236424 \\
+%$^{27}$Al & 13 & 26.982 & -473.4449 & 0.99552896 & 0.99549009 & 0.99103921 \\
+%$^{28}$Si & 14 & 27.977 & -549.1658 & 0.99481573 & 0.99476768 & 0.98961054 \\
+%$^{31}$P & 15 & 30.974 & -630.6663 & 0.99404864 & 0.99399117 & 0.98807557 \\
+%$^{32}$S & 16 & 31.972 & -717.6399 & 0.99323069 & 0.99316044 & 0.98643742 \\
+%$^{35}$Cl & 17 & 34.969 & -810.3936 & 0.99235912 & 0.99227534 & 0.98469348 \\
+%$^{40}$Ar & 18 & 39.962 & -908.9054 & 0.99143428 & 0.99133574 & 0.98284424 \\
+%$^{39}$K & 19 & 38.964 & -1012.6267 & 0.99046146 & 0.99034149 & 0.98089508 \\
+%$^{40}$Ca & 20 & 39.963 & -1122.1055 & 0.98943568 & 0.98929240 & 0.97884120 \\
+%$^{45}$Sc & 21 & 44.956 & -1237.5103 & 0.98835552 & 0.98818832 & 0.97668138 \\
+%$^{48}$Ti & 22 & 47.948 & -1358.3879 & 0.98722541 & 0.98702905 & 0.97442016 \\
+%$^{51}$V & 23 & 50.944 & -1484.8904 & 0.98604409 & 0.98581440 & 0.97205646 \\
+%$^{52}$Cr & 24 & 51.941 & -1616.8872 & 0.98481297 & 0.98454417 & 0.96959186 \\
+%$^{55}$Mn & 25 & 54.938 & -1754.6435 & 0.98352977 & 0.98321813 & 0.96702431 \\
+%$^{56}$Fe & 26 & 55.935 & -1897.8921 & 0.98219718 & 0.98183608 & 0.96435663 \\
+%$^{59}$Co & 27 & 58.933 & -2046.9021 & 0.98081292 & 0.98039775 & 0.96158678 \\
+%$^{58}$Ni & 28 & 57.935 & -2201.2595 & 0.97938103 & 0.97890292 & 0.95871895 \\
+%$^{63}$Cu & 29 & 62.930 & -2361.6663 & 0.97789524 & 0.97735132 & 0.95574721 \\
+%$^{64}$Zn & 30 & 63.929 & -2527.4191 & 0.97636230 & 0.97574268 & 0.95267837 \\
+%$^{69}$Ga & 31 & 68.926 & -2699.0685 & 0.97477737 & 0.97407671 & 0.94950793 \\
+%$^{74}$Ge & 32 & 73.921 & -2876.3299 & 0.97314331 & 0.97235313 & 0.94623894 \\
+%$^{75}$As & 33 & 74.922 & -3058.9720 & 0.97146251 & 0.97057162 & 0.94287395 \\
+%$^{80}$Se & 34 & 79.917 & -3247.4800 & 0.96973078 & 0.96873187 & 0.93940911 \\
+%$^{79}$Br & 35 & 78.918 & -3441.2558 & 0.96795388 & 0.96683353 & 0.93585027 \\
+%$^{84}$Kr & 36 & 83.912 & -3641.0192 & 0.96612547 & 0.96487628 & 0.93219155 \\
+%$^{85}$Rb & 37 & 84.912 & -3846.1686 & 0.96425137 & 0.96285974 & 0.92843882 \\
+%$^{88}$Sr & 38 & 87.906 & -4057.0634 & 0.96232856 & 0.96078355 & 0.92458946 \\
+%$^{89}$Y & 39 & 88.906 & -4273.4646 & 0.96035954 & 0.95864732 & 0.92064610 \\
+%$^{90}$Zr & 40 & 89.905 & -4495.4899 & 0.95834353 & 0.95645064 & 0.91660828 \\
+%$^{120}$Sn & 50 & 119.902 & -7026.4181 & 0.93565943 & 0.93105940 & 0.87115450 \\
+%$^{142}$Nd & 60 & 141.908 & -10119.5251 & 0.90866444 & 0.89905233 & 0.81693688 \\
+%$^{174}$Yb & 70 & 173.939 & -13775.8242 & 0.87775691 & 0.85969083 & 0.75459957 \\
+%$^{202}$Hg & 80 & 201.971 & -17994.5408 & 0.84339914 & 0.81190596 & 0.68476079 \\
+%$^{232}$Th & 90 & 232.038 & -22775.9973 & 0.80608140 & 0.75409812 & 0.60786447 \\
+%\hline
+%\end{tabular}
+%\caption{Predicted $T_d$ For $\mu^-$ In $\mu^-e^+$ and Atoms}
+%\end{table}
+%The QTD dilation needs to be applied in addition to the usual special-relativistic dilation due to the motion of the muon in its orbital.
+%Dilations for other isotopes of an element are very close to those given, differing only in the effective-mass correction.
+
+%To calculate the SR time dilation,  we first need to estimate the velocity of the muon.
+%Relative to an electron, the muon is more massive, but the radius of its orbit is also smaller by the same ratio.
+%(NOTE: This whole paragraph is a first attempt, and still needs checking,)
+%To first order, these effects cancel out and the velocity of a muon in a $1S$ orbital is the same as that of a $1S$ electron orbiting the same nucleus.
+%For muonic hydrogen this gives $T_d^{SR} = (1 - v^2/c^2)^{1/2} \approx 0.9999734$.
+%The velocity increases as $Z$ (because the binding energy increases as $Z^2$, the kinetic energy is proportional to the binding energy (the virial theorem), and the kinetic energy is (for small velocities) proportional to the velocity squared.
+%All of these calculations are somewhat imprecise and make unwarranted assumptions,
+%(for example, that the average of a function of the velocity is equal to the function of the average of the velocity),
+%but this appears to be the ``normal'' method used in the literature.
+%Numbers obtained in this manner are included in the table above, but should be viewed a little skeptically, especially for high $Z$.
+
+%\subsubsection{Nuclear Capture}
+%For high-$Z$ nuclei, there is a significant overlap of the muon orbital with the nucleus itself,
+%and capture of the muon by the nucleus becomes the dominant decay mode, making it difficult to observe the muon's intrinsic decay time.
+%(This overlap also means that the method of computation of $T_d$ in the previous section,
+%which assumes a point nucleus, may overstate $T_d$ somewhat for high $Z$.)
+%Nuclear capture can even be detected in $p^+\mu^-$ (muonic $^1H$),
+%occurring roughly at a rate of 725 S$^{-1}$ in the singlet state and 12 S$^{-1}$ in the triplet state (\cite{Andreev2007}, \cite{Kammel2003} section 2).
+%This is infrequent compared to 455000 S$^{-1}$ for decay of the muon itself, but the rate of capture increases roughly as $Z^4$ \cite{Wheeler1947,Andreev2007}, and for elements beyond iron most muons are captured before they can decay.
+%In fact the crossover point, where normal decay and nuclear capture are about equally likely, occurs at $Z=10$.
+%Thus, although we predict a significant potential-based dilation (and hence reduction of the muon decay rate) for heavier nuclei
+%(e.g. 0.82 for $^{206}$Pb)
+%it may be difficult to observe this due to the rapidity of capture.
+
+%As noted earlier, excited state orbitals with $\ell \ne 0$ (such as $2p$) have nodes through the nucleus and thus very little overlap with it.
+%If a muon could be maintained in such a state, the rate of capture would be greatly reduced, and the dilation effect could be measured for much larger $Z$.
+%In particular, capture of $\mu^-$ by gases, combined with appropriate laser excitation to keep the muons in states with non-zero angular momentum, might give enough data points to see the effect clearly without nuclear capture dominating it.
+%An energy change of -1 Ry corresponds to a time dilation of
+%\[ (1 - {\rm 1 Ry}/m_\mu c^2) = 1 - \frac{13.6 {\rm eV}}{105\cdot 10^6 {\rm eV}} = 0.999999871 \]
+%which is not likely to be noticed.
+%However, for heavy nuclei $m_\mu \ll M$ so we can ignore the correction term and the energy is roughly $-207Z^2{\rm Ry}$.
+%For the heavy non-radioactive nucleus  $^{206}_{82}$Pb we predict a potential-based time dilation of about 0.82; muons would decay about 18\% slower in that situation due to this effect.  However, other possible time-dilation effects such as those due to the velocity of the muon in the orbital must also be considered, as well as any effects from the nucleus that might accelerate or retard muon decay.
+
+%Note on scintillation detectors: Bell\cite{Bell1955} believes that plating the surface of a scintillation detector with a reflective material like aluminum is counterproductive, since it replaces the very good critical-angle reflection of the material itself with the less-good reflectivity of the aluminum.
+%In fact in some cases better results are had by roughening the surface of the material using fine grit.
+
+\subsubsection{Aharonov-Bohm Effect On Muons}
+The Aharonov-Bohm effect\cite{Aharonov1959} (actually first described by  Ehrenberg and Siday \cite{Ehrenberg1949}) is a phase shift induced by a magnetic vector potential in a region of space which has zero magnetic field.
+We interpret this phase shift as an actual time dilation, and so predict that the experienced time (and hence decay rate in the laboratory frame) will be different on different sides of the solenoid in an Aharonov-Bohm setup even though the particles never encounter any field.  Although fairly weak fluxes are used in typical AB experiments (because only $3.9\cdot 10^{-7}$ gauss-cm$^2$ is required to rotate the electron phase by $2\pi$ \cite{Ehrenberg1949}), much stronger fields could be used to test the time dilation effect.  MRI machines with 10 tesla (= $10^5$ gauss) fields over areas greater than 100 cm$^2$ have been demonstrated, so total fluxes of $10^7$ gauss-cm$^2$ and up are quite feasible.
+
+%The wavelength of an electron accelerated through an electric field $U$ is given by
+%\[ \lambda = \frac{h}{\sqrt{2m_0eU}}\frac{1}{\sqrt{1+\frac{eU}{2m_0c^2}}}  \]
+%where the first term is the non-relativistic result and the second term is the relativistic correction at high energies.
+%An electron in a 10 kV SEM thus has wavelength $12.3\cdot 10^{-12}$ m, and a velocity 
+%of about 20\% of the speed of light (i.e. $6\cdot 10^7$ m/S), 
+%so that the time to traverse one wavelength is about $\frac{12.3\cdot 10^{-12}}{6\cdot 10^7} S \approx 2\cdot10^{-19}{\rm S}$. 
+
+Let's first analyze the situation for an electron.  A phase shift of $2\pi$ happens when
+\[ \Delta E\cdot t = 2\pi\hbar = h = E\cdot\Delta t \]
+so that for an electron
+\[ \Delta t = \frac{h}{E} = \frac{h}{m_ec^2} = \frac{6.626 \cdot 10^{-34} {\rm m}^2 {\rm kg / S}}{(9.109 \cdot 10^{-31} {\rm kg})\cdot(2.998\cdot 10^8 {\rm m/S})^2 } = 8.093\cdot 10^{-21} {\rm S} \] 
+is the time difference (as seen by the electrons, not by an external observer) between electron paths when the interference pattern has been shifted by one full fringe.
+This requires a total flux of $3.9\cdot 10^{-7}$ gauss-cm$^2$ as noted above, but we should be able to use fluxes at least $10^{13}$-$10^{14}$ that large, leading to feasible $\Delta t$s in the range of $10^{-7}$-$10^{-6}$ seconds.
+(Indeed the Brookhaven E821 experiment \cite{Bennett2004} applied a field of 1.45T over a ring with radius 7.11m; if the field had been uniform, the total contained flux would have been about $2.3\cdot 10^{10}$ gauss-cm$^2$.)
+
+For the muon the $\Delta t$ for a single fringe shift is 207 times smaller (the ratio of the muon mass to the electron mass), or $3.91\cdot10^{-23}{\rm S}$.
+
+A 200 kV muon beam should travel roughly as fast as a 1 kV electron beam, or about 2\% of the speed of light or $6\cdot10^6$ m/S.  If we split this beam and send it around a solenoid with a radius of about 100 cm (and hence cross-sectional area 314 cm$^2$) we should be able to have each path be no longer than, say, 600 cm.  With a 10T = $10^6$ gauss field strength the total flux would be $3.14\cdot10^8$ gauss-cm$^2$ and the predicted 
+%$\Delta t = 8.09\cdot 10^{-21}\frac{3.14\cdot10^8}{3.9\cdot 10^{-7}} {\rm S} = 6.51\cdot10^{-6}{\rm S}$
+$\Delta t = 3.91\cdot10^{-23}\frac{3.14\cdot10^8}{3.9\cdot 10^{-7}} {\rm S} = 3.14\cdot10^{-8}{\rm S}$.
+The flight time of the muon would then be about $10^{-7}$ S.
+With a lifetime of 2.2 $\mu$S, and ignoring relativistic corrections, we would expect in the standard interpretation that a fraction $e^{-t/2.2\mu{\rm S}}$ of the muons on each path would remain undecayed
+\[ e^{-0.1/2.2} =  e^{-0.04545} = 0.956 \]
+so that about 4.4\% of the muons would decay on each path.
+However, the time dilation predicted by the present theory would cause the fast-time path to experience a total time $(t+\Delta t)$ of $(0.1 + 0.03)\mu{\rm S}$ so that approximately 
+\[ e^{-0.103/2.2} = e^{-0.04682} = 0.954 \]
+would remain undecayed while on the slow-clock path
+\[ e^{-0.097/2.2} = e^{-0.04409} = 0.957 \] would.
+Thus, for that flux, we would predict a roughly 3\% increase in the decay rate on the fast-time path and a 3\% decrease on the slow-time path.
+Larger fluxes would have larger effects.
+For large enough flux, the effect should be truly spectacular.
+
+%(Note that the above method would give silly results for the slow-time path for high enough flux; it obviously cannot end up with negative experienced time-of-flight.
+%This problem is due to using a linearized approximation.  Exact calculation requires the exact formula.)
+
+It is not necessary to actually interfere the two beams to measure this effect.  One could, for example, just have a single beam of muons rotating in a cyclotron ring.  A large confined and shielded flux through the ring should have a measurable effect on the decay rate of the muons; reversing the flux or the direction of rotation should reverse the effect.
+
+It would also be possible to simply fire a beam of muons through the center hole of one or more shielded toroidal magnets, as was done in the elegant Hitachi experiment to demonstrate the AB effect with electrons \cite{Tonomura1982}, although much larger magnets with much larger fluxes would be desirable.  There is no theoretical upper bound to the total encircling flux per length of muon path in this configuration, as there is no upper limit to the radial size of the core.  If we assume a core with a contained field strength of 1T \footnote{An electromagnet made of iron saturates at 1.6T, and NdFeB permanent magnets can have fields of 1.17 to 1.48T, so 1T is easily achievable.}, and a toroidal shape with rectangular cross section (inside radius $r_i$, outside radius $r_o$, and thickness $l$), the cross-sectional area is given by $A = (r_o-r_i)\cdot l$ and the total flux would be $10^4\cdot A$ gauss-cm$^2$ with the flux per length equal to $10^4(r_o-r_i)$ gauss-cm.  The time shift per length (for a muon) is given roughly by
+\[ \frac{3.91\cdot10^{-23} {\rm S}}{3.9\cdot 10^{-7}{\rm gauss\cdot cm}^2} \cdot 10^4(r_o-r_i) {\rm gauss\cdot cm} \approx 10^{-12}(r_o-r_i)\frac{\rm S}{\rm cm}\]
+For a rather large core with $(r_o-r_i) = 1 {\rm m}$ and $l = 1 {\rm m}$ (weighing about 25 metric tons\footnote{This is only moderately large by HEP standards; the storage ring magnet at the BNL muon g-2 experiment weighs 700 tons.\cite{Hughes2001}}) we would get a time shift of 10 nS.
+This has to be compared with the time of flight at fast but sub-relativistic speeds;
+at 10\% of the speed of light a particle will only spend about 33 nS passing through the toroid,
+so a time shift of 10 nS represents a roughly 30\% increase or decrease in the time experienced by the particle..
+%(Again, these are based on a linear formula and thus are slightly off.)
+The special-relativistic time dilation at that speed is less than 1\%.
+
+\subsection{Neutrons}
+Neutrons, being uncharged, are not subject to time dilation by electrostatic potentials.
+However they do have spin and hence a magnetic moment, and may be dilated by the Aharonov-Casher effect
+in the same way that charged particles may be dilated by the Aharonov-Bohm effect.
+Also, like everything, they are affected by gravitational time dilation.
+
+%\subsubsection{The Colella-Overhauser-Werner Experiment}
+%In 1975 Colella, Overhauser, and Werner published the first experiment to explicitly link gravitation and quantum mechanics.\cite{Colella1975}
+%A beam of neutrons with 0.1445 nm wavelength was Bragg-split in a silicon crystal (with interatomic spacing also 0.14 nm),
+%the two lower-intensity beams each further split in a second crystal,
+%and two of those four beams recombined in a third crystal.
+%Interference between these two beams produced two output beams
+%whose relative intensity was dependent on the quantum phase of the neutrons.
+%(The basic setup is very similar to a Mach-Zehnder interferometer, but using crystals instead of mirrors.)
+
+%The interfering beams follow an approximately rhomboidal path.  The entire experiment can be rotated about the incoming beam axis; at angle 0 the rhombus is horizontal and gravity affects both paths equally, but with rotation, one path goes higher than the other and a phase shift is seen.
+
+%While much of this phase shift can be interpreted as classical time delay (neutrons on the upper path lose momentum, travel more slowly, and arrive slightly later than neutrons on the lower path), there is also a small contribution from gravitational time dilation.
+%Given a height difference of $\Delta z$ in a uniform gravitational field of $g = 1$G, and using the weak-field approximation
+%\[ T_d(\Delta z) \equiv \frac{T(\Delta z)}{T(0)} \approx 1 + \frac{g\Delta z}{c^2} \]
+%the time dilation is approximately
+%\[ T_d(\Delta z) \approx 1 + \frac{9.81 \frac{\mathrm{m}}{\mathrm{S}^2} \cdot \Delta z}{\left(2.998\cdot10^8 \frac{\mathrm{m}}{\mathrm{S}}\right)^2} = 1 + \frac{9.81}{8.988\cdot 10^{16}}\frac{\Delta z}{\mathrm{m}} = 1 + 1.091\cdot 10^{-16}\frac{\Delta z}{\mathrm{m}} \]
+
+%In the original COW paper, the relative phase shift $\beta$ is given as
+%\[ \beta = q_{\mathrm{grav}}\sin\varphi \]
+%where
+%\[ q_{\mathrm{grav}} = 4\pi\lambda gh^{-2}M^2d(d+a\cos\theta)\tan\theta \]
+%with $\lambda = 0.1445$ nm, $g = 1$G, $h =$ Planck's constant, $M =$ mass of the neutron, $\theta=22.1^\mathrm{o}$ is the Bragg angle, $a=0.2$ cm, and $d=3.5$ cm.
+%The number of fringes expected from a $180^\mathrm{o}$ rotation is then
+%\[ (\Delta N)_{180} = q_{\mathrm{grav}} / \pi \]
+
+%Assuming the neutron momentum is nearly constant,
+%to first order the time dilation is given by the average height difference,
+%which is just the average distance between the paths times $\sin\varphi$ or
+%\[ \Delta z \approx (d+a)\tan\theta\sin\varphi = 3.7 \mathrm{cm}\cdot 0.406 \cdot \sin\varphi = 1.502 \mathrm{cm}\cdot\sin\varphi  \]
+%while the length of each path (ignoring deflection of the endpoint due to gravity) is
+%\[ \ell = \frac{2(d+a)}{\cos\theta} = 7.987 \mathrm{cm}\]
+%with the neutron momentum
+%\[ p = \frac{h}{\lambda} = \frac{6.626\cdot10^{-34} {\rm m^2 kg / s}}{1.445\cdot10^{-10}{\rm m}} = 4.585\cdot 10^{-24} {\rm m}\cdot{\rm kg / s} \]
+%their velocity (assuming non-relativistic speeds) about
+%\[ v = \frac{p}{M} =  \frac{4.585\cdot 10^{-24} {\rm m}\cdot{\rm kg / s}}{ 1.675\cdot10^{-27} {\rm kg}} = 2.737\cdot10^3 {\rm m/s} \]
+%and the total time of flight roughly
+%\[ \Delta t = \frac{\ell}{v} = \frac{ 7.987\cdot 10^{-2} \mathrm{m} }{ 2.737\cdot 10^3 {\rm m/s}} = 2.918 \cdot 10^{-5} {\rm s} \]
+%The neutron oscillation frequency is given by
+%\[ \nu = \frac{Mc^2}{h} = \frac{ 1.675\cdot10^{-27} {\rm kg} \times (2.998\cdot 10^8 {\rm m/s})^2}{6.626\cdot10^{-34} {\rm m^2 kg / s}} = 2.272 \cdot 10^{23} {\rm Hz} \]
+%and hence the total number of oscillations during the flight is
+%\[ N \approx 2.272 \cdot 10^{23} {\rm s}^{-1} \times 2.918 \cdot 10^{-5} {\rm s} = 6.630 \cdot 10^{18} \]
+%We thus expect the number of fringe shifts due purely to time dilation to be (to first order) for the actual average height difference of $\Delta z = \sin\varphi 1.502 {\rm cm}$,
+%\[ (\Delta N)_{T_d} = 6.630 \cdot 10^{18} \times 1.091\cdot 10^{-16}\frac{\Delta z}{\mathrm{m}} = 723.3 \times 0.01502 \sin\varphi =  10.864 \sin\varphi \]
+%Since the number of fringe shifts predicted from purely kinematic arguments was $\approx 19$, this should have been easily detectable.
+%Obviously, something went wrong in either the experiment or in its analysis.
+
+
+\subsection{Other Forces}
+The above discussion has been entirely about gravity and electromagnetism.
+However, other potentials should also cause similar time dilation.
+
+In theory, geometric confinement could be used to raise the energy of a particle, along lines discussed in section 3 of \cite{Allman}.
+This could be used on uncharged particles such as neutrons, while most of the above approaches require charged particles.
+However, the effect for any realistic confinement may be too small to measure.
+
+There are many other possibilities, including the strong and weak nuclear forces, but these few should suffice to demonstrate that quantum time dilation makes different predictions than the standard view of phase shift, and that the differences are accessible to experimental test.
+
+%Of course, there remain questions about which object or particle should be considered when calculating the time dilation.  Is it, for example, an entire atom (or ion) with its nucleus and electrons taken as a whole?  Or should we, in the case of nuclear decay, only consider the nucleus?  This is an empirical question, but there is evidence that the entire atom is the proper entity.  The detection of interference fringes for large molecules such as ${\rm C}_{70}$ \cite{Arndt2001,Nairz2003} implies that such a bound collection can reasonably be viewed as having its own quantum phase as a single unified entity.  Also, such questions may sometimes be moot; at least in GR, while $\Delta E$ is dependent on the particle's mass, $\Delta E/E$ and hence $T_d$ are not.
+
+%\section{Charge Conservation, Gauge Invariance, and Noether's Theorem}
+%In several sections above we have hinted that charge conservation may not be sacrosanct.
+%This is of course foolhardy and heretical, and requires justification.
+%In this section we attempt to provide a sketch of how charge conservation might not hold.
+%
+%Charge conservation is often viewed as a result of Noether's Theorem and the gauge invariance of classical EM.
+%We are particularly interested in the simple case of changing the absolute electric potential $\phi$ by adding a constant to it everywhere, without changing the magnetic vector potential $A$.  That is, we want
+%\[ \phi' = \phi + C\]
+%\[ A' = A \]
+%The gauge transformation that leaves electromagnetic fields unaltered is
+%\[ \phi' = \phi - \frac{\partial\chi}{\partial t} \]
+%\[ A' = A + \nabla\chi \]
+%where $\chi$ is any scalar potential.
+%Equating the two gives
+%\[ \frac{\partial\chi}{\partial t} = -C \]
+%\[ \nabla\chi = 0 \]
+%We can certainly choose $\chi$ to be constant over space and satisfy this.  Defining
+%\[ \chi_0 \equiv \chi(x=0,y=0,z=0,t=0) \]
+%this gives
+%\[ \chi(x,y,z,0) = \chi_0 \ \forall x,y,z \]
+%or in other words, $\chi$ is a function of $t$ only.  Thus $\frac{\partial\chi}{\partial t} = \frac{d\chi}{dt}$ and
+%\[ \frac{d\chi}{dt} = -C \]
+%with solutions
+%\[ \chi(t) = -Ct + D \]
+%for arbitrary constant $D$.
+%
+%It is here that the standard interpretation goes slightly awry.
+%In QM this corresponds to a phase shift
+%\[ \psi' = e^{iq\chi/\hbar}\psi \]
+%and since an absolute phase shift cannot be detected, this produces no physical change.
+%However if we write $\psi$ in its time-dependent form
+%\[ \psi = \psi(\vec{r})e^{-iEt/\hbar} \]
+%we see that
+%\[ \psi' = e^{iq\chi/\hbar}\psi(\vec{r})e^{-iEt/\hbar} = \psi(\vec{r})e^{iq\chi/\hbar-iEt/\hbar} = \psi(\vec{r})e^{i(-qCt + D-Et)/\hbar} = \psi(\vec{r})e^{-i((qC+E)t - D)/\hbar}\]
+%
+%``contrary to the conclusions of classical mechanics, there exist effects of potentials on charged particles, even in the region where all the fields (and therefore the forces on the particles) vanish.''\cite{Aharonov1959}
+
+%\section{Absolute Electric Potential}
+
+%\subsection{Lack of gauge invariance with respect to electric potential}
+%It is well known and easy to prove that the Maxwell equations are gauge invariant with respect to adding a global constant to the electric potential everywhere.  Let us call this particular gauge invariance {\em Voltage Invariance} (VI).  Classical EM is VI.
+
+%However, if the total energy of particle with rest mass $m_0$ and charge $q$ in a potential $V$ is $E = m_0 c^2 + qV$, and the quantum phase frequency is given by $\nu = E/h$, then the phase frequency is not VI.  Thus phase effects in QM are not necessarily VI.  In particular, we claim that the rate of time flow experienced by a charged particle such as a muon is proportional to its phase frequency, and is not VI.
+
+%This claim can be broken down into two parts, which are independently testable:
+%\begin{enumerate}
+%\item{The rate of time flow experienced by a particle is proportional to its phase frequency.}
+%\item{The phase frequency of a charged particle is voltage-dependent.}
+%\end{enumerate}
+
+%\subsection{Calculating absolute potential from muon lifetimes}
+%Since a non-zero electric potential causes inverse time dilation for positive and negative particles, the lifetimes of (say) $\mu^+$ and $\mu^-$ can be used to calculate the potential.
+%This means that there is a global absolute zero potential which can be detected by experiment;
+%it is that point at which charged particles and antiparticles have the same mass and decay at the same rate.
+%
+%Without measurement, there is no guarantee that the earth is at zero potential.  (Consider that the potential difference between the earth and a cloud floating above it may exceed 300 MV during a lightning storm.)  Thus, we have no reason to expect that the lifetimes of particles and antiparticles will be exactly the same when measured in terrestrial laboratories.  This has implications for those e.g. attempting to use the muon lifetime to determine parameters of the standard model.
+%If they do not correct for time dilation due to the absolute potential of the earth, their results may be wrong by 1 ppm per 105 V.
+%(On the other hand, the QTD dilation for the binding energy of $\mu^+e^-$ is about 0.999999866 or 134 parts per billion.
+%Thus it may be ignored in crude measurements of $\mu^+$ lifetime in matter,
+%although it is much larger than the SR dilation of 0.6 ppb estimated by Czarnecki et al. \cite{Czarnecki2000}.)
+%
+%An easy way to correct for voltage offset would be to take the
+%%geometric mean
+%average
+%of $\mu^+$ and $\mu^-$ lifetimes measured under identical conditions.
+%Since (for small $V$)
+%%\[ T_d(\mu^+,V)\cdot T_d(\mu^+,-V) = 1\]
+%\[ T_d(\mu^+,V) + T_d(\mu^+,-V) = 2\]
+%and
+%\[ T_d(\mu^-,V) = T_d(\mu^+,-V) \]
+%we get
+%\[ T_d(\mu^+,V)\cdot T_d(\mu^-,V) = 1\]
+%\[ T_d(\mu^+,V) + T_d(\mu^-,V) = 2\]
+%so that
+%\[ \sqrt{\lambda(\mu^+,V)\lambda(\mu^-,V)} = \sqrt{\frac{\lambda(\mu^+,0)}{T_d(\mu^+,V)}\frac{\lambda(\mu^-,0)}{T_d(\mu^-,V)}}
+% = \sqrt{\lambda(\mu^+,0)\lambda(\mu^-,0)} = \lambda(\mu^\pm,0) \]
+%\[ \lambda(\mu^+,V) + \lambda(\mu^-,V) = \lambda(\mu^+,0) T_d(\mu^+,V) + \lambda(\mu^-,0) T_d(\mu^-,V) \]
+%\[ = \lambda(\mu^\pm,0) (T_d(\mu^+,V) + T_d(\mu^-,V))  = 2\lambda(\mu^\pm,0) \]
+%Similarly, the zero-potential mass of a particle and its antiparticle can be computed as e.g.
+%$m_{e^\pm}(0) = \frac{1}{2} (m_{e^+}(V) + m_{e^-}(V))$ at any potential $V$.
+%
+%The absolute potential $V$ can then be calculated from e.g.
+%\[ T_d(\mu^+,V) = \frac{\lambda(\mu^+,0)}{\lambda(\mu^+,V)} \]
+%and
+%%\[ T_d(\mu^+,V) = e^{qV/m_0c^2} \]
+%\[ T_d(\mu^+,V) = 1 + \frac{qV}{m_\mu c^2} \]
+%to be
+%%\[ V = \frac{m_{\mu}c^2}{q}\ln(\sqrt{\lambda(\mu^+,V)\lambda(\mu^-,V)}/\lambda(\mu^+,V)) \]
+%%\[ = \frac{m_{\mu}c^2}{2q}\ln(\lambda(\mu^-,V) / \lambda(\mu^+,V)) \]
+%\[ V = \frac{m_\mu c^2}{q}\left(\frac{\lambda(\mu^+,0)}{\lambda(\mu^+,V)} - 1\right) = \frac{m_\mu c^2}{2q}\left(\frac{\lambda(\mu^-,V)}{\lambda(\mu^+,V)} - 1\right) \]
+
+\section{Summary}
+
+We interpret the well known quantum phase shift at different energy levels as a time-dilation.  The mathematics of this is essentially identical to that of gravitational time dilation in general relativity, indicating perhaps a deep and simple connection between QM and GR.  This interpretation is shown to have measurable consequences which have some support in prior experimental data, and further experiments are proposed that could test its validity more directly.
+
+\begin{thebibliography}{10}
+
+\bibitem{Heaviside1893}
+ O. Heaviside,
+``A gravitational and electromagnetic analogy (Part I)'',
+{\em The Electrician} 31: 281-282 (14 July 1893).
+``A gravitational and electromagnetic analogy (Part II)'',
+{\em The Electrician} 31: 359 (1893).
+A somewhat error-laden transcription can be found at
+\url{http://www.univer.omsk.su/omsk/Sci/Heaviside/gravitation.htm}.
+
+\bibitem{Jefimenko1992}
+O.D. Jefimenko,
+{\em Causality, electromagnetic induction, and gravitation: a different approach to the theory of electromagnetic and gravitational fields},
+Electret Scientific (1992).
+This book also contains a version of Heaviside's articles, rewritten in more modern notation.
+
+\bibitem{Vizgin1994}
+V.P. Vizgin (tr.J.B. Barbour),
+``Unified Field Theories in the first third of the 20th century",
+Birkh\"{a}user Verlag (1994)
+
+\bibitem{Weyl1922}
+H. Weyl,
+{\em Space-Time-Matter} (1922)
+(quote on p.283)
+
+\bibitem{Schrodinger1950}
+E. Schr\"{o}dinger, 
+{\em Space-Time Structure} pp.1-2,
+Cambridge Univ. Press (1950)
+
+\bibitem{Carroll2001}
+S.M. Carroll.
+``A No-Nonsense Introduction to General Relativity'',
+(2001)
+\url{http://preposterousuniverse.com/grnotes/grtinypdf.pdf}
+
+\bibitem{Hamza2015}
+H.G.A.I. Hamza \& W.A.A.  Alhassan,
+“Deriving the Useful Expression for Time Dilation in the Presence Of the Gravitation by means of a Light Clock”,
+IOSR Journal of Applied Physics, e-ISSN: 2278-4861.Volume 7, Issue 2 Ver. II (Mar.-Apr. 2015), pp.107-111
+
+\bibitem{TongGR}
+David Tong,
+"Concepts in Theoretical Physics, Lecture 7: General Relativity",
+\url{http://www.damtp.cam.ac.uk/user/tong/concepts/gr.pdf}
+
+\bibitem{Nordebo2016}
+"The Reissner-Nordström metric",
+\url{http://www.diva-portal.org/smash/get/diva2:912393/FULLTEXT01.pdf},
+Section 4.4 pp.22-24
+
+\bibitem{TerzicPHYS652}
+Bal\v{s}a Terzi\'{c},
+"PHYS 652: Astrophysics",
+\url{http://nicadd.niu.edu/~bterzic/PHYS652/PHYS652_notes.pdf}
+pp.9-10
+
+\bibitem{Lawden1982}
+D.F. Lawden, {\em An Introduction to Tensor Calculus, Relativity and Cosmology} 3rd Ed, J.Wiley (1982)
+
+% Rindler Horizon
+\bibitem{wikiRindler}
+``Rindler Coordinates''
+\url{http://en.wikipedia.org/wiki/Rindler_coordinates}
+
+\bibitem{Egan2006}
+G. Egan,
+``The Rindler Horizon'',
+\url{http://www.gregegan.net/SCIENCE/Rindler/RindlerHorizon.html}
+
+\bibitem{Xiang2001}
+L. Xiang, Z. Zheng,
+``Entropy of the Rindler Horizon'',
+{\em Int. J. of Theoretical Physics}  v.40 \#10 1755-1760 (Oct 2001)
+
+\bibitem{Culetu2006}
+H. Culetu,
+``Is the Rindler horizon energy nonvanishing?'',
+{\em Int. J. Mod. Phys.} D15 2177-2180 (2006)
+DOI: 10.1142/S0218271806009601
+arXiv:hep-th/0607049v2
+
+\bibitem{Rindler2001}
+W. Rindler,
+{\em Relativity: Special, General, and Cosmological}, Oxford U. Press (2001)
+
+%\bibitem{MTW}
+%Misner, Thorne, Wheeler,
+%{\em Gravitation}
+
+\bibitem{deBroglie1925}
+L. de Broglie,
+{\em Recherches sur la Th\'{e}orie des Quanta} (1925),
+translated by A.F. Kracklauer as
+{\em On the Theory of Quanta} (2004)
+\url{http://www.ensmp.fr/aflb/LDB-oeuvres/De_Broglie_Kracklauer.pdf}
+
+%\bibitem{Hestenes2008}
+%D. Hestenes, "Electron time, mass and zitter" (2008)
+%\url{http://www.fqxi.org/data/essay-contest-files/Hestenes_Electron_time_essa.pdf}
+
+\bibitem{Schrodinger1925}
+E. Schr\"{o}dinger, letter to W. Wien (27 Dec 1925)
+
+\bibitem{Mehra2000}
+J. Mehra \& H. Rechenberg,
+{\em The Historical Development of Quantum Theory: Volume 5, Erwin Schrodinger and the Rise of Wave Mechanics: Part 2, The Creation of Wave Mechanics: Early Response and Applications 1925-1926} 461-465,
+Springer Verlag (Dec 2000)
+
+\bibitem{Apsel1978}
+D. Apsel,
+``Gravitational, electromagnetic, and nuclear theory'',
+{\em 	International Journal of Theoretical Physics} v.17 \#8 643-649 (Aug 1978)
+DOI: 	10.1007/BF00673015
+
+\bibitem{Apsel1979}
+D. Apsel,
+``Gravitation and electromagnetism'',
+{\em General Relativity and Gravitation} v.10 \#4 297-306 (Mar 1979)
+DOI: 10.1007/BF00759487
+
+\bibitem{Apsel1981}
+D. Apsel,
+``Time dilations in bound muon decay'',
+{\em General Relativity and Gravitation} v.13 \#6 605-607 (Jun 1981)
+DOI: 10.1007/BF00757247
+
+\bibitem{Rodrigues1983}
+W.A. Rodrigues Jr.,
+``The Standard of Length in the Theory of Relativity and Ehrenfest Paradox'',
+{\em Il Nuovo Cimento} v.74 B \#2 199-211 (11 April 1983)
+
+\bibitem{Ryff1985}
+L.C.B. Ryff,
+``The Lifetime of an Elementary Particle in a Field'',
+{\em General Relativity and Gravitation} v.17 \#6 515-519 (1985)
+
+\bibitem{Beil1987}
+R.G. Beil,
+``Electrodynamics from a Metric'',
+{\em Int. J. of Theoretical Physics} v.26 \#2 189-197 (1987)
+
+\bibitem{vanHolten1991}
+J.W. van Holten,
+``Relativistic Time Dilation in an External Field'',
+NIKHEF-H/91-05 (1991)
+
+\bibitem{vanHolten1993}
+J.W. van Holten,
+``Relativistic Dynamics of Spin in Strong External Fields''",
+\url{arXiv:hep-th/9303124v1}, (24 March 1993)
+
+\bibitem{Dubey2015}
+A.K. Dubey, A.K. Sen,
+``Gravitational Redshift in Kerr-Newman Geometry''",
+\url{arXiv:1503.03833v5}, (16 October 2015)
+
+%\bibitem{Hwang2002}
+%W. Y. Hwang, D. Ahn, S. W. Hwang, Y. D. Han,
+%"Entangled quantum clocks for measuring proper-time difference",
+%{\em Eur. Phys. J. D,} v.19 \#1, 129-132 (April 2002)  DOI:10.1140/epjd/e20020065
+
+\bibitem{Creator2004}
+``time dilation in an electromagnetic potential'' (2004)\\
+\url{http://www.physicsforums.com/archive/index.php/t-57510.html}
+
+\bibitem{Duda2010}
+\url{http://groups.google.com/group/sci.physics.relativity/browse_thread/thread/3be6a489686aed86/}
+
+\bibitem{Ogonowski2012}
+Piotr Ogonowski,
+"Time dilation as field",
+Journal of Modern Physics, 3, 200-207 (2012)
+
+\bibitem{Ogonowski2013}
+P. Ogonowski, P. Skindzier,
+"Maxwell-like picture of General Relativity and its Planck limit",
+\url{https://arxiv.org/pdf/1301.2758.pdf}
+
+\bibitem{Jackson2001}
+J. D. Jackson \& L. B. Okun,
+``Historical roots of gauge invariance'',
+LBNL-47066 (12 March 2001)
+
+\bibitem{Andreev2007}
+V.A. Andreev et al.,
+``Measurement of the Rate of Muon Capture in Hydrogen Gas and 
+Determination of the Proton’s Pseudoscalar Coupling $g_P$'',
+submitted to Phys.Rev.Lett
+arXiv:0704.2072v1
+
+\bibitem{Murayama2003}
+H. Murayama,
+``CPT Tests: Kaon vs Neutrinos'',
+arXiv:hep-ph/0307127
+
+\bibitem{Sachs1987}
+R.G. Sachs,
+{\em The Physics of Time Reversal},
+U. Chicago Press (1987),
+p.175
+
+\bibitem{Gelfand2013}
+M. Gelfand,
+personal communication (2013)
+
+\bibitem{PDG2014}
+K.A. Olive et al. (Particle Data Group),
+Chin. Phys. C38, 090001 (2014)
+\url{http://pdg.lbl.gov/2014/listings/rpp2014-list-muon.pdf}
+
+\bibitem{Einstein1907}
+A. Einstein, ``\"{U}ber das Relativit\"{a}tsprinzip und die aus demselben gezogenenn Folgerungen'',
+{\em Jahrbuch der Radioaktivit\"{a}t und Elektronik} 4, 411-462 (1907);
+English translation, ``On the relativity principle and the conclusions drawn from it'',
+{\em The Collected Papers}, v.2, 433-484 (1989)
+
+\bibitem{Schwartz1977}
+H.M. Schwartz, ``Einstein's comprehensive 1907 essay on relativity, part 1'',
+{\em Am. J. Physics} 45, 512-517 (1977)
+
+\bibitem{Jammer2006}
+M. Jammer, {\em Concepts of Simultaneity: from Antiquity to Einstein and Beyond}, Johns Hopkins U. Press (2006)
+
+\bibitem{Soler2006}
+D. Soler.
+``Rigid Motions in Relativity: Applications'',
+in L. Momas, J.Diaz Alonso (eds.),
+{\em A Century of Relativity Physics} 611-614, AIP (2006)
+
+\bibitem{Klauber1998}
+R. Klauber,
+``New Perspectives on the Relativistically Rotating Disk and Non-time-orthogonal Reference Frames'',
+{\em Found. Phys. Lett.} v.11 405-443 (1998)
+gr-qc/0103076
+
+
+%\bibitem{Hori2006}
+%M. Hori et al.,
+%"Determination of the Antiproton-to-Electron Mass Ratio by Precision Laser Spectroscopy of $\bar{p}$He$^+$",
+%{\em Phys. Rev. Lett.} 96, 243401 (2006)
+%\url{http://link.aps.org/doi/10.1103/PhysRevLett.96.243401}
+%DOI: 	10.1103/PhysRevLett.96.243401
+
+%\bibitem{Hayano2007}
+%R.S. Hayano, M. Hori, D. Horv\'{a}th, E. Widmann,
+%"Antiprotonic helium and CPT invariance",
+%{\em Rep. Prog. Phys.} 70 1995–2065 (2007)
+%\url{http://asacusa.web.cern.ch/ASACUSA/home/publications/rpp7_12_R01.pdf}
+%DOI: 10.1088/0034-4885/70/12/R01
+
+%\bibitem{Horvath2008}
+%D. Horv\'{a}th,
+%"Antiprotonic helium and {\em CPT} invariance",
+%2008
+
+\bibitem{Wheeler1947}
+J.A. Wheeler,
+``Mechanism of Capture of Slow Mesons'',
+{\em Phys. Rev.} 71 320 (1947)
+
+\bibitem{Kammel2003}
+P. Kammel,
+``Muon Capture and Muon Lifetime'',
+arXiv:nucl-ex/0304019v2
+
+\bibitem{Aharonov1959}
+Y. Aharonov, D. Bohm,
+``Significance of Electromagnetic Potentials in the Quantum Theory'',
+{\em Phys. Rev.} 115, 485-491 (1959). 
+\url{http://link.aps.org/doi/10.1103/PhysRev.115.485}
+DOI: 10.1103/PhysRev.115.485
+
+\bibitem{Ehrenberg1949}
+W. Ehrenberg, R. E. Siday,.
+``The Refractive Index in Electron Optics and the Principles of Dynamics'',
+{\em Proc. Phys. Soc.} B62: 8-21 (1949).
+DOI: 10.1088/0370-1301/62/1/303
+
+\bibitem{Allman}
+B.E. Allman, A. Cimmino, A.G. Klein,
+Reply to ``Comment on `Quantum Phase Shift Caused by Spatial Confinement' by Murray Peshkin,
+{\em Foundations of Physics} v.29 \#3 325-332 (March 1999). DOI:10.1023/A:1018858630047
+
+\bibitem{Chitwood2007}
+D.B. Chitwood et al. (MuLan Collaboration),
+``Improved Measurement of the Positive Muon Lifetime and Determination of the Fermi Constant'',
+{\em Phys. Rev. Lett.} 99:032001(2007)
+DOI: 	10.1103/PhysRevLett.99.032001
+arXiv:0704.1981v2 [hep-ex]
+
+\bibitem{Bennett2004}
+G.W. Bennett et al.,
+``Measurement of the Negative Muon Anomalous Magnetic Moment to 0.7 ppm'',
+{\em Physical Review Letters} 92; 1618102 (2004).  arXiv:hep-ex/0401008 v3 (21 Feb 2004)
+
+\bibitem{Eaton1999}
+G.H. Eaton, S.H. Kilcoyne,
+``Muon Production: Past, Present, and Future'',
+in S.L. Lee et al. (eds), {\em Muon Science: Muons in Physics, Chemistry and Materials} 11-37, (1999)
+
+\bibitem{Heffner1984}
+R.H. Heffner,
+{\em Muon sources for solid-state research},
+National Academy Press (1984)
+
+\bibitem{Kuno2001}
+Y. Kuno, Y. Okada,
+``Muon decay and physics beyond the standard model'',
+{\em Rev. Mod. Physics} 73 151-202 (Jan 2001)
+
+\bibitem{Coan2006}
+T. Coan, T. Liu, J. Ye,
+``A Compact Apparatus for Muon Lifetime Measurement and Time Dilation Demonstration in the Undergraduate Laboratory'',
+{\em Am.J.Phys.} 74, 161-164 (2006)  arXiv:physics/0502103v1
+
+\bibitem{Ritbergen1999}
+T. van Ritbergen, R.G. Stuart,
+``Complete 2-Loop Quantum Electrodynamic Contributions to the Muon Lifetime in the Fermi Model'',
+{\em Phys. Rev. Lett.} 82, 488-491 (1999)
+\url{http://link.aps.org/doi/10.1103/PhysRevLett.82.488}
+DOI: 10.1103/PhysRevLett.82.488
+
+\bibitem{Fermi1947}
+E. Fermi, E. Teller,
+``The Capture of Negative Mesotrons in Matter'',
+{\em Physical Review} v.72 \#5 399-408 (1947)
+
+\bibitem{Tonomura1982}
+A. Tonomura et al.,
+``Observation of Aharonov-Bohm Effect by Electron Holography'',
+{\em Phys. Rev. Lett.} 48 1443-1446 (1982)
+
+\bibitem{Hughes2001}
+V.W. Hughes,
+``The Muon Anomalous Magnetic Moment'', in
+E. Arimondo, P. De Natale, \& M. Inguscio (eds.),
+{\em Atomic Physics 17} (2001)
+
+\bibitem{Colella1975}
+R. Colella, A. W. Overhauser, S. A. Werner,
+``Observation of Gravitationally Induced Quantum Interference'',
+{\em Phys. Rev. Lett.} 34, 1472 (1975)
+
+% for future reference
+
+%\bibitem{Stephani2003}
+%H. Stephani et al.,
+%{\em Exact solutions of Einstein's field equations} 2nd Ed., Cambridge U. Press (2003)
+
+%\bibitem{MacCallum2006}
+%M.A.H. MacCallum,
+%"Finding and using exact solutions of the Einstein equations",
+%in L. Momas, J.Diaz Alonso (eds.),
+%{\em A Century of Relativity Physics} 129-143, AIP (2006)
+
+%\bibitem{Czarnecki2000}
+%A. Czarnecki, G.P. Lepage, W.J. Marciano,
+%"Muonium decay",
+%{\em Phys. Rev.} D 61, 073001 (2000)
+%\url{http://link.aps.org/doi/10.1103/PhysRevD.61.073001}
+%DOI: 10.1103/PhysRevD.61.073001 
+
+\end{thebibliography}
+
+\end{document}
