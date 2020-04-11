@@ -42,35 +42,35 @@ import random
 class TDC7201():
     # Chip registers and a few combinations of registers
     REGNAME = [	"CONFIG1",			# 0x00
-		"CONFIG2",			# 0x01
-		"INT_STATUS",			# 0x02
-		"INT_MASK",			# 0x03
-		"COARSE_CNTR_OVF_H",		# 0x04
-		"COARSE_CNTR_OVF_L",		# 0x05
-		"CLOCK_CNTR_OVF_H",		# 0x06
-		"CLOCK_CNTR_OVF_L",		# 0x07
-		"CLOCK_CNTR_STOP_MASK_H",	# 0x08
-		"CLOCK_CNTR_STOP_MASK_L",	# 0x09
-		"COARSE_CNTR_OVF",		# 0x0A (combination)
-		"CLOCK_CNTR_OVF",		# 0x0B (combination)
-		"CLOCK_CNTR_STOP_MASK",		# 0x0C (combination)
-		"",				# 0x0D
-		"",				# 0x0E
-		"",				# 0x0F
-		"TIME1",			# 0x10
-		"CLOCK_COUNT1",			# 0x11
-		"TIME2",			# 0x12
-		"CLOCK_COUNT2",			# 0x13
-		"TIME3",			# 0x14
-		"CLOCK_COUNT3",			# 0x15
-		"TIME4",			# 0x16
-		"CLOCK_COUNT4",			# 0x17
-		"TIME5",			# 0x18
-		"CLOCK_COUNT5",			# 0x19
-		"TIME6",			# 0x1A
-		"CALIBRATION1",			# 0x1B
-		"CALIBRATION2"			# 0x1C
-	      ]
+                "CONFIG2",			# 0x01
+                "INT_STATUS",			# 0x02
+                "INT_MASK",			# 0x03
+                "COARSE_CNTR_OVF_H",		# 0x04
+                "COARSE_CNTR_OVF_L",		# 0x05
+                "CLOCK_CNTR_OVF_H",		# 0x06
+                "CLOCK_CNTR_OVF_L",		# 0x07
+                "CLOCK_CNTR_STOP_MASK_H",	# 0x08
+                "CLOCK_CNTR_STOP_MASK_L",	# 0x09
+                "COARSE_CNTR_OVF",		# 0x0A (combination)
+                "CLOCK_CNTR_OVF",		# 0x0B (combination)
+                "CLOCK_CNTR_STOP_MASK",		# 0x0C (combination)
+                "",				# 0x0D
+                "",				# 0x0E
+                "",				# 0x0F
+                "TIME1",			# 0x10
+                "CLOCK_COUNT1",			# 0x11
+                "TIME2",			# 0x12
+                "CLOCK_COUNT2",			# 0x13
+                "TIME3",			# 0x14
+                "CLOCK_COUNT3",			# 0x15
+                "TIME4",			# 0x16
+                "CLOCK_COUNT4",			# 0x17
+                "TIME5",			# 0x18
+                "CLOCK_COUNT5",			# 0x19
+                "TIME6",			# 0x1A
+                "CALIBRATION1",			# 0x1B
+                "CALIBRATION2"			# 0x1C
+              ]
 
     # PIN DEFINITIONS
     # +3.3V and *both* GND pins need to be hardwired,
@@ -266,8 +266,8 @@ class TDC7201():
         self._spi = spidev.SpiDev()
         self.reg1 = [None for i in range(self.MAXREG24+1)]
         #self.reg2 = [None for i in range(self.MAXREG24+1)]
-	# Open SPI to side 1 of the chip
-	# Later we should write routines 
+        # Open SPI to side 1 of the chip
+        # Later we should write routines 
         self._spi.open(0,0)	# Open SPI port 0, RPi CS0 = chip CS1.
         self.chip_select = 1
         #print("SPI interface started to tdc7201 side 1.")
@@ -338,7 +338,7 @@ class TDC7201():
         GPIO.setup(self.INT2,GPIO.IN)
         #print("Set INT2 to input on pin", self.INT2, ".")
 
-	# Set up START and STOP, initially inactive.
+        # Set up START and STOP, initially inactive.
         GPIO.setup(self.START,GPIO.OUT,initial=GPIO.LOW)
         #print("Set START to output (low) on pin", self.START, ".")
         GPIO.setup(self.STOP,GPIO.OUT,initial=GPIO.LOW)
@@ -399,7 +399,9 @@ class TDC7201():
             self._spi.close()
             sys.exit()
         # Set timeout to 22 uS = 10 muon mean lifetimes.
-        timeout = 0.000022
+        #timeout = 0.000022
+        # Set timeout to 500 uS for testing
+        timeout = 0.0005
         overflowCycles = int(timeout / self.clockPeriod) + 1
         print("Setting timeout to", 1000000*timeout, "uS =", overflowCycles, "clock periods.")
         self.write8(self.CLOCK_CNTR_OVF_H, overflowCycles >> 8)
@@ -537,7 +539,7 @@ class TDC7201():
         # Check GPIO state doesn't indicate a measurement is happening.
         if (not GPIO.input(self.INT1)):
             print("WARNING: INT1 already active (low).")
-	    # Try to fix it
+            # Try to fix it
             self.clear_status(verbose=True)
             return 13
         if (GPIO.input(self.TRIG1)):
@@ -666,7 +668,7 @@ tdc.read_regs1()
 #tdc.print_regs1()
 
 # Measure average time per measurement.
-iters = 10000
+iters = 1000
 then = time.time()
 resultList = [0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 for m in range(iters):
@@ -679,8 +681,8 @@ print(iters,"measurements in",duration,"seconds")
 print((iters/duration),"measurements per second")
 print((duration/iters),"seconds per measurement")
 # Read it back to make sure.
-tdc.read_regs1()
-tdc.print_regs1()
+#tdc.read_regs1()
+#tdc.print_regs1()
 
 # Turn the chip off.
 tdc.off()
