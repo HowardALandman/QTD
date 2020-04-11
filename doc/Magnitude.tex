@@ -1,5 +1,6 @@
 %\RequirePackage{lineno} % Nature Physics requires line numbers
-\documentclass[12pt]{amsart}
+\documentclass[12pt]{nature}
+\bibliographystyle{naturemag}
 \usepackage{geometry} % see geometry.pdf on how to lay out the page. There's lots.
 \geometry{a4paper} % or letter or a5paper or ... etc
 % \geometry{landscape} % rotated page geometry
@@ -51,14 +52,18 @@
       \makeatother
 
 
-\title{The magnitude of
- electromagnetic time dilation.}
-\author{Howard A. Landman*}
-\date{v4.0\ \today} % delete this line to display the current date
+\title{The magnitude of electromagnetic time dilation.}
+\author{Howard A. Landman$^1$*}
+\date{v4.1\ \today} % delete this line to display the current date
 
 %%% BEGIN DOCUMENT
 \begin{document}
-\linenumbers
+%\linenumbers
+\maketitle
+
+\begin{affiliations}
+ \item Fort Collins, CO \ howard@riverrock.org
+\end{affiliations}
 
 \begin{abstract}
 Since there is a time dilation associated with the gravitational potential,
@@ -78,12 +83,9 @@ including the weak and strong nuclear ones.
 This constitutes physics “beyond the Standard Model”,
 since the SM excludes all such effects.
 The ubiquity of time dilation may allow it to be used as a central guiding principle of future unified theories, and provide a fresh approach to the problem of quantum gravity.
-
 \end{abstract}
 
-\maketitle
-
-\tableofcontents
+%\tableofcontents
 
 \section{Introduction}
 
@@ -147,7 +149,7 @@ This is a yes/no question with only two possible answers.
 If it does, then application of the Einstein 1907 argument forces EM time dilation,
 and gives a magnitude identical to that computed below.
 If it doesn't, then there can be no EM time dilation.
-Weyl explicitly assumed that it doesn't\cite{Weyl1923a};
+Weyl explicitly assumed that it doesn't\cite[pp. 304-305]{Weyl1923};
 most other researchers have implicitly assumed the same without even discussing it.
 
 After General Relativity in 1915 and the Schwarzschild solution in 1916,
@@ -155,21 +157,20 @@ another view became possible,
 although it is still not widely appreciated.
 Taking the weak field ($r_s \ll r$) and low speed ($\frac{dr}{dt} \ll c$) limit of the Schwarzschild metric
 leaves us with the Newtonian metric
-
-\[ ds^2 = (dx^2 + dy^2 +dz^2 - c^2dt^2) + (-\frac{2GM}{rc^2})c^2dt^2 \]
+%\[ ds^2 = (dx^2 + dy^2 +dz^2 - c^2dt^2) + (-\frac{2GM}{rc^2})c^2dt^2 \]
+\[ ds^2 = (dx^2 + dy^2 +dz^2 - c^2dt^2) + (-2\frac{GM}{r})dt^2 \]
 which is just flat Minkowski spacetime plus the time dilation field.
 In this metric, space is completely flat and only time is curved,
 and the curved time gives geodesics that match Newtonian gravity.
 This pure time dilation field appears as a $1/r^2$ ``force''.
 So in the Newtonian limit of GR,
 %``matter tells time how to dilate, and time dilation tells matter how to move''.
-matter causes a time dilation field and the time dilation gradient causes gravitational acceleration.
-The direction of cause and effect is completely reversed from the 1907 argument.
-This line of thought was anticipated by several early unified theories,
+matter causes a time dilation field and the time dilation gradient causes gravitational acceleration.\footnote{This line of thought was anticipated by several early unified theories,
 although they tended to describe it as a speed-of-light field rather than a time dilation field.
-For example, Ishiwara stated that
+For example, Ishiwara wrote in 1912 that
 "if the speed of light varies in space and in time,
-then these variations lead to the appearance precisely there of a gravitational field."\cite{Ishiwara1912}
+then these variations lead to the appearance precisely there of a gravitational field."\cite{Ishiwara1912}}
+The direction of cause and effect is completely reversed from the 1907 argument.
 
 If we accept both of these arguments,
 then we cannot have any acceleration without an associated time dilation gradient,
@@ -196,7 +197,7 @@ As above, the linear form can't be exactly correct but the exponential form
 $T_d = e^{gz/c^2}$ is.
 
 This derivation appears in some sense to be quantum, since it utilizes $E = h\nu$.
-But because time dilation is a ratio, $h$ cancels out and its precise value doesn't matter.
+But because time dilation is a dimensionless ratio, $h$ cancels out and its precise value doesn't matter.
 This means that the classical ($h \to 0$) limit is exactly the same as the ``quantum'' result.
 
 Both this derivation and Einstein's 1907 one avoid almost all the assumptions of GR,
@@ -228,9 +229,9 @@ the exponential form
 $T_d = e^{qV/mc^2}$
 is the most obvious candidate to replace it.
 But unlike in the gravitational case, here both charge and mass matter,
-or more precisely the dilation is a function of the charge/mass ration $q/m$.
+or more precisely the dilation is a function of the charge/mass ratio $q/m$.
 This means that a simple Riemannian manifold is inadequate,
-and the geometry of any unified theory would have to be something more complicated,
+and the geometry of any unified theory has to be something more complicated,
 like a Finsler space.
 Uncharged particles should be completely unaffected.
 For a given non-zero $q$, lighter particles will be dilated more strongly than heavier particles.
@@ -284,21 +285,21 @@ or whether other factors must be invoked.
 
 \section{Counterarguments}
 
-There are many counterarguments to EM time dilation theories. In this section we point out flaws in two of the main ones.
+In this section we point out flaws in two of the main counterarguments to EM time dilation theories.
 
-\subsection{Naive Electromagnetic Gauge Invariance}
+\subsection{Naive Gauge Invariance}
 
 Many physical theories, such as classical EM and Van Holten's theory mentioned in the previous section,
-have a property that I will call Naive Electromagnetic Gauge Invariance.
-In NEGI theories, everything can be expressed in terms of fields acting locally, and
+have a property that I will call Naive Gauge Invariance.
+In NGI theories, everything can be expressed in terms of fields acting locally, and
 potentials can be viewed as having no physical reality but being merely aids to computation.
-NEGI would of course rule out any time dilation effects from an EM potential in a field free region,
+NGI would of course rule out any time dilation effects from an EM potential in a field free region,
 such as inside the sphere of a Van De Graaff generator.
 Many physicists seem to think that this is sufficient to disprove the theory.
 
 %The standard counterargument is that the gauge invariance of most modern theories makes the proposed effect impossible.
 The problem with this viewpoint is that it is flat-out wrong.
-The universe does {\em not} have the NEGI property;
+The universe does {\em not} have the NGI property;
 the Aharonov-Bohm effect\cite{Ehrenberg1949,Aharonov1959} suffices as a counterexample.
 The importance of this is often glossed over.
 For example, Jackson and Okun\cite[p.24]{Jackson2001} write:
@@ -307,10 +308,12 @@ For example, Jackson and Okun\cite[p.24]{Jackson2001} write:
 However integrals \ldots\ are observable when they are taken over a closed path, as in the Aharonov-Bohm effect \ldots\@
 The loop integral of the vector potential there can be converted by Stokes's theorem into the magnetic flux through the loop,
 showing that the result is expressible in terms of the magnetic field, albeit in a nonlocal manner.
-It is a matter of choice whether one wishes to stress the field or the potential, but the local vector potential is not an observable.
+%It is a matter of choice whether one wishes to stress the field or the potential, but the local vector potential is not an observable.
 \end{quote}
 Contrast this with the discussion in Feynman Vol. II\cite{FeynmanII} lecture 15-5,
-where the central importance of the potential is emphasized:
+where the central importance of the potential is
+%emphasized: % American English
+emphasised: % British English
 \begin{quote}
 The fact that the vector potential appears in the wave equation of quantum mechanics
 (called the Schr\"{o}dinger equation)
@@ -329,13 +332,13 @@ It is interesting that something like this can be around for thirty years but,
 because of certain prejudices of what is and is not significant,
 continues to be ignored.
 \end{quote}
-In either case, the NEGI idea (that fields acting locally can explain everything) is admitted to be false.
+In either case, the NGI idea (that fields acting locally can explain everything) is admitted to be false.
 
 \subsection{CPT Invariance}
 
 It is often stated (e.g. in \cite{Andreev2007,Murayama2003,Sachs1987}) that the CPT theorem guarantees that particle and antiparticle masses and lifetimes are identical.
 However, this conclusion is only justified at zero potential,
-or with the further assumption of NEGI (which renders potential irrelevant).
+or with the further assumption of NGI (which renders potential irrelevant).
 A true CPT reflection must invert all charges and magnetic moments in the universe,
 which necessarily inverts all EM potentials as well.
 Therefore, the CPT theorem only {\em really} proves that a particle's mass and lifetime at 4-potential \textit{\textbf{A}} must equal its antiparticle's mass and lifetime at 4-potential -\textit{\textbf{A}}.
@@ -363,7 +366,7 @@ it seems worthwhile to actually perform that experiment.
 
 \bibitem{Vizgin1994}
 V.P. Vizgin (tr. J.B. Barbour),
-{\em Unified Field Theories in the first third of the 20th century'},
+{\em Unified Field Theories in the first third of the 20th century},
 Birkh\"{a}user Verlag (1994)
 
 \bibitem{Weyl1923}
@@ -371,8 +374,8 @@ H. Weyl,
 {\em Raum-Zeit-Materie} 6th ed.,
 Springer-Verlag (18 Apr 1923)
 
-\bibitem{Weyl1923a}
-Ibid., pp. 304-305
+%\bibitem{Weyl1923a}
+%Ibid., pp. 304-305
 
 \bibitem{Kaluza1921}
 T. Kaluza,
