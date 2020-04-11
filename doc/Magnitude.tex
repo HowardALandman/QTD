@@ -1,10 +1,11 @@
-
+%\RequirePackage{lineno} % Nature Physics requires line numbers
 \documentclass[12pt]{amsart}
 \usepackage{geometry} % see geometry.pdf on how to lay out the page. There's lots.
 \geometry{a4paper} % or letter or a5paper or ... etc
 % \geometry{landscape} % rotated page geometry
 \usepackage{url}
 \usepackage{amsthm}
+\usepackage{lineno} % Nature Physics requires line numbers
 
 % See the ``Article customise'' template for come common customisations
 
@@ -52,23 +53,31 @@
 
 \title{The magnitude of
  electromagnetic time dilation.}
-\author{Howard A. Landman}
-\date{v3.2\ \today} % delete this line to display the current date
+\author{Howard A. Landman*}
+\date{v4.0\ \today} % delete this line to display the current date
 
 %%% BEGIN DOCUMENT
 \begin{document}
+\linenumbers
 
 \begin{abstract}
-Theories unifying gravity and electromagnetism
-naturally give rise to the question of whether there might be
-a time dilation associated with the electromagnetic 4-potential.
-We show here that
-the magnitude of EM time dilation
-can be computed from elementary considerations
+Since there is a time dilation associated with the gravitational potential,
+theories unifying gravity and electromagnetism naturally give rise to the question
+of whether there might be a time dilation associated with the electromagnetic 4-potential.
+While this notion has been widely rejected, a handful of theories explicitly predict such an effect.
+%They imply that the electrostatic part of the effect is well within reach of experiment,
+%while the magnetic part is not. 
+At least to first order, all of them agree on its magnitude, but it has not been clear why.
+Here we show that the magnitudes of both gravitational and EM time dilations
+can be computed from elementary considerations ($E=h\nu$ and $E=mc^2$)
 that are independent of specific unified theories.
-We further show that the electrostatic part of the effect is well within reach of experiment,
-while the magnetic part is not.
-%Finally we suggest simple experiments to answer this question.
+This demonstrates that EM time dilation must be a feature of any unified theory
+that is compatible with both Special Relativity and Quantum Mechanics;
+and more generally, that there must be a time dilation associated with all potentials,
+including the weak and strong nuclear ones.
+This constitutes physics “beyond the Standard Model”,
+since the SM excludes all such effects.
+The ubiquity of time dilation may allow it to be used as a central guiding principle of future unified theories, and provide a fresh approach to the problem of quantum gravity.
 
 \end{abstract}
 
@@ -81,9 +90,9 @@ while the magnetic part is not.
 From the first publication of General Relativity in 1915 to about 1930, hundreds of classical theories
 were proposed attempting to unify gravity and electromagnetism\cite{Vizgin1994}.
 While none of these was completely successful, some of them were very influential.
-For example, Weyl's Space-Time-Matter theory\cite{Weyl1922} introduced the notion of gauge invariance,
+For example, Weyl's Space-Time-Matter theory\cite{Weyl1923} introduced the notion of gauge invariance,
 while Kaluza-Klein theory\cite{Kaluza1921,Klein1926} used a compact 5th dimension
-and was an important precursor to string theory
+and was an important precursor to string theory.
 
 Given that there is a time dilation associated with the gravitational potential in GR,
 it seems reasonable to wonder whether there might be a similar time dilation
@@ -119,7 +128,7 @@ The exponential form solves both of those problems.
 %We emulate his linearized first-order approach in what follows,
 %but return later to briefly consider the non-linear form.
 
-The conclusion of the 1907 argument is that {\em{any}} acceleration
+The conclusion of the 1907 argument is that acceleration
 causes the rate of time flow to be a function of position
 in the direction of the acceleration.
 It did not matter to Einstein whether the acceleration was caused by a rocket,
@@ -132,36 +141,35 @@ Neither are accelerations due to the weak and strong forces;
 {\em{all}} accelerations of a given magnitude
 {\em{must}} cause exactly the same time dilation.
 
-%In 1911 Einstein revisited this question.
-%He used the thought experiment of a mass dropped from a tall tower,
-%which gains kinetic energy $mgh = \frac{1}{2}mv^2$ as it falls.
-%At the base of the tower,
-%the mass and kinetic energy are converted to pure energy $E = mc^2 + mgh$,
-%which is then converted to photons and sent back to the top of the tower.
-%Clearly, if the energy received at the top of the tower differs from $mc^2$,
-%we have violated conservation of energy.
-%He concluded that this required time dilation,
-%and a perceived gravitational redshift.
-
-%It is difficult to generalize the 1911 argument to an EM field.
-%Since photons are uncharged,
-%they cannot carry charge back to the top of the tower.
-%Thus any charge on the dropped mass would lead to a charge imbalance.
+The philosophical question here is whether EM acceleration is "gravity-like",
+i.e. whether the Equivalence Principle applies to EM.
+This is a yes/no question with only two possible answers.
+If it does, then application of the Einstein 1907 argument forces EM time dilation,
+and gives a magnitude identical to that computed below.
+If it doesn't, then there can be no EM time dilation.
+Weyl explicitly assumed that it doesn't\cite{Weyl1923a};
+most other researchers have implicitly assumed the same without even discussing it.
 
 After General Relativity in 1915 and the Schwarzschild solution in 1916,
 another view became possible,
 although it is still not widely appreciated.
 Taking the weak field ($r_s \ll r$) and low speed ($\frac{dr}{dt} \ll c$) limit of the Schwarzschild metric
 leaves us with the Newtonian metric
-$$ds^2 = (dx^2 + dy^2 +dz^2 - c^2dt^2) + (-\frac{2GM}{rc^2})c^2dt^2$$
+
+\[ ds^2 = (dx^2 + dy^2 +dz^2 - c^2dt^2) + (-\frac{2GM}{rc^2})c^2dt^2 \]
 which is just flat Minkowski spacetime plus the time dilation field.
 In this metric, space is completely flat and only time is curved,
 and the curved time gives geodesics that match Newtonian gravity.
 This pure time dilation field appears as a $1/r^2$ ``force''.
 So in the Newtonian limit of GR,
 %``matter tells time how to dilate, and time dilation tells matter how to move''.
-matter causes time dilation and time dilation causes gravitational acceleration.
+matter causes a time dilation field and the time dilation gradient causes gravitational acceleration.
 The direction of cause and effect is completely reversed from the 1907 argument.
+This line of thought was anticipated by several early unified theories,
+although they tended to describe it as a speed-of-light field rather than a time dilation field.
+For example, Ishiwara stated that
+"if the speed of light varies in space and in time,
+then these variations lead to the appearance precisely there of a gravitational field."\cite{Ishiwara1912}
 
 If we accept both of these arguments,
 then we cannot have any acceleration without an associated time dilation gradient,
@@ -176,10 +184,12 @@ to derive gravitational time dilation without directly invoking relativity theor
 We assume only that particles have a rest energy associated with their mass, given by $E = mc^2$,
 and a frequency associated with their energy, given by $E = h\nu$.
 
-In a uniform gravitational field of strength $g$, raising the particle by a height $z$ requires work $mgz$. Thus, to an observer at height $0$, the total energy of the particle at height $z$ is given by $E(z) = mc^2 + mgz$ and its frequency by $\nu(z) = E(z)/h$.
+In a uniform gravitational field of strength $g$, raising a particle by a height $z$ requires work $mgz$. Thus, to an observer at height $0$, the total energy of the particle at height $z$ is given by $E(z) = mc^2 + mgz$ and its frequency by $\nu(z) = E(z)/h$.
 
 However, an observer already at height $z$ would perceive the particle to have merely frequency $\nu(0) = mc^2/h$. This can only be true if the two observers have clocks running at different rates, in the ratio
+
 \[ T_d = \frac{\nu(z)}{\nu(0)} = \frac{E(z)}{E(0)} = \frac{mc^2 + mgz}{mc^2} = 1 + \frac{gz}{c^2} \]
+
 \noindent which is the weak-field approximation to GR's gravitational time dilation
 (with $\Phi = gz$).
 As above, the linear form can't be exactly correct but the exponential form
@@ -209,19 +219,22 @@ but only of a class of theories of which GR is the best known example.
 
 We now consider the case of a particle with mass $m$ and charge $q$ in an electrostatic potential $V$.
 The potential energy is $qV$, so the corresponding time dilation (to first order) must be
+
 \[ T_d =  \frac{mc^2 + qV}{mc^2} =  1 + \frac{qV}{mc^2} \]
+
 As in the gravitational case,
 the linear form cannot be completely right, and
 the exponential form 
 $T_d = e^{qV/mc^2}$
-seems the most obvious candidate to replace it.
-But unlike in the gravitational case, here both charge and mass matter;
-this means that a simple Riemannian manifold is inadequate,
+is the most obvious candidate to replace it.
+But unlike in the gravitational case, here both charge and mass matter,
+or more precisely the dilation is a function of the charge/mass ration $q/m$.
+This means that a simple Riemannian manifold is inadequate,
 and the geometry of any unified theory would have to be something more complicated,
 like a Finsler space.
 Uncharged particles should be completely unaffected.
 For a given non-zero $q$, lighter particles will be dilated more strongly than heavier particles.
-The electron, being the lightest charged particle and having the highest charge-to-mass ratio,
+The electron, being the lightest charged particle and having the highest charge/mass ratio,
 should be affected the most.
 But since electrons have infinite lifetime,
 the only observable effect on them is the shift in phase frequency.
@@ -239,14 +252,14 @@ which is well within reach of a serious hobbyist.
 Apsel first proposed this kind of experiment in 1979\cite{Apsel1979};
 40 years later it still has never been performed.
 
-Muon bound to low-Z nuclei are also known to have lengthened lifetimes.
+Negative muons ($\mu^-$) bound to low-Z nuclei are also known to have lengthened lifetimes.
 The normal explanation for this is that the muon has a kinetic energy given by the quantum virial theorem,
 and an average velocity corresponding to that kinetic energy,
 and a special-relativistic time dilation corresponding to that velocity.
 However, Apsel has argued that this calculation does not match the experimental data very well,
-and that adding electromagnetic time dilation gives a better fit\cite{Apsel1981}.
+and that adding a (smaller) electromagnetic time dilation term gives a better fit\cite{Apsel1981}.
 If so, we may have already been seeing evidence for decades.
-The effect should be more obvious for higher-Z.
+The effect should be more obvious for higher Z.
 Unfortunately, as Z increases, nuclear capture by a proton begins to dominate,
 and we don't have good data on non-capture decay rates for most elements.
 
@@ -255,11 +268,11 @@ $-4.49 \times 10^{-26}\ \textup{J}/\textup{T}$.
 To get the same 1\% level of time dilation, say between spin-up and spin-down muons,
 we would need to place them in a field of
 
-\[ 1.057\ \textup{MeV} \times \frac{1\ \textup{J}}{6.24\times 10^{12}\ \textup{MeV}} \times \frac{1\ \textup{T}}{2 \times (4.49 \times 10^{-26}\ \textup{J})} = 1.89 \times 10^{12}\ \textup{T} \]
+\[ 1.057\ \textup{MeV} \times \frac{1\ \textup{J}}{6.24\times 10^{12}\ \textup{MeV}} \times \frac{1\ \textup{T}}{2 \times (4.49 \times 10^{-26}\ \textup{J})} \approx 1.89 \times 10^{12}\ \textup{T} \]
 
 Given that the world record magnetic fields are in the range of 45--330 T,
-this seems beyond the reach of current experiment.
-Van Holten thought that $5 \times 10^9\ \textup{T}$  might suffice for detection
+this seems far beyond the reach of current experiment.
+Van Holten thought that $5 \times 10^9\ \textup{T}$  might suffice
 and could be found in the vicinity of a magnetar\cite{vanHolten1991,vanHolten1993}.
 
 One characteristic of a pure time dilation is that, all other things being equal,
@@ -350,12 +363,16 @@ it seems worthwhile to actually perform that experiment.
 
 \bibitem{Vizgin1994}
 V.P. Vizgin (tr. J.B. Barbour),
-``Unified Field Theories in the first third of the 20th century'',
+{\em Unified Field Theories in the first third of the 20th century'},
 Birkh\"{a}user Verlag (1994)
 
-\bibitem{Weyl1922}
+\bibitem{Weyl1923}
 H. Weyl,
-{\em Space-Time-Matter} (1922)
+{\em Raum-Zeit-Materie} 6th ed.,
+Springer-Verlag (18 Apr 1923)
+
+\bibitem{Weyl1923a}
+Ibid., pp. 304-305
 
 \bibitem{Kaluza1921}
 T. Kaluza,
@@ -365,7 +382,7 @@ T. Kaluza,
 \bibitem{Klein1926}
 O. Klein,
 ``Quantentheorie und f\"{u}nfdimensionale Relativit\"{a}tstheorie'',
-{\em Zeitschrift für Physik A.} 37 (12): 895–906 (1926)
+{\em Zeitschrift f\"{u}r Physik A.} 37 (12): 895–906 (1926)
 doi:10.1007/BF01397481.
 
 \bibitem{Apsel1978}
@@ -439,6 +456,12 @@ A. Einstein, ``\"{U}ber das Relativit\"{a}tsprinzip und die aus demselben gezoge
 English translation, ``On the relativity principle and the conclusions drawn from it'',
 {\em The Collected Papers}, v.2, 433-484 (1989),
 available at \url{https://einsteinpapers.press.princeton.edu/vol2-trans/319}
+
+\bibitem{Ishiwara1912}
+J. Ishiwara,
+``Z\"{u}r Theorie der Gravitation'',
+{\em Phys. Zeitschrift} 15 1189-1193 (1912),
+translated by Barbour in Vizgin p. 39
 
 %\bibitem{Diepold2013}
 %M. Diepold et al.,
@@ -518,7 +541,7 @@ available at \url{https://einsteinpapers.press.princeton.edu/vol2-trans/319}
 %Springer Verlag (Dec 2000)
 
 \bibitem{Ehrenberg1949}
-W. Ehrenberg, R. E. Siday,.
+W. Ehrenberg, R. E. Siday,
 ``The Refractive Index in Electron Optics and the Principles of Dynamics'',
 {\em Proc. Phys. Soc.} B62: 8-21 (1949).
 DOI: 10.1088/0370-1301/62/1/303
