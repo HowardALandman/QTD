@@ -372,6 +372,8 @@ class TDC7201():
             print("Couldn't set CONFIG1.")
             print(self.REGNAME[self.CONFIG1], ":", result, "=", hex(result), "=", bin(result))
             print("Desired state:", cf1_state, "=", hex(cf1_state), "=", bin(cf1_state))
+            if (result == 0):
+                print("Are you sure the TDC7201 is connected to the Pi's SPI interface?")
             self._spi.close()
             sys.exit()
         # Change calibration periods from 2 to 40, and 3 stops.
@@ -645,7 +647,7 @@ tdc = TDC7201()	# Create TDC object with SPI interface.
 tdc.initGPIO()	# Set pin directions and default values for non-SPI signals.
 
 # Setting and checking clock speed.
-tdc.set_SPI_clock_speed(1000000)
+tdc.set_SPI_clock_speed(25000000)
 #print("")
 
 # Internal timing
