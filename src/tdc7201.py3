@@ -536,7 +536,7 @@ class TDC7201():
             if verbose:
                 print("No need to clear.")
 
-    def measure(self):
+    def measure(self,simulate=False):
         meas_start = time.time()
         # Check GPIO state doesn't indicate a measurement is happening.
         if (not GPIO.input(self.INT1)):
@@ -597,17 +597,18 @@ class TDC7201():
         else:
             #print("TRIG1 fell as expected.")
             pass
-        # Send 0 to 4 STOP pulses. FOR TESTING ONLY.
-        threshold = 2.0/4.0
-        for p in range(4):
-            if random.random() < threshold:
-                GPIO.output(self.STOP,GPIO.HIGH)
-                GPIO.output(self.STOP,GPIO.LOW)
-        #if GPIO.input(self.INT1):
-        #    print("INT1 is inactive (high) as expected.")
-        #else:
-        #    print("ERROR: INT1 is active (low)!")
-        #    return
+        if simulate:
+            # Send 0 to 4 STOP pulses. FOR TESTING ONLY.
+            threshold = 2.0/4.0
+            for p in range(4):
+                if random.random() < threshold:
+                    GPIO.output(self.STOP,GPIO.HIGH)
+                    GPIO.output(self.STOP,GPIO.LOW)
+            #if GPIO.input(self.INT1):
+            #    print("INT1 is inactive (high) as expected.")
+            #else:
+            #    print("ERROR: INT1 is active (low)!")
+            #    return
         # Wait for INT1. This is inefficient, but OK for now.
         # INT1 is active low.
         timeout = time.time() + 0.1	#Don't wait longer than a tenth of a second.
@@ -675,7 +676,7 @@ if __name__ == "__main__":
     then = time.time()
     resultList = [0,0,0,0,0,0,0,0,0,0,0,0,0,0]
     for m in range(iters):
-        resultList[tdc.measure()] += 1
+        resultList[tdc.measure(simulate=True)] += 1
         tdc.clear_status() # Clear interrupt register bits to prepare for next measurement
     print(resultList)
     now = time.time()
