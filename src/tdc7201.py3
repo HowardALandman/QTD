@@ -677,7 +677,8 @@ if __name__ == "__main__":
     resultList = [0,0,0,0,0,0,0,0,0,0,0,0,0,0]
     for m in range(iters):
         resultList[tdc.measure(simulate=True)] += 1
-        tdc.clear_status() # Clear interrupt register bits to prepare for next measurement
+        # Clear interrupt register bits to prepare for next measurement.
+        tdc.clear_status()
     print(resultList)
     now = time.time()
     duration = now - then
