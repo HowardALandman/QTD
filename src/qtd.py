@@ -10,7 +10,7 @@ import time
 import sys
 # random for creating stimuli for testing
 import random
-import tdc7201.tdc7201 as tdc7201
+import tdc7201
 
 # Execute if called as a program (and not if imported as a library)
 if __name__ == "__main__":
