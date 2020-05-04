@@ -3,7 +3,7 @@
 from setuptools import setup, find_packages
 
 setup(name='tdc7201',
-      version='0.1b2',
+      version='0.1b3',
       description='Driver for T.I. TDC7201 chip',
       long_description='Raspberry Pi driver for Texas Instruments TDC7201 Time-to-Digital-Converter chip',
       install_requires=["RPi.GPIO>=0.5","spidev>=3.4"],
