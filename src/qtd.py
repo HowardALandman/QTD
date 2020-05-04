@@ -16,29 +16,32 @@ else:
     for line in hw:
         print(line,end='')
 
+tdc = tdc7201.TDC7201()	# Create TDC object with SPI interface.
+
+# Set RPi pin directions and default values for non-SPI signals.
+# These should stay the same for entire run.
+# This also puts the chip into reset ("off") state.
+tdc.initGPIO()
+
+# Setting and checking clock speed.
+tdc.set_SPI_clock_speed(tdc._maxSPIspeed // 2)
+
+# Internal timing
+#print("UNIX time settings:")
+#print("Epoch (time == 0):", time.asctime(time.gmtime(0)))
+now = time.time()
+#print("Time since epoch in seconds:", now)
+#print("Current time (UTC):", time.asctime(time.gmtime(now)))
+print("Current time (local):", time.asctime(time.localtime(now)), time.strftime("%Z"))
+#print("Time since reset asserted:", now - reset_start)
+time.sleep(0.1)	# ensure a reasonable reset time
+#print("Time since reset asserted:", now - reset_start)
+
+# Turn the chip on.
+tdc.on(meas_mode=2,num_stop=3,clock_cntr_stop=1,timeout=0.0005)
+
 # Execute if called as a program (and not if imported as a library)
 if __name__ == "__main__":
-    tdc = tdc7201.TDC7201()	# Create TDC object with SPI interface.
-    tdc.initGPIO()	# Set pin directions and default values for non-SPI signals.
-
-    # Setting and checking clock speed.
-    tdc.set_SPI_clock_speed(25000000)
-    #print("")
-
-    # Internal timing
-    #print("UNIX time settings:")
-    #print("Epoch (time == 0):", time.asctime(time.gmtime(0)))
-    now = time.time()
-    #print("Time since epoch in seconds:", now)
-    #print("Current time (UTC):", time.asctime(time.gmtime(now)))
-    print("Current time (local):", time.asctime(time.localtime(now)), time.strftime("%Z"))
-    #print("Time since reset asserted:", now - reset_start)
-    time.sleep(0.1)	# ensure a reasonable reset time
-    #print("Time since reset asserted:", now - reset_start)
-
-    # Turn the chip on.
-    tdc.on(meas_mode=2,num_stop=3,clock_cntr_stop=1)
-
     # Make sure our internal copy of the register state is up to date.
     #print("Reading chip side #1 register state:")
     tdc.read_regs1()

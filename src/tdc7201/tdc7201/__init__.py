@@ -367,7 +367,9 @@ class TDC7201():
            calibration2_periods=10,	# HW reset default
            avg_cycles=1,	# no averaging, HW reset default
            num_stop=1,		# HW reset default
-           clock_cntr_stop=0	# HW reset default
+           clock_cntr_stop=0,	# HW reset default
+           clock_cntr_ovf=0xFFFF,	# HW reset default
+           timeout=None		# Alternate way to specify clock overflow
           ):
         now = time.time()
         print("tdc7201 enabled at", now)
@@ -495,19 +497,35 @@ class TDC7201():
                 self._spi.close()
                 sys.exit()
         # else: Maybe should check that chip register is zero.
-        # Set timeout to 22 uS = 10 muon mean lifetimes.
-        #timeout = 0.000022
-        # Set timeout to 500 uS for testing
-        timeout = 0.0005
-        overflowCycles = int(timeout / self.clockPeriod) + 1
-        print("Setting timeout to", 1000000*timeout, "uS =", overflowCycles, "clock periods.")
-        self.write8(self.CLOCK_CNTR_OVF_H, overflowCycles >> 8)
-        self.write8(self.CLOCK_CNTR_OVF_L, overflowCycles & 0xff)
+        #
+        # Set overflow timeout.
+        if timeout is None:
+            ovf = clock_cntr_ovf
+            timeout = clock_cntr_ovf * self.clockPeriod
+        else:
+            ovf = int(timeout / self.clockPeriod)
+        if (meas_mode == 2) and (timeout < 0.000002):
+            print("WARNING: Timeout < 2000 nS and meas_mode == 2; maybe measurement mode 1 would be better?")
+        elif (meas_mode == 1) and (timeout > 0.000002):
+            print("WARNING: Timeout > 2000 nS and meas_mode == 1; maybe measurement mode 2 would be better?")
+        if ovf <= clock_cntr_stop:
+            print("WARNING: clock_cntr_ovf must be greater than clock_cntr_stop, otherwise your measurement will stop before it starts.")
+            ovf = clock_cntr_stop + 1
+            print("Set clock_cntr_ovf to",hex(ovf))
+        if ovf > 0xFFFF:
+            print("FATAL: clock_cntr_ovf exceeds max of 0xFFFF.")
+            self._spi.close()
+            sys.exit()
+        print("Setting timeout to", 1000000*timeout, "uS =", ovf, "clock periods.")
+        ovf_l = ovf & 0xFF
+        ovf_h = (ovf >> 8) & 0xFF
+        self.write8(self.CLOCK_CNTR_OVF_H, ovf_h)
+        self.write8(self.CLOCK_CNTR_OVF_L, ovf_l)
         result = (self.read8(self.CLOCK_CNTR_OVF_H) << 8) | self.read8(self.CLOCK_CNTR_OVF_L)
-        if (result != overflowCycles):
+        if (result != ovf):
             print("Couldn't set CLOCK_CNTR_OVF.")
             print(self.REGNAME[self.CLOCK_CNTR_OVF], ":", result)
-            print("Desired state:", overflowCycles)
+            print("Desired state:", ovf)
             self._spi.close()
             sys.exit()
 
