@@ -227,7 +227,7 @@ class TDC7201():
     # Is the coarse counter overflow enabled?
     _IM_COARSE_OVF	= 0b00000010
     # Is the measurement complete interrupt enabled?
-    _IM_INTERRUPT	= 0b00000001
+    _IM_MEASUREMENT	= 0b00000001
     #
     # TDC7201 register addresses - 24-bit
     # These can be read but usually should not be written,
@@ -366,7 +366,8 @@ class TDC7201():
            meas_mode=2,		# Only this works for now.
            calibration2_periods=10,	# HW reset default
            avg_cycles=1,	# no averaging, HW reset default
-           num_stop=1		# HW reset default
+           num_stop=1,		# HW reset default
+           clock_cntr_stop=0	# HW reset default
           ):
         now = time.time()
         print("tdc7201 enabled at", now)
@@ -479,18 +480,21 @@ class TDC7201():
             self._spi.close()
             sys.exit()
 
-        # Set STOP mask to skip a STOP pulse immediately after a START.
-        sm = 0x01
-        print("Skipping STOP pulses for", sm, "clock periods =", sm*self.clockPeriod, "S")
-        self.write8(self.CLOCK_CNTR_STOP_MASK_H, 0)	# default, but make sure
-        self.write8(self.CLOCK_CNTR_STOP_MASK_L, sm)
-        result = (self.read8(self.CLOCK_CNTR_STOP_MASK_H) << 8) | self.read8(self.CLOCK_CNTR_STOP_MASK_L)
-        if (result != sm):
-            print("Couldn't set CLOCK_CNTR_STOP_MASK.")
-            print(self.REGNAME[self.CLOCK_CNTR_STOP_MASK], ":", result)
-            print("Desired state:", sm, "=", hex(sm), "=", bin(sm))
-            self._spi.close()
-            sys.exit()
+        # CLOCK_CNTR_STOP
+        if clock_cntr_stop > 0:
+            sm_l = clock_cntr_stop & 0xFF
+            sm_h = (clock_cntr_stop >> 8) & 0xFF
+            self.write8(self.CLOCK_CNTR_STOP_MASK_H, sm_h)	# default, but make sure
+            self.write8(self.CLOCK_CNTR_STOP_MASK_L, sm_l)
+            print("Skipping STOP pulses for", clock_cntr_stop, "clock periods =", clock_cntr_stop*self.clockPeriod, "S")
+            result = (self.read8(self.CLOCK_CNTR_STOP_MASK_H) << 8) | self.read8(self.CLOCK_CNTR_STOP_MASK_L)
+            if (result != clock_cntr_stop):
+                print("Couldn't set CLOCK_CNTR_STOP_MASK.")
+                print(self.REGNAME[self.CLOCK_CNTR_STOP_MASK], ":", result)
+                print("Desired state:", clock_cntr_stop, "=", hex(clock_cntr_stop), "=", bin(clock_cntr_stop))
+                self._spi.close()
+                sys.exit()
+        # else: Maybe should check that chip register is zero.
         # Set timeout to 22 uS = 10 muon mean lifetimes.
         #timeout = 0.000022
         # Set timeout to 500 uS for testing
