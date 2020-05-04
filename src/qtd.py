@@ -1,15 +1,8 @@
 #!/usr/bin/python3
 
-#import RPi.GPIO as GPIO
-# Needs to be 0.5.1 or later for interrupts to work.
-# This code was written and tested on 0.6.3.
-# print("GPIO version =", GPIO.VERSION)
-#import spidev
 import time
 # sys for exit()
 import sys
-# random for creating stimuli for testing
-import random
 import tdc7201
 
 # Execute if called as a program (and not if imported as a library)
