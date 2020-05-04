@@ -270,9 +270,10 @@ class TDC7201():
         # Later we should write routines 
         try:
             self._spi.open(0,0)	# Open SPI port 0, RPi CS0 = chip CS1.
+            #raise FileNotFoundError("Artifical error to test exception handling.")
         except FileNotFoundError:
             print("Unable to open SPI device. Is SPI enabled?")
-            print("You can use "lsmod | grep spi" to check if any SPI kernel modules are loaded.")
+            print("You can use 'lsmod | grep spi' to check if any SPI kernel modules are loaded.")
             print("If not, turn SPI on using raspi-config -> Interfacing Options -> SPI")
             print("or Menu -> Preferences -> Raspberry Pi Configuration -> Interfaces.")
             print("You will then need to reboot.")
