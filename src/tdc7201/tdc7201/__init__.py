@@ -361,7 +361,7 @@ class TDC7201():
         GPIO.output(self.ENABLE,GPIO.LOW)
         time.sleep(0.1)
 
-    def on(self):
+    def on(self,force_cal=True,meas_mode=2): # Only these defaults work for now.
         now = time.time()
         print("tdc7201 enabled at", now)
         # Turn on chip enable.
@@ -371,9 +371,22 @@ class TDC7201():
         # SPI available sooner, but we're not in a hurry.
         time.sleep(0.01)
 
-        # Set measurement mode 2.
-        print("Setting measurement mode 2 with forced calibration.")
-        cf1_state = self._CF1_FORCE_CAL | self._CF1_MM2
+        # Configuration register 1
+        cf1_state = 0 # The default after power-on or reset
+        if force_cal:
+            cf1_state |= self._CF1_FORCE_CAL
+            print("Set forced calibration.")
+        if meas_mode == 1:
+            pass
+            #cf1_state |= self._CF1_MM1 # Does nothing since MM1 == 00.
+            #print("Set measurement mode 1.") # default value
+        elif meas_mode == 2:
+            cf1_state |= self._CF1_MM2
+            print("Set measurement mode 2.")
+        else:
+            print(meas_mode,"is not a legal measurement mode.")
+            print("Defaulting to measurement mode 1.")
+            cf1_state |= self._CF1_MM1
         self.write8(self.CONFIG1, cf1_state)
         # Read it back to make sure.
         result = self.read8(self.CONFIG1)

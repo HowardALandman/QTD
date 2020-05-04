@@ -37,7 +37,7 @@ if __name__ == "__main__":
     #print("Time since reset asserted:", now - reset_start)
 
     # Turn the chip on.
-    tdc.on()
+    tdc.on(meas_mode=2)
 
     # Make sure our internal copy of the register state is up to date.
     #print("Reading chip side #1 register state:")
