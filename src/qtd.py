@@ -5,6 +5,17 @@ import time
 import sys
 import tdc7201
 
+# What hardware are we running on?
+cpuinfo_filename = "/proc/cpuinfo"
+try:
+    cpuinfo = open(cpuinfo_filename)
+except:
+    print("Couldn't open",cpuinfo_filename)
+else:
+    hw = list(cpuinfo)[-4:]
+    for line in hw:
+        print(line,end='')
+
 # Execute if called as a program (and not if imported as a library)
 if __name__ == "__main__":
     tdc = tdc7201.TDC7201()	# Create TDC object with SPI interface.
