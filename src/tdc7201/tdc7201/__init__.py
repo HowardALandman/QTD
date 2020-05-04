@@ -361,7 +361,13 @@ class TDC7201():
         GPIO.output(self.ENABLE,GPIO.LOW)
         time.sleep(0.1)
 
-    def on(self,force_cal=True,meas_mode=2): # Only these defaults work for now.
+    def on(self,
+           force_cal=True,	# Only this works for now.
+           meas_mode=2,		# Only this works for now.
+           calibration2_periods=10,	# HW reset default
+           avg_cycles=1,	# no averaging, HW reset default
+           num_stop=1		# HW reset default
+          ):
         now = time.time()
         print("tdc7201 enabled at", now)
         # Turn on chip enable.
@@ -398,9 +404,71 @@ class TDC7201():
                 print("Are you sure the TDC7201 is connected to the Pi's SPI interface?")
             self._spi.close()
             sys.exit()
-        # Change calibration periods from 2 to 40, and 3 stops.
-        print("Setting 40-clock-period calibration and 3 stop pulses.")
-        cf2_state = self._CF2_CAL_PERS_40 | self._CF2_NSTOP_3
+
+        # Configuration register 2
+        cf2_state = 0 # Power-on default is 0b01_000_000
+        # Always calibrate for AT LEAST as many cycles as requested.
+        # Should probably warn if value is not exact ...
+        if calibration2_periods <= 2:
+            #cf2_state |= self._CF2_CAL_PERS_2 # No effect since equals 0.
+            print("Set 2-clock-period calibration.")
+        elif calibration2_periods <= 10:
+            cf2_state |= self._CF2_CAL_PERS_10
+            #print("Set 10-clock-period calibration.") # the hardware default
+        elif calibration2_periods <= 20:
+            cf2_state |= self._CF2_CAL_PERS_20
+            print("Set 20-clock-period calibration.")
+        else:
+            cf2_state |= self._CF2_CAL_PERS_40
+            print("Set 40-clock-period calibration.")
+        if avg_cycles <= 1:
+            pass
+            #cf2_state |= self._CF2_AVG_CYC_1 # No effect since equals 0.
+            #print("No averaging.") # default on reset
+        elif avg_cycles <= 2:
+            cf2_state |= self._CF2_AVG_CYC_2
+            print("Averaging over 2 measurement cycles.")
+        elif avg_cycles <= 4:
+            cf2_state |= self._CF2_AVG_CYC_4
+            print("Averaging over 4 measurement cycles.")
+        elif avg_cycles <= 8:
+            cf2_state |= self._CF2_AVG_CYC_8
+            print("Averaging over 8 measurement cycles.")
+        elif avg_cycles <= 16:
+            cf2_state |= self._CF2_AVG_CYC_16
+            print("Averaging over 16 measurement cycles.")
+        elif avg_cycles <= 32:
+            cf2_state |= self._CF2_AVG_CYC_32
+            print("Averaging over 32 measurement cycles.")
+        elif avg_cycles <= 64:
+            cf2_state |= self._CF2_AVG_CYC_64
+            print("Averaging over 64 measurement cycles.")
+        elif avg_cycles <= 128:
+            cf2_state |= self._CF2_AVG_CYC_128
+            print("Averaging over 128 measurement cycles.")
+        else:
+            #cf2_state |= self._CF2_AVG_CYC_1 # No effect since equals 0.
+            print(avg_cycles,"is not a valid number of cycles to average over, defaulting to no averaging.")
+        if num_stop == 1:
+            pass
+            #cf2_state |= self._CF2_NSTOP_1 # No effect since equals 0.
+            #print("Set 1 stop pulse.") # default on reset
+        elif num_stop == 2:
+            cf2_state |= self._CF2_NSTOP_2
+            print("Set 2 stop pulses.")
+        elif num_stop == 3:
+            cf2_state |= self._CF2_NSTOP_3
+            print("Set 3 stop pulses.")
+        elif num_stop == 4:
+            cf2_state |= self._CF2_NSTOP_4
+            print("Set 4 stop pulses.")
+        elif num_stop == 5:
+            cf2_state |= self._CF2_NSTOP_5
+            print("Set 5 stop pulses.")
+        else:
+            # Other codes (for 6, 7, 8) are invalid and give 1.
+            cf2_state |= self._CF2_NSTOP_1
+            print(num_stop,"is not a valid number of stop pulses, defaulting to 1.")
         self.write8(self.CONFIG2, cf2_state)
         # Read it back to make sure.
         result = self.read8(self.CONFIG2)
@@ -410,6 +478,7 @@ class TDC7201():
             print("Desired state:", cf2_state, "=", hex(cf2_state), "=", bin(cf2_state))
             self._spi.close()
             sys.exit()
+
         # Set STOP mask to skip a STOP pulse immediately after a START.
         sm = 0x01
         print("Skipping STOP pulses for", sm, "clock periods =", sm*self.clockPeriod, "S")
