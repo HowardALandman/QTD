@@ -10,7 +10,7 @@ setup(name='tdc7201',
       # also requires "time", "sys", "random", and maybe "optparse",
       # but those are all built-in.
       classifiers=[
-	  "Development Status :: 3 - Alpha",
+	  "Development Status :: 4 - Beta",
 	  "Intended Audience :: Developers",
 	  "Intended Audience :: Science/Research",
           "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
