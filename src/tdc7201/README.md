@@ -39,8 +39,9 @@ Take the chip out of reset and set up various control parameters.
 * `avg_cycles` - The number of measurements to average over. The allowed values are 1, 2, 4, 8, 16, 32, 64, and 128. The default is 1, which means no averaging. If you use anything larger, the chip will run that many measurements and then report only the average values. This can be useful in a noisy environment.
 * `num_stop` - The chip starts timing on a pulse on the START pin, and then can report timings for up to 5 pulses on the STOP pin. The default is 1, which means the measurement will terminate as soon as a single STOP pulse is received.
 * `clock_cntr_stop = N` - If N is non-zero, the chip will ignore STOP pulses for N clock cycles after START.
-* `clock_cntr_ovf = N` - The chip will end measurement ("time out") after N clock cycles even if num_stop STOP pulses have not been received. Default (and maximum) is 65535 = 0xFFFF.
-* `timeout = T` - You can also specify the overflow period as a time in seconds. For example, if T is 0.0005, the timeout period will be 500 microseconds. If both timeout and clock_cntr_ovf are specified, timeout wins.
+* `clock_cntr_ovf = N` - The chip will end measurement ("time out") after N clock cycles even if num_stop STOP pulses have not been received. Default (and maximum) is 65535 = 0xFFFF. Note that `clock_cntr_ovf` must be greater than `clock_cntr_stop`, or the measurement will time out before it begins.
+* `timeout = T` - You can also specify the overflow period as a time in seconds. For example, if T is 0.0005, the timeout period will be 500 microseconds. If both `timeout` and `clock_cntr_ovf` are specified, `timeout` wins.
+
 
     measure(simulate=False)
 
