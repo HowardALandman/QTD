@@ -3,7 +3,7 @@
 from setuptools import setup, find_packages
 
 setup(name='tdc7201',
-      version='0.2b1',
+      version='0.2b2',
       description='Driver for T.I. TDC7201 chip',
       long_description='Raspberry Pi driver for Texas Instruments TDC7201 Time-to-Digital-Converter chip',
       install_requires=["RPi.GPIO>=0.5","spidev>=3.4"],
@@ -25,7 +25,7 @@ setup(name='tdc7201',
       url='https://github.com/HowardALandman/QTD/src/tdc7201',
       author='Howard A. Landman',
       author_email='howard@riverrock.org',
-      license='MIT',
+      license='GPLv3+',
       #packages=['tdc7201'],
       packages=find_packages(),
       zip_safe=False)
