@@ -2,10 +2,13 @@
 
 from setuptools import setup, find_packages
 
+with open('README.md') as f:
+    long_description = f.read()
+
 setup(name='tdc7201',
-      version='0.2b2',
-      description='Driver for T.I. TDC7201 chip',
-      long_description='Raspberry Pi driver for Texas Instruments TDC7201 Time-to-Digital-Converter chip',
+      version='0.2b3',
+      description='Raspberry Pi driver for Texas Instruments TDC7201 Time-to-Digital-Converter chip',
+      long_description=long_description,
       install_requires=["RPi.GPIO>=0.5","spidev>=3.4"],
       # also requires "time", "sys", "random", and maybe "optparse",
       # but those are all built-in.
