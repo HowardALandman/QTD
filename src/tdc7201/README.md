@@ -59,7 +59,14 @@ Clear any set interrupt status register bits to prepare for next measurement. Th
 
     set_SPI_clock(speed)
 
-Attempts to set the SPI interface clock speed to `speed` (in Hz). Minimum legal value is 50000 (50 kHz) and maximum is 25000000 (25 MHz). The SPI clock is a hardware division of the CPU clock, so there are two important things to note. (1) The exact clock speed set may be restricted (by hardware) to only certain values in that range, so you may not get exactly what you ask for. (2) The CPU (and this module) can not tell what the CPU clock speed is, so the SPI clock will slow down or speed up if the CPU clock does (for example, for thermal management, turbo mode, or due to user over- or under-clocking of the Raspberry Pi). But this should mostly be invisible to the user, as it only affects SPI communication speed, and does not affect performance of the TDC7201 measurements (unless the TDC7201 is also being clocked by some submultiple of the Pi clock, which is a really really bad idea).
+Attempts to set the SPI interface clock speed to `speed` (in Hz).
+Minimum legal value is 50000 (50 kHz), and maximum is 25000000 (25 MHz).
+The SPI clock is a hardware division of the CPU clock, so there are two important things to note.
+(1) The exact clock speed set may be restricted (by hardware) to only certain values in that range, so you may not get exactly what you ask for.
+(2) The SPI clock will slow down or speed up if the CPU clock does (for example, for thermal management, turbo mode, or due to user over- or under-clocking of the Raspberry Pi).
+ The CPU (and the SPI driver, and this module) can not tell what the CPU clock speed is, so there is no way to compensate for this in software.
+But this should mostly be invisible to the user, as it only affects SPI communication speed, and does not affect performance of the TDC7201 measurements (unless the TDC7201 is also being clocked by some submultiple of the Pi clock, which is a really really bad idea).
+However, it's probably a bad idea to set the maximum SPI speed if you know that your CPU will be overclocked, since that might result in a speed that exceeds the chip specs.
 
 The casual user should be able to get by with only the above methods; the following low-level methods give more detailed access to the hardware, but you'll need to know what you're doing.
 
@@ -77,7 +84,7 @@ Low-level routine to write a 24-bit value to a 24-bit chip register.
 
     read24(reg)
 
-Low-level routine to read a 24-bit value from an 24-bit chip register.
+Low-level routine to read a 24-bit value from a 24-bit chip register.
 
     read_regs1()
 
