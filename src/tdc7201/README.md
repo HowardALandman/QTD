@@ -24,7 +24,7 @@ tdc.off()
 Settings
 --------
 
-Most important parameters are set in the on() method, since the chip can only be reconfigured after it has come out of reset. If you want to change parameters, it is cleanest to turn the chip off(), and then on() again with the new parameters.
+Most important parameters are set in the `on()` method, since the chip can only be reconfigured after it has come out of reset. If you want to change parameters, it is cleanest to turn the chip `off()`, and then `on()` again with the new parameters.
 * `force_cal` - If `True`, will recalibrate the chip after every attempted measurement. This is recommended (and, in this version, required). If `False`, will only recalibrate after a "successful" measurement, with timeouts and some other results considered unsuccessful. (This currently does not work.)
 * `meas_mode` - Sets the measurement mode. Mode 1 is recommended for times less than 2000 nS; mode 2 for greater. (In this release only mode 2 is fully supported.)
 * `calibration2_periods` - The number of clock cycles to recalibrate for. The allowed values are 2, 10 (hardware default), 20, and 40.
@@ -43,7 +43,7 @@ Sets up all the non-SPI pins. Currently this is hard-coded and accepts no argume
 
     on(force_cal=True,meas_mode=2,calibration2_periods=10,avg_cycles=1,num_stop=1,clock_cntr_stop=0,clock_cntr_ovf=0xFFFF,timeout=None)
 
-Take the chip out of reset and set up various control parameters. See above under Settings.
+Takes the chip out of reset and set up various control parameters. See above under Settings.
 
     measure(simulate=False)
 
@@ -55,7 +55,7 @@ Asserts reset. This will terminate any measurement in progress, and make the chi
 
     clear_status(verbose=False,force=False)
 
-Clear any set interrupt status register bits to prepare for next measurement. This isn't supposed to be necessary, but I was having problems without doing it. If `verbose==True`, prints detailed step-by-step results for debugging. If `force==True`, does a write even if the none of the bits appears to be set.
+Clears any set interrupt status register bits to prepare for next measurement. This isn't supposed to be necessary, but I was having problems without doing it. If `verbose==True`, prints detailed step-by-step results for debugging. If `force==True`, does a write even if the none of the bits appears to be set.
 
     set_SPI_clock(speed)
 
@@ -85,7 +85,7 @@ Read all of the side 1 chip registers (including measurement results) into the t
 
     print_regs1()
 
-Print the internal copy of the side 1 chip registers. Note that, if this is not immediately preceded by read_regs1(), the internal copy and the actual chip registers may be out of sync.
+Print the internal copy of the side 1 chip registers. Note that, if this is not immediately preceded by `read_regs1()`, the internal copy and the actual chip registers may be out of sync.
 
     tof_mm2(time1,time2,count)
 
