@@ -25,11 +25,19 @@ Settings
 --------
 
 Most important parameters are set in the `on()` method, since the chip can only be reconfigured after it has come out of reset. If you want to change parameters, it is cleanest to turn the chip `off()`, and then `on()` again with the new parameters.
-* `force_cal` - If `True`, will recalibrate the chip after every attempted measurement. This is recommended (and, in this version, required). If `False`, will only recalibrate after a "successful" measurement, with timeouts and some other results considered unsuccessful. (This currently does not work.)
-* `meas_mode` - Sets the measurement mode. Mode 1 is recommended for times less than 2000 nS; mode 2 for greater. (In this release only mode 2 is fully supported.)
+* `force_cal` -
+If `True`, will recalibrate the chip after every attempted measurement.
+This is recommended (and, in this version, required and default).
+If `False`, will only recalibrate after a "successful" measurement,
+with timeouts and some other results considered unsuccessful.
+(This currently does not work.)
+* `meas_mode` -
+Sets the measurement mode.
+Mode 1 is recommended for times less than 2000 nS; mode 2 for greater.
+(In this release only mode 2 is fully supported, and is therefore the default.)
 * `falling` -
 If `True`, sets the chip to trigger on falling edges of START and STOP.
-The default is `False`, which has them trigger on rising edges.
+The default is `False`, which has it trigger on rising edges.
 * `calibration2_periods` - The number of clock cycles to recalibrate for. The allowed values are 2, 10 (hardware default), 20, and 40.
 * `avg_cycles` - The number of measurements to average over. The allowed values are 1, 2, 4, 8, 16, 32, 64, and 128. The default is 1, which means no averaging. If you use anything larger, the chip will run that many measurements and then report only the average values. This can be useful in a noisy environment.
 * `num_stop` -
