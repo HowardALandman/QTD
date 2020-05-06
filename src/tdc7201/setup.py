@@ -6,9 +6,9 @@ with open('README.md') as f:
     long_description = f.read()
 
 setup(name='tdc7201',
-      version='0.2b6',
+      version='0.2b7',
       description='Raspberry Pi driver for Texas Instruments TDC7201 Time-to-Digital-Converter chip',
-      long_description_content_type='text/markdown'
+      long_description_content_type='text/markdown',
       long_description=long_description,
       install_requires=["RPi.GPIO>=0.5","spidev>=3.4"],
       # also requires "time", "sys", "random", and maybe "optparse",
