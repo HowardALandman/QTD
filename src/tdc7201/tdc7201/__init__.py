@@ -317,8 +317,7 @@ class TDC7201():
                  int2=INT2,
                  start=START,
                  stop=STOP,
-                 #verbose=False
-                 verbose=True
+                 verbose=False
                 ):
         GPIO.setmode(GPIO.BOARD)	# Use header pin numbers, not GPIO numbers.
         GPIO.setwarnings(False) 
@@ -372,7 +371,6 @@ class TDC7201():
         else:
             reserve_pin("OSC_ENABLE",osc_enable)
             GPIO.setup(osc_enable,GPIO.OUT,initial=GPIO.HIGH)
-            print("Set ENABLE to output on pin",enable)
             if verbose:
                 print("Set OSC_ENABLE to output on pin",osc_enable)
                 print("Clock started (OSC_ENABLE = high) on pin",osc_enable)
