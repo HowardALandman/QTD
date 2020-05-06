@@ -1,5 +1,4 @@
-TDC7201 driver for Raspberry Pi
-===============================
+# TDC7201 driver for Raspberry Pi
 
 This project contains a python3 module for interfacing with the Texas Instruments TDC7201 Time-to-Digital-Converter chip through SPI.
 As much as possible, it hides the internal implementation details (like SPI transactions, and chip registers and their field encodings) from the user.
@@ -8,8 +7,7 @@ All code is GPLv3+ licensed unless explicitly stated otherwise.
 
 For more information on the chip, see https://www.ti.com/product/TDC7201
 
-Usage
------
+## Usage
 
 ```python
 import tdc7201
@@ -21,10 +19,10 @@ status = tdc.measure(simulate=True)
 tdc.off()
 ```
 
-Settings
---------
+## Settings
 
 Most important parameters are set in the `on()` method, since the chip can only be reconfigured after it has come out of reset. If you want to change parameters, it is cleanest to turn the chip `off()`, and then `on()` again with the new parameters.
+
 * `force_cal` -
 If `True`, will recalibrate the chip after every attempted measurement.
 This is recommended (and, in this version, required and default).
@@ -48,8 +46,7 @@ The default is 1, which means the measurement will terminate as soon as a single
 * `clock_cntr_ovf = N` - The chip will end measurement ("time out" or "clock counter overflow") after N clock cycles even if `num_stop` STOP pulses have not been received. Default (and maximum) is 65535 = 0xFFFF. Note that `clock_cntr_ovf` must be greater than `clock_cntr_stop`, or the measurement will time out before it begins.
 * `timeout = T` - You can also specify the overflow period as a time in seconds. For example, if T is 0.0005, the timeout period will be 500 microseconds. If both `timeout` and `clock_cntr_ovf` are specified, `timeout` wins.
 
-Methods
--------
+## Methods
 
     initGPIO()
 
