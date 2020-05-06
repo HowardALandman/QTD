@@ -308,17 +308,53 @@ class TDC7201():
             print("Setting 3-wire to False")
             self._spi.threewire = False
 
-    def initGPIO(self):
+    def initGPIO(self,
+                 enable=ENABLE,
+                 osc_enable=OSC_ENABLE,
+                 trig1=TRIG1,
+                 int1=INT1,
+                 trig2=TRIG2,
+                 int2=INT2,
+                 start=START,
+                 stop=STOP,
+                 #verbose=False
+                 verbose=True
+                ):
         GPIO.setmode(GPIO.BOARD)	# Use header pin numbers, not GPIO numbers.
         GPIO.setwarnings(False) 
         #print("Initializing Raspberry Pi pin directions for tdc7201 driver.")
         print("Initializing tdc7201 driver.")
 
+        # Keep track of which pins we've already used.
+        pin_used = [False for pin in range(41)]
+
+        def reserve_pin(name,number):
+            if number is None:
+                return
+            if pin_used[number]:
+                print("ERROR: Can't reserve pin",number,"for",name,": pin already used.")
+                raise RuntimError("GPIO pin conflict")
+            else:
+                pin_used[number] = True
+
+        # SPI pins MUST be reserved for spidev use.
+        reserve_pin("SCLK",self.SCLK)
+        reserve_pin("MISO",self.MISO)
+        reserve_pin("MOSI",self.MOSI)
+        reserve_pin("CS1",self.CS1)
+        reserve_pin("CS2",self.CS2)
+        if verbose:
+            print("Reserved SPI pins (SCLK=",self.SCLK,",MISO=",self.MISO,",MOSI=",self.MOSI,",CS1(=Pi cs0)=",self.CS1,",CS2(=Pi cs1)=",self.CS2,")",sep='')
         # Initialize the ENABLE pin to low, which resets the tdc7201.
-        GPIO.setup(self.ENABLE,GPIO.OUT,initial=GPIO.LOW)
+        reserve_pin("ENABLE",enable)
+        self.ENABLE = enable # remember it
+        GPIO.setup(enable,GPIO.OUT,initial=GPIO.LOW)
+        if verbose:
+            print("Set ENABLE to output on pin",enable)
         # We need to hold reset for a bit, so remember when we started.
         reset_start = time.time()
-        #print("Reset asserted (ENABLE = low) on pin", self.ENABLE, ".")
+        if verbose:
+            print("Reset asserted (ENABLE = low) on pin", enable)
 
         # Both chip selects must start out HIGH (inactive).
         # Not sure we can do that through GPIO lib though.
@@ -329,29 +365,74 @@ class TDC7201():
 
         # Start the on-board clock generator running.
         # May not be necessary if you supply an external clock.
-        GPIO.setup(self.OSC_ENABLE,GPIO.OUT,initial=GPIO.HIGH)
-        #print("Clock started (OSC_ENABLE = high) on pin", self.OSC_ENABLE, ".")
+        self.OSC_ENABLE = osc_enable # remember it
+        if osc_enable is None:
+            if verbose:
+                print("OSC_ENABLE not assigned. You must supply an external clock.")
+        else:
+            reserve_pin("OSC_ENABLE",osc_enable)
+            GPIO.setup(osc_enable,GPIO.OUT,initial=GPIO.HIGH)
+            print("Set ENABLE to output on pin",enable)
+            if verbose:
+                print("Set OSC_ENABLE to output on pin",osc_enable)
+                print("Clock started (OSC_ENABLE = high) on pin",osc_enable)
 
         # Set up TRIG1 pin to know when chip is ready to measure.
-        GPIO.setup(self.TRIG1,GPIO.IN)
-        #print("Set TRIG1 to input on pin", self.TRIG1, ".")
+        reserve_pin("TRIG1",trig1)
+        self.TRIG1 = trig1 # remember it
+        GPIO.setup(trig1,GPIO.IN)
+        if verbose:
+            print("Set TRIG1 to input on pin",trig1)
+
         # Set up INT1 pin for interrupt-driven reads from tdc7201.
-        GPIO.setup(self.INT1,GPIO.IN)
-        #print("Set INT1 to input on pin", self.INT1, ".")
+        reserve_pin("INT1",int1)
+        self.INT1 = int1 # remember it
+        GPIO.setup(int1,GPIO.IN)
+        if verbose:
+            print("Set INT1 to input on pin",int1)
 
         # We're not using side #2 of the chip so far, but we wired these.
         # Set up TRIG2 pin to know when chip is ready to measure.
-        GPIO.setup(self.TRIG2,GPIO.IN)
-        #print("Set TRIG2 to input on pin", self.TRIG2, ".")
+        self.TRIG2 = trig2 # remember it
+        if trig2 is None:
+            if verbose:
+                print("TRIG2 not assigned. Side 2 of the chip may not work.")
+        else:
+            reserve_pin("TRIG2",trig2)
+            GPIO.setup(trig2,GPIO.IN)
+            if verbose:
+                print("Set TRIG2 to input on pin",trig2)
+
         # Set up INT2 pin for interrupt-driven reads from tdc7201.
-        GPIO.setup(self.INT2,GPIO.IN)
-        #print("Set INT2 to input on pin", self.INT2, ".")
+        self.INT2 = int2 # remember it
+        if int2 is None:
+            if verbose:
+                print("INT2 not assigned. Side 2 of the chip may not work.")
+        else:
+            reserve_pin("INT2",int2)
+            GPIO.setup(int2,GPIO.IN)
+            if verbose:
+                print("Set INT2 to input on pin",int2)
 
         # Set up START and STOP, initially inactive.
-        GPIO.setup(self.START,GPIO.OUT,initial=GPIO.LOW)
-        #print("Set START to output (low) on pin", self.START, ".")
-        GPIO.setup(self.STOP,GPIO.OUT,initial=GPIO.LOW)
-        #print("Set STOP to output (low) on pin", self.STOP, ".")
+        self.START = start # remember it
+        if start is None:
+            if verbose:
+                print("START not assigned. Simulating START/STOP signals may not work.")
+        else:
+            reserve_pin("START",start)
+            GPIO.setup(start,GPIO.OUT,initial=GPIO.LOW)
+            if verbose:
+                print("Set START to output (low) on pin",start)
+        self.STOP = stop # remember it
+        if stop is None:
+            if verbose:
+                print("STOP not assigned. Simulating START/STOP signals may not work.")
+        else:
+            reserve_pin("STOP",stop)
+            GPIO.setup(stop,GPIO.OUT,initial=GPIO.LOW)
+            if verbose:
+                print("Set STOP to output (low) on pin", stop, ".")
 
     def off(self):
         print("Turning off tdc7201.")
