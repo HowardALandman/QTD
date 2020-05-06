@@ -48,9 +48,20 @@ The default is 1, which means the measurement will terminate as soon as a single
 
 ## Methods
 
-    initGPIO()
+    initGPIO(enable=12,osc_enable=16,trig1=7,int1=37,trig2=11,int2=32,start=18,stop=22,verbose=False)
 
-Sets up all the non-SPI pins. Currently this is hard-coded and accepts no arguments. Your actual hardware needs to match this setup.
+Assigns and initializes all the non-SPI pins.
+Your actual hardware (wiring between RPi and chip) needs to match this setup.
+No arguments are required, but the defaults match my prototype and are somewhat arbitrary.
+You can see all assignments by calling with `verbose=True`.
+Pin numbers follow `GPIO.BOARD` conventions,
+i.e. they are the pin numbers on the 2x20 pin heeader.
+Only 3 pins (`enable`,`trig1`,`int1`) are absolutely required;
+the others can be skipped by assigning `None` to them.
+If `osc_enable` is `None`, then there will be no signal to turn an external clock on or off; this is OK if you supply the chip clock yourself.
+If `trig2` and/or `int2` is `None`, then side 2 of the chip will not work correctly, but side 1 still will.
+The `start` and `stop` pins are only required if you want the Raspberry Pi to generate START and STOP signals for testing, i.e. if you plan to run `tdc.measure(simulate=True)`.
+If you are hooked up to real signals to measure, then you can and should set `start=None,stop=None`.
 
     on(force_cal=True,meas_mode=2,falling=False,calibration2_periods=10,avg_cycles=1,num_stop=1,clock_cntr_stop=0,clock_cntr_ovf=0xFFFF,timeout=None)
 
