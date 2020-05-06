@@ -168,7 +168,7 @@ class TDC7201():
     # Inverted STOP signals (falling edge instead of rising edge)?
     _CF1_STOP_EDGE		= 0b00010000
     # Inverted START signals (falling edge instead of rising edge)?
-    _CF1_START			= 0b00001000
+    _CF1_START_EDGE		= 0b00001000
     # Neasurememnt mode 1 or 2? (Other values reserved.)
     _CF1_MEAS_MODE		= 0b00000110
     _CF1_MM1			= 0b00000000
@@ -364,6 +364,7 @@ class TDC7201():
     def on(self,
            force_cal=True,	# Only this works for now.
            meas_mode=2,		# Only this works for now.
+           falling=False,	# HW reset default
            calibration2_periods=10,	# HW reset default
            avg_cycles=1,	# no averaging, HW reset default
            num_stop=1,		# HW reset default
@@ -385,6 +386,10 @@ class TDC7201():
         if force_cal:
             cf1_state |= self._CF1_FORCE_CAL
             print("Set forced calibration.")
+        if falling:
+            cf1_state |= self._CF1_STOP_EDGE
+            cf1_state |= self._CF1_START_EDGE
+            print("Set START and STOP to trigger on falling edge.")
         if meas_mode == 1:
             pass
             #cf1_state |= self._CF1_MM1 # Does nothing since MM1 == 00.

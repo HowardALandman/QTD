@@ -27,9 +27,15 @@ Settings
 Most important parameters are set in the `on()` method, since the chip can only be reconfigured after it has come out of reset. If you want to change parameters, it is cleanest to turn the chip `off()`, and then `on()` again with the new parameters.
 * `force_cal` - If `True`, will recalibrate the chip after every attempted measurement. This is recommended (and, in this version, required). If `False`, will only recalibrate after a "successful" measurement, with timeouts and some other results considered unsuccessful. (This currently does not work.)
 * `meas_mode` - Sets the measurement mode. Mode 1 is recommended for times less than 2000 nS; mode 2 for greater. (In this release only mode 2 is fully supported.)
+* `falling` -
+If `True`, sets the chip to trigger on falling edges of START and STOP.
+The default is `False`, which has them trigger on rising edges.
 * `calibration2_periods` - The number of clock cycles to recalibrate for. The allowed values are 2, 10 (hardware default), 20, and 40.
 * `avg_cycles` - The number of measurements to average over. The allowed values are 1, 2, 4, 8, 16, 32, 64, and 128. The default is 1, which means no averaging. If you use anything larger, the chip will run that many measurements and then report only the average values. This can be useful in a noisy environment.
-* `num_stop` - The chip starts timing on a pulse on the START pin, and then can report timings for up to 5 pulses on the STOP pin. The default is 1, which means the measurement will terminate as soon as a single STOP pulse is received.
+* `num_stop` -
+The chip starts timing on a pulse on the START pin, and then can record timings for up to 5 pulses on the STOP pin.
+Allowed values are 1, 2, 3, 4, 5.
+The default is 1, which means the measurement will terminate as soon as a single STOP pulse is received.
 * `clock_cntr_stop = N` - If N is non-zero, the chip will ignore STOP pulses for N clock cycles after START.
 * `clock_cntr_ovf = N` - The chip will end measurement ("time out" or "clock counter overflow") after N clock cycles even if `num_stop` STOP pulses have not been received. Default (and maximum) is 65535 = 0xFFFF. Note that `clock_cntr_ovf` must be greater than `clock_cntr_stop`, or the measurement will time out before it begins.
 * `timeout = T` - You can also specify the overflow period as a time in seconds. For example, if T is 0.0005, the timeout period will be 500 microseconds. If both `timeout` and `clock_cntr_ovf` are specified, `timeout` wins.
@@ -41,7 +47,7 @@ Methods
 
 Sets up all the non-SPI pins. Currently this is hard-coded and accepts no arguments. Your actual hardware needs to match this setup.
 
-    on(force_cal=True,meas_mode=2,calibration2_periods=10,avg_cycles=1,num_stop=1,clock_cntr_stop=0,clock_cntr_ovf=0xFFFF,timeout=None)
+    on(force_cal=True,meas_mode=2,falling=False,calibration2_periods=10,avg_cycles=1,num_stop=1,clock_cntr_stop=0,clock_cntr_ovf=0xFFFF,timeout=None)
 
 Takes the chip out of reset and set up various control parameters. See above under Settings.
 
