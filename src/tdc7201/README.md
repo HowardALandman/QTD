@@ -13,7 +13,7 @@ For more information on the chip, see https://www.ti.com/product/TDC7201
 import tdc7201
 tdc = tdc7201.TDC7201() # Create TDC object with SPI interface.
 tdc.initGPIO() # Set pin directions and default values for non-SPI signals.
-tdc.set_SPI_clock_speed(25000000)
+tdc.set_SPI_clock_speed(12500000)
 tdc.on(meas_mode=2,num_stop=3,clock_cntr_stop=1,timeout=0.0005)
 status = tdc.measure(simulate=True)
 tdc.off()
@@ -21,7 +21,31 @@ tdc.off()
 
 ## Settings
 
-Most important parameters are set in the `on()` method, since the chip can only be reconfigured after it has come out of reset. If you want to change parameters, it is cleanest to turn the chip `off()`, and then `on()` again with the new parameters.
+Hardware pin assignments are done in `initGPIO()`, which should only be called once.
+Most other important parameters are set in the `on()` method,
+since the chip can only be reconfigured after it has come out of reset.
+If you want to change parameters, it is cleanest to turn the chip `off()`, and then `on()` again with the new parameters.
+
+## Methods
+
+    initGPIO(enable=12,osc_enable=16,trig1=7,int1=37,trig2=11,int2=32,start=18,stop=22,verbose=False)
+
+Assigns and initializes all the non-SPI pins.
+Your actual hardware (wiring between RPi and chip) needs to match this setup.
+No arguments are required, but the defaults match my prototype and are somewhat arbitrary.
+You can see all assignments by calling with `verbose=True`.
+Pin numbers follow `GPIO.BOARD` conventions,
+i.e. they are the pin numbers on the 2x20 pin heeader.
+Only 3 pins (`enable`,`trig1`,`int1`) are absolutely required;
+the others can be skipped by assigning `None` to them.
+If `osc_enable` is `None`, then there will be no signal to turn an external clock on or off; this is OK if you supply the chip clock yourself.
+If `trig2` and/or `int2` is `None`, then side 2 of the chip will not work correctly, but side 1 still will.
+The `start` and `stop` pins are only required if you want the Raspberry Pi to generate START and STOP signals for testing, i.e. if you plan to run `tdc.measure(simulate=True)`.
+If you are hooked up to real signals to measure, then you can and should set `start=None,stop=None`.
+
+    on(force_cal=True,meas_mode=2,falling=False,calibration2_periods=10,avg_cycles=1,num_stop=1,clock_cntr_stop=0,clock_cntr_ovf=0xFFFF,timeout=None)
+
+Takes the chip out of reset and set up various control parameters.
 
 * `force_cal` -
 If `True`, will recalibrate the chip after every attempted measurement.
@@ -43,33 +67,21 @@ The chip starts timing on a pulse on the START pin, and then can record timings 
 Allowed values are 1, 2, 3, 4, 5.
 The default is 1, which means the measurement will terminate as soon as a single STOP pulse is received.
 * `clock_cntr_stop = N` - If N is non-zero, the chip will ignore STOP pulses for N clock cycles after START.
-* `clock_cntr_ovf = N` - The chip will end measurement ("time out" or "clock counter overflow") after N clock cycles even if `num_stop` STOP pulses have not been received. Default (and maximum) is 65535 = 0xFFFF. Note that `clock_cntr_ovf` must be greater than `clock_cntr_stop`, or the measurement will time out before it begins.
+* `clock_cntr_ovf = N` - The chip will end measurement ("time out" or "clock counter overflow") after N clock cycles even if `num_stop` STOP pulses have not been received.
+Default (and maximum) is 65535 = 0xFFFF.
 * `timeout = T` - You can also specify the overflow period as a time in seconds. For example, if T is 0.0005, the timeout period will be 500 microseconds. If both `timeout` and `clock_cntr_ovf` are specified, `timeout` wins.
 
-## Methods
-
-    initGPIO(enable=12,osc_enable=16,trig1=7,int1=37,trig2=11,int2=32,start=18,stop=22,verbose=False)
-
-Assigns and initializes all the non-SPI pins.
-Your actual hardware (wiring between RPi and chip) needs to match this setup.
-No arguments are required, but the defaults match my prototype and are somewhat arbitrary.
-You can see all assignments by calling with `verbose=True`.
-Pin numbers follow `GPIO.BOARD` conventions,
-i.e. they are the pin numbers on the 2x20 pin heeader.
-Only 3 pins (`enable`,`trig1`,`int1`) are absolutely required;
-the others can be skipped by assigning `None` to them.
-If `osc_enable` is `None`, then there will be no signal to turn an external clock on or off; this is OK if you supply the chip clock yourself.
-If `trig2` and/or `int2` is `None`, then side 2 of the chip will not work correctly, but side 1 still will.
-The `start` and `stop` pins are only required if you want the Raspberry Pi to generate START and STOP signals for testing, i.e. if you plan to run `tdc.measure(simulate=True)`.
-If you are hooked up to real signals to measure, then you can and should set `start=None,stop=None`.
-
-    on(force_cal=True,meas_mode=2,falling=False,calibration2_periods=10,avg_cycles=1,num_stop=1,clock_cntr_stop=0,clock_cntr_ovf=0xFFFF,timeout=None)
-
-Takes the chip out of reset and set up various control parameters. See above under Settings.
+Note that `clock_cntr_ovf` must be greater than `clock_cntr_stop`,
+or the measurement will time out before it begins accepting stop pulses.
 
     measure(simulate=False)
 
-Runs a single measurement, polling the chip INT1 pin until it indicates completion. (This should really be an interrupt.) Will time out after 0.1 seconds if measurement doesn't complete. If it does complete, calls `read_regs1()` and `compute_tofs()` so that both raw and processed data are available. If `simulate==True`, then generates START and STOP signals to send to the chip (for testing when your actual signal source is not yet available); this requires that the appropriate RPi pins be connected to START and STOP.
+Runs a single measurement, polling the chip INT1 pin until it indicates completion.
+(This should really be an interrupt.)
+Will time out after 0.1 seconds if measurement doesn't complete.
+If it does complete, calls `read_regs1()` and `compute_tofs()` so that both raw and processed data are available.
+If `simulate=True`, then generates START and STOP signals to send to the chip (for testing when your actual signal source is not yet available);
+this requires that the appropriate RPi pins be connected to START and STOP.
 
     off()
 
@@ -77,7 +89,10 @@ Asserts reset. This will terminate any measurement in progress, and make the chi
 
     clear_status(verbose=False,force=False)
 
-Clears any set interrupt status register bits to prepare for next measurement. This isn't supposed to be necessary, but I was having problems without doing it. If `verbose==True`, prints detailed step-by-step results for debugging. If `force==True`, does a write even if the none of the bits appears to be set.
+Clears any set interrupt status register bits to prepare for next measurement.
+This isn't supposed to be necessary, but I was having problems without doing it.
+If `verbose==True`, prints detailed step-by-step results for debugging.
+If `force==True`, does a write even if none of the bits appears to be set.
 
     set_SPI_clock(speed)
 
@@ -87,8 +102,8 @@ The SPI clock is a hardware division of the CPU clock, so there are two importan
 (1) The exact clock speed set may be restricted (by hardware) to only certain values in that range, so you may not get exactly what you ask for.
 (2) The SPI clock will slow down or speed up if the CPU clock does (for example, for thermal management, turbo mode, or due to user over- or under-clocking of the Raspberry Pi).
  The CPU (and the SPI driver, and this module) can not tell what the CPU clock speed is, so there is no way to compensate for this in software.
-But this should mostly be invisible to the user, as it only affects SPI communication speed, and does not affect performance of the TDC7201 measurements (unless the TDC7201 is also being clocked by some submultiple of the Pi clock, which is a really really bad idea).
-However, it's probably a bad idea to set the maximum SPI speed if you know that your CPU will be overclocked, since that might result in a speed that exceeds the chip specs.
+Therefore, it's probably a bad idea to set the maximum SPI speed if you know that your CPU will be overclocked, since that might result in a speed that exceeds the chip specs.
+But all this should mostly be invisible to the user, as it only affects SPI communication speed, and does not affect performance of the TDC7201 measurements (unless the TDC7201 is also being clocked by some submultiple of the Pi clock, which is a really really bad idea).
 
 The casual user should be able to get by with only the above methods; the following low-level methods give more detailed access to the hardware, but you'll need to know what you're doing.
 
