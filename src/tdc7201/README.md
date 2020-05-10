@@ -40,8 +40,10 @@ Only 3 pins (`enable`,`trig1`,`int1`) are absolutely required;
 the others can be skipped by assigning `None` to them.
 If `osc_enable` is `None`, then there will be no signal to turn an external clock on or off; this is OK if you supply the chip clock yourself.
 If `trig2` and/or `int2` is `None`, then side 2 of the chip will not work correctly, but side 1 still will.
-The `start` and `stop` pins are only required if you want the Raspberry Pi to generate START and STOP signals for testing, i.e. if you plan to run `tdc.measure(simulate=True)`.
-If you are hooked up to real signals to measure, then you can and should set `start=None,stop=None`.
+The `stop` pin is only required if you want the Raspberry Pi to generate STOP signals for testing, i.e. if you plan to run `tdc.measure(simulate=True)`.
+If you are hooked up to real signals to measure, then you can and should set `stop=None`.
+The `start` pin is only required if you want the Raspberry Pi to generate a START signal; this could be hooked directly to the chip START, or used to trigger some external hardware.
+Note that if you start a measurement, and the chip never sees a START signal, it will hang indefinitely waiting for one.
 
     on(force_cal=True,meas_mode=2,falling=False,calibration2_periods=10,avg_cycles=1,num_stop=1,clock_cntr_stop=0,clock_cntr_ovf=0xFFFF,timeout=None)
 
@@ -56,12 +58,16 @@ with timeouts and some other results considered unsuccessful.
 * `meas_mode` -
 Sets the measurement mode.
 Mode 1 is recommended for times less than 2000 nS; mode 2 for greater.
-(In this release only mode 2 is fully supported, and is therefore the default.)
 * `falling` -
 If `True`, sets the chip to trigger on falling edges of START and STOP.
 The default is `False`, which has it trigger on rising edges.
 * `calibration2_periods` - The number of clock cycles to recalibrate for. The allowed values are 2, 10 (hardware default), 20, and 40.
-* `avg_cycles` - The number of measurements to average over. The allowed values are 1, 2, 4, 8, 16, 32, 64, and 128. The default is 1, which means no averaging. If you use anything larger, the chip will run that many measurements and then report only the average values. This can be useful in a noisy environment.
+* `avg_cycles` -
+The number of measurements to average over.
+The allowed values are 1, 2, 4, 8, 16, 32, 64, and 128.
+The default is 1, which means no averaging.
+If you use anything larger, the chip will run that many measurements and then report only the average values.
+This can be useful in a noisy environment.
 * `num_stop` -
 The chip starts timing on a pulse on the START pin, and then can record timings for up to 5 pulses on the STOP pin.
 Allowed values are 1, 2, 3, 4, 5.
@@ -80,8 +86,10 @@ Runs a single measurement, polling the chip INT1 pin until it indicates completi
 (This should really be an interrupt.)
 Will time out after 0.1 seconds if measurement doesn't complete.
 If it does complete, calls `read_regs1()` and `compute_tofs()` so that both raw and processed data are available.
-If `simulate=True`, then generates START and STOP signals to send to the chip (for testing when your actual signal source is not yet available);
-this requires that the appropriate RPi pins be connected to START and STOP.
+If `simulate=True`, then generates START and STOP signals to send to the chip
+(for testing when your actual signal source is not yet available);
+this requires that the appropriate RPi pins be connected to START and STOP,
+and that `initGPIO()` not be called with `start=None` or `stop=None`.
 
     off()
 
@@ -131,10 +139,14 @@ Read all of the side 1 chip registers (including measurement results) into the t
 
 Print the internal copy of the side 1 chip registers. Note that, if this is not immediately preceded by `read_regs1()`, the internal copy and the actual chip registers may be out of sync.
 
-    tof_mm2(time1,time2,count)
+    tof_mm1(time_n)
 
-Compute time-of-flight given Measurement Mode 2 data for two adjacent stops.
+Compute time-of-flight in seconds using Measurement Mode 1 equation.
+
+    tof_mm2(time1,time_n,count)
+
+Compute time-of-flight in seconds using Measurement Mode 2 equations.
 
     compute_tofs()
 
-Check how many pulses we got, and compute the inter-pulse time for each adjacent pair.
+Check how many pulses we got, and compute the TOF for each pulse.
