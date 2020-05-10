@@ -653,20 +653,26 @@ class TDC7201():
         for r in range(self.MINREG24,self.MAXREG24+1):
             print(self.REGNAME[r], self.reg1[r])
 
-    def tof_mm2(self,time1,time2,count):
+    def tof_mm1(self,time_n):
+        assert (self.meas_mode == self._CF1_MM1)
+        # Compute time-of-flight from START to a STOP.
+        if self.reg1[time_n]:
+            return self.normLSB*self.reg1[time_n]
+        else:
+            return 0
+
+    def tof_mm2(self,time1,time_n,count):
+        assert (self.meas_mode == self._CF1_MM2)
         # Compute time-of-flight given Measurement Mode 2 data for two adjacent stops.
-        if (self.reg1[time2] or self.reg1[count]):
-            return self.normLSB*(self.reg1[time1]-self.reg1[time2]) + self.reg1[count]*self.clockPeriod
+        if (self.reg1[time_n] or self.reg1[count]):
+            return self.normLSB*(self.reg1[time1]-self.reg1[time_n]) + self.reg1[count]*self.clockPeriod
         else:
             return 0
 
     # Check if we got any pulses and calculate the TOFs.
     def compute_TOFs(self):
         #print("Computing TOFs.")
-        # Check measurement mode.
         self.meas_mode = self.reg1[self.CONFIG1] & self._CF1_MEAS_MODE
-        assert (self.meas_mode == self._CF1_MM2)	# We only know MM2 so far.
-        #print("Measurement mode 2")
         # Determine number of calibration periods.
         cal_per_code = self.reg1[self.CONFIG2] & self._CF2_CALIBRATION_PERIODS
         if (cal_per_code == self._CF2_CAL_PERS_40):
@@ -687,16 +693,33 @@ class TDC7201():
         #print("clockPeriod:", self.clockPeriod)
         #print("normLSB:", self.normLSB)
         pulses = 0
-        self.TOF1 = self.tof_mm2(self.TIME1,self.TIME2,self.CLOCK_COUNT1)
-        pulses += bool(self.TOF1)
-        self.TOF2 = self.tof_mm2(self.TIME2,self.TIME3,self.CLOCK_COUNT2)
-        pulses += bool(self.TOF2)
-        self.TOF3 = self.tof_mm2(self.TIME3,self.TIME4,self.CLOCK_COUNT3)
-        pulses += bool(self.TOF3)
-        self.TOF4 = self.tof_mm2(self.TIME4,self.TIME5,self.CLOCK_COUNT4)
-        pulses += bool(self.TOF4)
-        self.TOF5 = self.tof_mm2(self.TIME5,self.TIME6,self.CLOCK_COUNT5)
-        pulses += bool(self.TOF5)
+        if self.meas_mode == self._CF1_MM1:
+            # According to manual, needs no adjustment for averaging.
+            self.TOF1 = self.tof_mm1(self.TIME1)
+            print("TOF1 =",self.TOF1)
+            pulses += bool(self.TOF1)
+            self.TOF2 = self.tof_mm1(self.TIME2)
+            print("TOF2 =",self.TOF2)
+            pulses += bool(self.TOF2)
+            self.TOF3 = self.tof_mm1(self.TIME3)
+            pulses += bool(self.TOF3)
+            self.TOF4 = self.tof_mm1(self.TIME4)
+            pulses += bool(self.TOF4)
+            self.TOF5 = self.tof_mm1(self.TIME5)
+            pulses += bool(self.TOF5)
+        elif self.meas_mode == self._CF1_MM2:
+            self.TOF1 = self.tof_mm2(self.TIME1,self.TIME2,self.CLOCK_COUNT1)
+            pulses += bool(self.TOF1)
+            self.TOF2 = self.tof_mm2(self.TIME2,self.TIME3,self.CLOCK_COUNT2)
+            pulses += bool(self.TOF2)
+            self.TOF3 = self.tof_mm2(self.TIME3,self.TIME4,self.CLOCK_COUNT3)
+            pulses += bool(self.TOF3)
+            self.TOF4 = self.tof_mm2(self.TIME4,self.TIME5,self.CLOCK_COUNT4)
+            pulses += bool(self.TOF4)
+            self.TOF5 = self.tof_mm2(self.TIME5,self.TIME6,self.CLOCK_COUNT5)
+            pulses += bool(self.TOF5)
+        else:
+            print("Illegal measurement mode",self.meas_mode)
         log_line = "P " + str(pulses)
         if (pulses >= 2):
             log_line += " "
@@ -771,13 +794,13 @@ class TDC7201():
             print("ERROR: INT1 is active (low)!")
             return 9
         # Last chance to check registers before sending START pulse?
-        #print(tdc.REGNAME[tdc.CONFIG1], ":", hex(tdc.read8(tdc.CONFIG1)))
         #print(tdc.REGNAME[tdc.CONFIG2], ":", hex(tdc.read8(tdc.CONFIG2)))
-        # We got a trigger, so issue a START pulse.
-        GPIO.output(self.START,GPIO.HIGH)
-        #time.sleep(0.000001)
-        GPIO.output(self.START,GPIO.LOW)
-        #print("Generated START pulse.")
+        if simulate and self.START is not None:
+            # We got a trigger, so issue a START pulse.
+            GPIO.output(self.START,GPIO.HIGH)
+            #time.sleep(0.000001)
+            GPIO.output(self.START,GPIO.LOW)
+            #print("Generated START pulse.")
         #if GPIO.input(self.INT1):
         #    #print("INT1 is inactive (high) as expected.")
         #    pass
@@ -794,7 +817,7 @@ class TDC7201():
         else:
             #print("TRIG1 fell as expected.")
             pass
-        if simulate:
+        if simulate and self.STOP is not None:
             # Send 0 to 4 STOP pulses. FOR TESTING ONLY.
             threshold = 2.0/4.0
             for p in range(4):
