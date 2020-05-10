@@ -661,11 +661,11 @@ class TDC7201():
         else:
             return 0
 
-    def tof_mm2(self,time1,time_n,count):
+    def tof_mm2(self,time1,time_n,count,avg):
         assert (self.meas_mode == self._CF1_MM2)
         # Compute time-of-flight given Measurement Mode 2 data for two adjacent stops.
         if (self.reg1[time_n] or self.reg1[count]):
-            return self.normLSB*(self.reg1[time1]-self.reg1[time_n]) + self.reg1[count]*self.clockPeriod
+            return self.normLSB*(self.reg1[time1]-self.reg1[time_n]) + (self.reg1[count]/avg)*self.clockPeriod
         else:
             return 0
 
@@ -696,10 +696,10 @@ class TDC7201():
         if self.meas_mode == self._CF1_MM1:
             # According to manual, needs no adjustment for averaging.
             self.TOF1 = self.tof_mm1(self.TIME1)
-            print("TOF1 =",self.TOF1)
+            #print("TOF1 =",self.TOF1)
             pulses += bool(self.TOF1)
             self.TOF2 = self.tof_mm1(self.TIME2)
-            print("TOF2 =",self.TOF2)
+            #print("TOF2 =",self.TOF2)
             pulses += bool(self.TOF2)
             self.TOF3 = self.tof_mm1(self.TIME3)
             pulses += bool(self.TOF3)
@@ -708,15 +708,20 @@ class TDC7201():
             self.TOF5 = self.tof_mm1(self.TIME5)
             pulses += bool(self.TOF5)
         elif self.meas_mode == self._CF1_MM2:
-            self.TOF1 = self.tof_mm2(self.TIME1,self.TIME2,self.CLOCK_COUNT1)
+            # Average cycles
+            log_avg = (self.regs1[self.CONFIG2] & self._CF2_AVG_CYCLES) >> 3
+            print("log_avg =",log_avg)
+            avg = 1 << log_avg
+            print("avg =",avg)
+            self.TOF1 = self.tof_mm2(self.TIME1,self.TIME2,self.CLOCK_COUNT1,avg)
             pulses += bool(self.TOF1)
-            self.TOF2 = self.tof_mm2(self.TIME2,self.TIME3,self.CLOCK_COUNT2)
+            self.TOF2 = self.tof_mm2(self.TIME1,self.TIME3,self.CLOCK_COUNT2,avg)
             pulses += bool(self.TOF2)
-            self.TOF3 = self.tof_mm2(self.TIME3,self.TIME4,self.CLOCK_COUNT3)
+            self.TOF3 = self.tof_mm2(self.TIME1,self.TIME4,self.CLOCK_COUNT3,avg)
             pulses += bool(self.TOF3)
-            self.TOF4 = self.tof_mm2(self.TIME4,self.TIME5,self.CLOCK_COUNT4)
+            self.TOF4 = self.tof_mm2(self.TIME1,self.TIME5,self.CLOCK_COUNT4,avg)
             pulses += bool(self.TOF4)
-            self.TOF5 = self.tof_mm2(self.TIME5,self.TIME6,self.CLOCK_COUNT5)
+            self.TOF5 = self.tof_mm2(self.TIME1,self.TIME6,self.CLOCK_COUNT5,avg)
             pulses += bool(self.TOF5)
         else:
             print("Illegal measurement mode",self.meas_mode)
