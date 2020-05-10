@@ -68,6 +68,7 @@ The allowed values are 1, 2, 4, 8, 16, 32, 64, and 128.
 The default is 1, which means no averaging.
 If you use anything larger, the chip will run that many measurements and then report only the average values.
 This can be useful in a noisy environment.
+(Averaging does not currently work with `measure(simulate=True)`.)
 * `num_stop` -
 The chip starts timing on a pulse on the START pin, and then can record timings for up to 5 pulses on the STOP pin.
 Allowed values are 1, 2, 3, 4, 5.
@@ -90,6 +91,7 @@ If `simulate=True`, then generates START and STOP signals to send to the chip
 (for testing when your actual signal source is not yet available);
 this requires that the appropriate RPi pins be connected to START and STOP,
 and that `initGPIO()` not be called with `start=None` or `stop=None`.
+(Simulate does not currently work with averaging.)
 
     off()
 
