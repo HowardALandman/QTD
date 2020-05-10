@@ -39,31 +39,30 @@ time.sleep(0.1)	# ensure a reasonable reset time
 
 # Turn the chip on.
 tdc.on(meas_mode=2,num_stop=3,clock_cntr_stop=1,timeout=0.0005)
+#tdc.on(meas_mode=1,num_stop=2,clock_cntr_stop=1,timeout=0.0005)
 
-# Execute if called as a program (and not if imported as a library)
-if __name__ == "__main__":
-    # Make sure our internal copy of the register state is up to date.
-    #print("Reading chip side #1 register state:")
-    tdc.read_regs1()
-    #tdc.print_regs1()
+# Make sure our internal copy of the register state is up to date.
+#print("Reading chip side #1 register state:")
+tdc.read_regs1()
+#tdc.print_regs1()
 
-    # Measure average time per measurement.
-    iters = 1000
-    then = time.time()
-    resultList = [0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-    for m in range(iters):
-        resultList[tdc.measure(simulate=True)] += 1
-        # Clear interrupt register bits to prepare for next measurement.
-        tdc.clear_status()
-    print(resultList)
-    now = time.time()
-    duration = now - then
-    print(iters,"measurements in",duration,"seconds")
-    print((iters/duration),"measurements per second")
-    print((duration/iters),"seconds per measurement")
-    # Read it back to make sure.
-    #tdc.read_regs1()
-    #tdc.print_regs1()
+# Measure average time per measurement.
+iters = 1000
+then = time.time()
+resultList = [0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+for m in range(iters):
+    resultList[tdc.measure(simulate=True)] += 1
+    # Clear interrupt register bits to prepare for next measurement.
+    tdc.clear_status()
+print(resultList)
+now = time.time()
+duration = now - then
+print(iters,"measurements in",duration,"seconds")
+print((iters/duration),"measurements per second")
+print((duration/iters),"seconds per measurement")
+# Read it back to make sure.
+#tdc.read_regs1()
+#tdc.print_regs1()
 
-    # Turn the chip off.
-    tdc.off()
+# Turn the chip off.
+tdc.off()
