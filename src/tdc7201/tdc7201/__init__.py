@@ -709,10 +709,10 @@ class TDC7201():
             pulses += bool(self.TOF5)
         elif self.meas_mode == self._CF1_MM2:
             # Average cycles
-            log_avg = (self.regs1[self.CONFIG2] & self._CF2_AVG_CYCLES) >> 3
-            print("log_avg =",log_avg)
+            log_avg = (self.reg1[self.CONFIG2] & self._CF2_AVG_CYCLES) >> 3
+            #print("log_avg =",log_avg)
             avg = 1 << log_avg
-            print("avg =",avg)
+            #print("avg =",avg)
             self.TOF1 = self.tof_mm2(self.TIME1,self.TIME2,self.CLOCK_COUNT1,avg)
             pulses += bool(self.TOF1)
             self.TOF2 = self.tof_mm2(self.TIME1,self.TIME3,self.CLOCK_COUNT2,avg)
