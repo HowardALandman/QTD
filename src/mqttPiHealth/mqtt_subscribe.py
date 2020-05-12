@@ -1,6 +1,5 @@
 #!/usr/bin/python3
 
-#import os
 import time
 import paho.mqtt.client as mqtt
 
@@ -8,7 +7,7 @@ mqtt_server_name = "mqtt.eclipse.org"
 
 # The callback for when the client receives a CONNACK response from the server.
 def on_connect(client, userdata, flags, rc):
-    print("Connected to",mqtt_server_name,"with result code ",str(rc))
+    print("Connected to",mqtt_server_name,"with result code",rc)
 
     # Subscribing in on_connect() means that if we lose the connection and
     # reconnect then subscriptions will be renewed.
