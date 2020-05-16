@@ -614,35 +614,44 @@ class TDC7201():
             sys.exit()
 
     def write8(self,reg,val):
-        assert (reg >= self.MINREG8) and (reg <= self.MAXREG8)
+        #assert (reg >= self.MINREG8) and (reg <= self.MAXREG8)
         result = self._spi.xfer([reg|self._WRITE, val&0xFF])
 
     def read8(self,reg):
-        assert (reg >= self.MINREG8) and (reg <= self.MAXREG8)
+        #assert (reg >= self.MINREG8) and (reg <= self.MAXREG8)
         result = self._spi.xfer([reg, 0x00])
         return result[1]
 
     def read24(self,reg):
-        assert (reg >= self.MINREG24) and (reg <= self.MAXREG24)
+        #assert (reg >= self.MINREG24) and (reg <= self.MAXREG24)
         result = self._spi.xfer([reg, 0x00, 0x00, 0x00])
         # data is MSB-first
         return (result[1] << 16) | (result[2] << 8) | result[3]
 
-    # Read all chip registers
-    def read_regs1(self):
-        # This might be faster using the auto-increment feature.
-        # Leave that for a future performance enhancement.
-        # Read 8-bit registers.
+    # Read all chip registers, using auto-increment feature.
+    # This is 6 times faster than the non-auto-increment method.
+    def read_regs(self):
+        # Documentation says cannot do 8- and 24-bit registers together.
+        # 8-bit registers
+        result8 = self._spi.xfer([self.MINREG8|self._AI, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00])
+        #print("AI read 8-bits =",result8)
+        #print("length =",len(result8))
+        # First (0th) byte is always 0, rest are desired values.
         for r in range(self.MINREG8,self.MAXREG8+1):
-            self.reg1[r] = self.read8(r)
-            #print(r, self.reg1[r])
+            self.reg1[r] = result8[r+1]
+        # 16-bit combinations
         self.reg1[self.COARSE_CNTR_OVF] = (self.reg1[self.COARSE_CNTR_OVF_H] << 8) | self.reg1[self.COARSE_CNTR_OVF_L]
         self.reg1[self.CLOCK_CNTR_OVF] = (self.reg1[self.CLOCK_CNTR_OVF_H] << 8) | self.reg1[self.CLOCK_CNTR_OVF_L]
         self.reg1[self.CLOCK_CNTR_STOP_MASK] = (self.reg1[self.CLOCK_CNTR_STOP_MASK_H] << 8) | self.reg1[self.CLOCK_CNTR_STOP_MASK_L]
-        # Read 24-bit registers.
+        # 24-bit registers
+        result24 = self._spi.xfer([self.MINREG24|self._AI, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00])
+        #print("AI read 24-bits =",result24)
+        #print("length =",len(result24))
+        i = 1
         for r in range(self.MINREG24,self.MAXREG24+1):
-            self.reg1[r] = self.read24(r)
-            #print(r, self.reg1[r])
+            # Data comes in MSB first.
+            self.reg1[r] = (result24[i] << 16) | (result24[i+1] << 8) | result24[i+2]
+            i += 3
 
     def print_regs1(self):
         for r in range(self.MINREG8,self.MAXREG8+1):
@@ -823,9 +832,9 @@ class TDC7201():
             #print("TRIG1 fell as expected.")
             pass
         if simulate and self.STOP is not None:
-            # Send 0 to 4 STOP pulses. FOR TESTING ONLY.
-            threshold = 2.0/4.0
-            for p in range(4):
+            # Send 0 to 5 STOP pulses. FOR TESTING ONLY.
+            threshold = 0.4
+            for p in range(5):
                 if random.random() < threshold:
                     GPIO.output(self.STOP,GPIO.HIGH)
                     GPIO.output(self.STOP,GPIO.LOW)
@@ -847,7 +856,7 @@ class TDC7201():
             pass
         # Read everything in and see what we got.
         #print("Reading chip side #1 register state:")
-        self.read_regs1()
+        self.read_regs()
         #self.print_regs1()
         returnCode = self.compute_TOFs()
         #meas_end = time.time()

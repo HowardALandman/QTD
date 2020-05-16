@@ -72,7 +72,7 @@ client.publish(topic="QTD/VDDG/tdc7201/runstate",payload="ON")
 
 # Make sure our internal copy of the register state is up to date.
 #print("Reading chip side #1 register state:")
-tdc.read_regs1()
+tdc.read_regs()
 #tdc.print_regs1()
 
 batches = -1	# number of batches, negative means run forever
