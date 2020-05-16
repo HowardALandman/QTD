@@ -86,11 +86,11 @@ or the measurement will time out before it begins accepting stop pulses.
 Runs a single measurement, polling the chip INT1 pin until it indicates completion.
 (This should really be an interrupt.)
 Will time out after 0.1 seconds if measurement doesn't complete.
-If it does complete, calls `read_regs1()` and `compute_tofs()` so that both raw and processed data are available.
-If `simulate=True`, then generates START and STOP signals to send to the chip
+If it does complete, calls `read_regs()` and `compute_tofs()` so that both raw and processed data are available.
+If `simulate=True`, then generates START and/or STOP signals to send to the chip
 (for testing when your actual signal source is not yet available);
-this requires that the appropriate RPi pins be connected to START and STOP,
-and that `initGPIO()` not be called with `start=None` or `stop=None`.
+this requires that the appropriate RPi pins be connected to START and/or STOP,
+and that `initGPIO()` not be called with `start=None` or `stop=None` respectively.
 (Simulate does not currently work with averaging.)
 
     off()
@@ -133,13 +133,14 @@ Low-level routine to write a 24-bit value to a 24-bit chip register.
 
 Low-level routine to read a 24-bit value from a 24-bit chip register.
 
-    read_regs1()
+    read_regs()
 
-Read all of the side 1 chip registers (including measurement results) into the tdc.reg1 list. (There should be a similar method to read the side 2 registers, but there isn't yet.)
+Read all of the side 1 chip registers (including measurement results) into the tdc.reg1 list.
+(It should be possible to make this read the side 2 registers, but it doesn't yet.)
 
     print_regs1()
 
-Print the internal copy of the side 1 chip registers. Note that, if this is not immediately preceded by `read_regs1()`, the internal copy and the actual chip registers may be out of sync.
+Print the internal copy of the side 1 chip registers. Note that, if this is not immediately preceded by `read_regs()`, the internal copy and the actual chip registers may be out of sync.
 
     tof_mm1(time_n)
 

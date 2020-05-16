@@ -653,6 +653,10 @@ class TDC7201():
             self.reg1[r] = (result24[i] << 16) | (result24[i+1] << 8) | result24[i+2]
             i += 3
 
+    def read_regs1(self):
+        print("read_regs1() is deprecated, use read_regs() instead.")
+        read_regs()
+
     def print_regs1(self):
         for r in range(self.MINREG8,self.MAXREG8+1):
             print(self.REGNAME[r], hex(self.reg1[r]))
