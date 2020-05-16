@@ -6,7 +6,7 @@ with open('README.md') as f:
     long_description = f.read()
 
 setup(name='tdc7201',
-      version='0.5b1',
+      version='0.5b2',
       description='Raspberry Pi driver for Texas Instruments TDC7201 Time-to-Digital-Converter chip',
       long_description_content_type='text/markdown',
       long_description=long_description,
@@ -29,7 +29,7 @@ setup(name='tdc7201',
 	  "Topic :: System :: Hardware",
 	  "Topic :: System :: Hardware :: Hardware Drivers"
       ],
-      url='https://github.com/HowardALandman/QTD/src/tdc7201',
+      url='https://github.com/HowardALandman/QTD/tree/master/src/tdc7201',
       author='Howard A. Landman',
       author_email='howard@riverrock.org',
       license='GPLv3+',
