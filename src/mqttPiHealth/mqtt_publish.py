@@ -4,23 +4,16 @@ import os
 import time
 import paho.mqtt.client as mqtt
 
+mqtt_server_name = "mqtt.eclipse.org"
+
 # The callback for when the client receives a CONNACK response from the server.
 def on_connect(client, userdata, flags, rc):
-    print("Connected with result code "+str(rc))
-
-    # Subscribing in on_connect() means that if we lose the connection and
-    # reconnect then subscriptions will be renewed.
-    #client.subscribe("$SYS/#")
-
-# The callback for when a PUBLISH message is received from the server.
-#def on_message(client, userdata, msg):
-#    print(msg.topic+" "+str(msg.payload))
+    print("Connected to",mqtt_server_name,"with result code",rc)
 
 client = mqtt.Client()
 client.on_connect = on_connect
-#client.on_message = on_message
 
-client.connect("mqtt.eclipse.org", 1883, 60)
+client.connect(mqtt_server_name,1883,60)
 
 cpu_temp_filename = "/sys/class/thermal/thermal_zone0/temp"
 gpu_temp_command = "vcgencmd measure_temp"
@@ -54,5 +47,5 @@ while True:
         pass
     client.publish(topic="QTD/VDGG/qtd-0W/gpu_temp",payload=gpu_temp,retain=True)
     client.loop()
-    print(".",end="")
+    #print(".",end="",flush=True)	# If you want indication of activity
     time.sleep(5)
