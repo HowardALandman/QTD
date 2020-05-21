@@ -809,7 +809,9 @@ class TDC7201():
             #print("INT1 is inactive (high) as expected.")
             pass
         else:
-            print("ERROR: INT1 is active (low)!")
+            print("ERROR: INT1 is active (low) too early!")
+            # Try to fix it
+            self.clear_status(verbose=True)
             return 9
         # Last chance to check registers before sending START pulse?
         #print(tdc.REGNAME[tdc.CONFIG2], ":", hex(tdc.read8(tdc.CONFIG2)))
@@ -866,7 +868,7 @@ class TDC7201():
         #meas_end = time.time()
         #print("Measurement took", meas_end-meas_start, "S.")
         #self.clear_status()	# clear interrupts
-        return returnCode # 0-5 for number of pulses (< NSTOP implies timeout), 6 for error
+        return returnCode # 0-5 for number of pulses (< NSTOP implies timeout), 6+ for error
 
     def set_SPI_clock_speed(self,speed):
         # Lower than this may work but is kind of silly.
