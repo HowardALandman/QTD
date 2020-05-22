@@ -765,11 +765,16 @@ class TDC7201():
         int_stat = self.read8(self.INT_STATUS)
         if verbose:
             print("Status was", bin(int_stat))
-        if (int_stat or force):
+        if (force):
+            # Assume all bits are set and need clearing.
+            int_stat = 0b00011111
+        if (int_stat):
             # Write a 1 to each set bit to clear it.
             self.write8(self.INT_STATUS,int_stat)
+            int_stat = self.read8(self.INT_STATUS)
+            self.reg1[self.INT_STATUS] = int_stat # Update internal copy.
             if verbose:
-                print("After clearing we got", bin(self.read8(self.INT_STATUS)))
+                print("After clearing we got", bin(int_stat))
         else:
             if verbose:
                 print("No need to clear.")
