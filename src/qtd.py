@@ -19,7 +19,7 @@ client = mqtt.Client()
 client.on_connect = on_connect
 client.connect(mqtt_server_name, 1883, 60)
 
-def publish_tdc7201_driver():
+def publish_tdc7201_driver(client):
     command = "python3 -m pip show tdc7201 | grep Version"
     try:
         driver = os.popen(command).read().split()[1]
@@ -28,42 +28,77 @@ def publish_tdc7201_driver():
     print("TDC7201 driver version =",driver)
     client.publish(topic="QTD/VDGG/tdc7201/driver",payload=driver)
 
-cpu_temp_filename = "/sys/class/thermal/thermal_zone0/temp"
-gpu_temp_command = "vcgencmd measure_temp"
+def publish_uname(client):
+    # What hardware are we running on?
+    uname = os.uname()
+    nodename = uname.nodename
+    machine = uname.machine
+    sysname = uname.sysname
+    release = uname.release
+    version = uname.version
+    client.publish(topic="QTD/VDDG/"+nodename+"/nodename",payload=nodename,retain=True)
+    client.publish(topic="QTD/VDDG/"+nodename+"/machine",payload=machine,retain=True)
+    client.publish(topic="QTD/VDDG/"+nodename+"/OS",payload=sysname+" "+release+" "+version,retain=True)
+
 temp = None
 
-# What hardware are we running on?
-uname = os.uname()
-nodename = uname.nodename
-machine = uname.machine
-sysname = uname.sysname
-release = uname.release
-version = uname.version
-client.publish(topic="QTD/VDDG/"+nodename+"/nodename",payload=nodename,retain=True)
-client.publish(topic="QTD/VDDG/"+nodename+"/machine",payload=machine,retain=True)
-client.publish(topic="QTD/VDDG/"+nodename+"/OS",payload=sysname+" "+release+" "+version,retain=True)
-# Get "pretty" OS name
-try:
-    os_name = os.popen("head -1 /etc/os-release").read()
-    print("OS name =",os_name)
-    os_name = os_name.split('"')[1]
-    print("OS name =",os_name)
-    client.publish(topic="QTD/VDDG/"+nodename+"/os_name",payload=os_name,retain=True)
-except:
-    pass
-cpuinfo_filename = "/proc/cpuinfo"
-try:
-    cpuinfo = open(cpuinfo_filename)
-except:
-    print("Couldn't open",cpuinfo_filename)
-else:
-    hw = list(cpuinfo)[-4:]
-    for line in hw:
-        #print(line,end='')
-        hw_pair = line.split()
-        topic = "QTD/VDDG/"+nodename+"/"+hw_pair[0]
-        print(topic)
-        client.publish(topic=topic,payload=" ".join(hw_pair[2:]),retain=True)
+def publish_cpu_temp(client,f = "/sys/class/thermal/thermal_zone0/temp"):
+    global temp
+    try:
+        cpu_temp_file = open(f)
+    except:
+        print("Couldn't open",f)
+    else:
+        temp_line = list(cpu_temp_file)[0]
+        #temp = int(temp_line)
+        # Smooth
+        new_temp = int(temp_line)
+        if temp is None:
+            temp = new_temp
+        else:
+            temp = (temp + new_temp) / 2
+        rounded = round(temp/1000,1)
+        #print("CPU temp =",rounded)
+    client.publish(topic="QTD/VDGG/qtd-0w/cpu_temp",payload=rounded)
+
+def publish_gpu_temp(client,cmd = "vcgencmd measure_temp"):
+    try:
+        gpu_temp = (os.popen(cmd).read())[5:9]
+    except:
+        print("Running",cmd,"failed.")
+        gpu_temp = "Failed"
+    else:
+        #print("GPU temp =",gpu_temp)
+        pass
+    client.publish(topic="QTD/VDGG/qtd-0w/gpu_temp",payload=gpu_temp)
+
+def publish_os_name(client,cmd = "head -1 /etc/os-release"):
+    # Get "pretty" OS name
+    try:
+        os_name = os.popen(cmd).read().split('"')[1]
+        print("OS name =",os_name)
+    except:
+        os_name = "unknown"
+    client.publish(topic="QTD/VDDG/qtd-0w/os_name",payload=os_name,retain=True)
+
+def publish_cpu_info(client,f = "/proc/cpuinfo"):
+    global nodename
+    try:
+        cpuinfo = open(f)
+    except:
+        print("Couldn't open",f)
+    else:
+        hw = list(cpuinfo)[-4:]
+        for line in hw:
+            #print(line,end='')
+            hw_pair = line.split()
+            topic = "QTD/VDDG/qtd-0w/"+hw_pair[0]
+            print(topic)
+            client.publish(topic=topic,payload=" ".join(hw_pair[2:]),retain=True)
+
+publish_uname(client)
+publish_os_name(client)
+publish_cpu_info(client)
 
 tdc = tdc7201.TDC7201()	# Create TDC object with SPI interface.
 
@@ -84,7 +119,7 @@ now = time.time()
 #print("Current time (UTC):", time.asctime(time.gmtime(now)))
 print("Current time (local):", time.asctime(time.localtime(now)), time.strftime("%Z"))
 #print("Time since reset asserted:", now - reset_start)
-publish_tdc7201_driver()	# Takes a few seconds.
+publish_tdc7201_driver(client)	# Takes a few seconds.
 #time.sleep(0.1)	# ensure a reasonable reset time
 #print("Time since reset asserted:", now - reset_start)
 
@@ -127,32 +162,7 @@ while batches != 0:
     print((iters/duration),"measurements per second")
     #print((duration/iters),"seconds per measurement")
 
-    try:
-        cpu_temp_file = open(cpu_temp_filename)
-    except:
-        print("Couldn't open",cpu_temp_filename)
-    else:
-        temp_line = list(cpu_temp_file)[0]
-        #temp = int(temp_line)
-        # Smooth
-        new_temp = int(temp_line)
-        if temp is None:
-            temp = new_temp
-        else:
-            temp = (temp + new_temp) / 2
-        rounded = round(temp/1000,1)
-        #print("CPU temp =",rounded)
-    client.publish(topic="QTD/VDGG/qtd-0W/cpu_temp",payload=rounded)
-
-    try:
-        gpu_temp = (os.popen(gpu_temp_command).read())[5:9]
-    except:
-        print("Running",gpu_temp_command,"failed.")
-        gpu_temp = "Failed"
-    else:
-        #print("GPU temp =",gpu_temp)
-        pass
-    client.publish(topic="QTD/VDGG/qtd-0W/gpu_temp",payload=gpu_temp)
+    publish_cpu_temp(client)
 
     batches -= 1
 
