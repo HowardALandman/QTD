@@ -1,0 +1,433 @@
+[
+    {
+        "id": "b5af51ed.68447",
+        "type": "tab",
+        "label": "QTD Dashboard",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "858c3f8.9d0534",
+        "type": "mqtt in",
+        "z": "b5af51ed.68447",
+        "name": "CPU Temp",
+        "topic": "QTD/VDGG/qtd-0w/cpu_temp",
+        "qos": "0",
+        "datatype": "auto",
+        "broker": "d2bee063.4e6ed8",
+        "x": 120,
+        "y": 80,
+        "wires": [
+            [
+                "29be8b3c.36afdc",
+                "7044a5cf.cbcf54"
+            ]
+        ]
+    },
+    {
+        "id": "29be8b3c.36afdc",
+        "type": "ui_gauge",
+        "z": "b5af51ed.68447",
+        "name": "CPU Temp Gauge",
+        "group": "9833553e.53cb98",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "gtype": "gage",
+        "title": "CPU Temperature",
+        "label": "°C",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "100",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "50",
+        "seg2": "75",
+        "x": 470,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "e3cc7601.d18568",
+        "type": "mqtt in",
+        "z": "b5af51ed.68447",
+        "name": "Batch results string",
+        "topic": "QTD/VDDG/tdc7201/batch",
+        "qos": "0",
+        "datatype": "auto",
+        "broker": "d2bee063.4e6ed8",
+        "x": 150,
+        "y": 460,
+        "wires": [
+            [
+                "684cf7c.27cad88",
+                "b5d2f20.791b01"
+            ]
+        ]
+    },
+    {
+        "id": "167d9572.7e4a8b",
+        "type": "ui_chart",
+        "z": "b5af51ed.68447",
+        "name": "TDC7201 Measurements",
+        "group": "1850e0ab.ffc91f",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "label": "measurements",
+        "chartType": "pie",
+        "legend": "false",
+        "xformat": "HH:mm:ss",
+        "interpolate": "linear",
+        "nodata": "",
+        "dot": false,
+        "ymin": "",
+        "ymax": "",
+        "removeOlder": 1,
+        "removeOlderPoints": "",
+        "removeOlderUnit": "3600",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+            "#404040",
+            "#8c0000",
+            "#22c822",
+            "#afaf00",
+            "#cd5000",
+            "#ff0000",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "useOldStyle": false,
+        "outputs": 1,
+        "x": 830,
+        "y": 460,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "b5d2f20.791b01",
+        "type": "ui_text",
+        "z": "b5af51ed.68447",
+        "group": "1850e0ab.ffc91f",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "name": "Results",
+        "label": "Last Batch",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "x": 340,
+        "y": 520,
+        "wires": []
+    },
+    {
+        "id": "7044a5cf.cbcf54",
+        "type": "ui_chart",
+        "z": "b5af51ed.68447",
+        "name": "Temp chart",
+        "group": "9833553e.53cb98",
+        "order": 4,
+        "width": 0,
+        "height": 0,
+        "label": "",
+        "chartType": "line",
+        "legend": "false",
+        "xformat": "HH:mm:ss",
+        "interpolate": "linear",
+        "nodata": "",
+        "dot": false,
+        "ymin": "30",
+        "ymax": "90",
+        "removeOlder": 1,
+        "removeOlderPoints": "",
+        "removeOlderUnit": "3600",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+            "#000000",
+            "#2c2ca0",
+            "#ff7f0e",
+            "#2ca02c",
+            "#98df8a",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "useOldStyle": false,
+        "outputs": 1,
+        "x": 450,
+        "y": 140,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "28285b45.46e5fc",
+        "type": "function",
+        "z": "b5af51ed.68447",
+        "name": "Format for pie chart",
+        "func": "msg.payload = [\n        {\n            \"series\": [ \"X\", \"Y\" ],\n            \"data\": [\n                msg.payload\n            ],\n            \"labels\": [\"0 pulses\",\"1 pulse\",\"2 pulses\",\"3 pulses\",\"4 pulses\",\"5 pulses\",\"No calibration\",\"INT1 fall timeout\",\"TRIG1 fall timeout\",\"INT1 early\",\"TRIG1 rise timeout\",\"START_MEAS active\",\"TRIG1 active\",\"INT1 active\"]\n        }\n    ]\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 580,
+        "y": 460,
+        "wires": [
+            [
+                "167d9572.7e4a8b"
+            ]
+        ]
+    },
+    {
+        "id": "684cf7c.27cad88",
+        "type": "json",
+        "z": "b5af51ed.68447",
+        "name": "Convert to array",
+        "property": "payload",
+        "action": "obj",
+        "pretty": false,
+        "x": 360,
+        "y": 460,
+        "wires": [
+            [
+                "28285b45.46e5fc",
+                "c98e7631.b95dc8",
+                "6b1c435.b64833c"
+            ]
+        ]
+    },
+    {
+        "id": "63b1c091.da5138",
+        "type": "mqtt in",
+        "z": "b5af51ed.68447",
+        "name": "RPi Model",
+        "topic": "QTD/VDDG/qtd-0w/Model",
+        "qos": "0",
+        "datatype": "auto",
+        "broker": "d2bee063.4e6ed8",
+        "x": 120,
+        "y": 200,
+        "wires": [
+            [
+                "d6103a11.fc8a78"
+            ]
+        ]
+    },
+    {
+        "id": "d6103a11.fc8a78",
+        "type": "ui_text",
+        "z": "b5af51ed.68447",
+        "group": "9833553e.53cb98",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "name": "Model",
+        "label": "Model",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "x": 290,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "6b1c435.b64833c",
+        "type": "debug",
+        "z": "b5af51ed.68447",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "x": 590,
+        "y": 620,
+        "wires": []
+    },
+    {
+        "id": "d83e7341.b5615",
+        "type": "mqtt in",
+        "z": "b5af51ed.68447",
+        "name": "RPi OS",
+        "topic": "QTD/VDDG/qtd-0w/os_name",
+        "qos": "0",
+        "datatype": "auto",
+        "broker": "d2bee063.4e6ed8",
+        "x": 110,
+        "y": 280,
+        "wires": [
+            [
+                "fd1048cc.64dc58"
+            ]
+        ]
+    },
+    {
+        "id": "fd1048cc.64dc58",
+        "type": "ui_text",
+        "z": "b5af51ed.68447",
+        "group": "9833553e.53cb98",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "name": "OS",
+        "label": "OS",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "x": 290,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "279e3008.ad4f48",
+        "type": "mqtt in",
+        "z": "b5af51ed.68447",
+        "name": "Driver",
+        "topic": "QTD/VDGG/tdc7201/driver",
+        "qos": "0",
+        "datatype": "auto",
+        "broker": "d2bee063.4e6ed8",
+        "x": 110,
+        "y": 400,
+        "wires": [
+            [
+                "cca75358.b12e9"
+            ]
+        ]
+    },
+    {
+        "id": "cca75358.b12e9",
+        "type": "ui_text",
+        "z": "b5af51ed.68447",
+        "group": "1850e0ab.ffc91f",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "name": "Driver",
+        "label": "Python3 tdc7201 driver version",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "x": 290,
+        "y": 400,
+        "wires": []
+    },
+    {
+        "id": "c98e7631.b95dc8",
+        "type": "function",
+        "z": "b5af51ed.68447",
+        "name": "Successes",
+        "func": "msg.payload = msg.payload[2]\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 560,
+        "y": 520,
+        "wires": [
+            [
+                "b2f320db.1fd3a8"
+            ]
+        ]
+    },
+    {
+        "id": "b2f320db.1fd3a8",
+        "type": "ui_chart",
+        "z": "b5af51ed.68447",
+        "name": "Valid",
+        "group": "1850e0ab.ffc91f",
+        "order": 4,
+        "width": 0,
+        "height": 0,
+        "label": "Valid measurements per batch",
+        "chartType": "line",
+        "legend": "false",
+        "xformat": "HH:mm:ss",
+        "interpolate": "linear",
+        "nodata": "",
+        "dot": false,
+        "ymin": "",
+        "ymax": "",
+        "removeOlder": 1,
+        "removeOlderPoints": "",
+        "removeOlderUnit": "3600",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+            "#00ac00",
+            "#2c2ca0",
+            "#ff7f0e",
+            "#2ca02c",
+            "#98df8a",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "useOldStyle": false,
+        "outputs": 1,
+        "x": 770,
+        "y": 520,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "d2bee063.4e6ed8",
+        "type": "mqtt-broker",
+        "z": "",
+        "name": "Eclipse",
+        "broker": "mqtt.eclipse.org",
+        "port": "1883",
+        "tls": "",
+        "clientid": "",
+        "usetls": false,
+        "compatmode": false,
+        "keepalive": "120",
+        "cleansession": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "closeTopic": "",
+        "closeQos": "0",
+        "closePayload": "",
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": ""
+    },
+    {
+        "id": "9833553e.53cb98",
+        "type": "ui_group",
+        "z": "",
+        "name": "Raspberry Pi",
+        "tab": "1de82e72.045f5a",
+        "order": 1,
+        "disp": true,
+        "width": 8,
+        "collapse": false
+    },
+    {
+        "id": "1850e0ab.ffc91f",
+        "type": "ui_group",
+        "z": "",
+        "name": "TDC7201",
+        "tab": "1de82e72.045f5a",
+        "order": 2,
+        "disp": true,
+        "width": 8,
+        "collapse": false
+    },
+    {
+        "id": "1de82e72.045f5a",
+        "type": "ui_tab",
+        "z": "",
+        "name": "Van De Graaff Generator",
+        "icon": "dashboard",
+        "disabled": false,
+        "hidden": false
+    }
+]
