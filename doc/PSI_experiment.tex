@@ -1,0 +1,294 @@
+\documentclass[12pt]{amsart}
+\usepackage{geometry} % see geometry.pdf on how to lay out the page. There's lots.
+\geometry{a4paper} % or letter or a5paper or ... etc
+% \geometry{landscape} % rotated page geometry
+\usepackage{url}
+\usepackage{amsthm}
+%\usepackage{lineno} % Nature Physics requires line numbers
+
+% PSI wants sans-serif fonts like Arial or Helvetica
+\renewcommand*\familydefault{\sfdefault} 
+
+% See the ``Article customise'' template for come common customisations
+
+   % The amssymb package provides \mathbb and other
+   % math symbols.  The amsmath package provides sophisticated math
+   % constructions.  The amsthm package provides \theoremstyle and
+   % the \proof environment.
+   %
+   % The amsmath and amsthm packages are automatically activated by
+   % \documentclass{amsart}, so there is no need to activate them here.
+
+      \usepackage{amssymb}
+
+   % Next we use \newtheorem to specify our theorem-like environments
+   % (theorem, definition, etc.) and how to display and number them.
+   %
+   % Note: The \theoremstyle declarations affect the appearance of the
+   % Theorems, Definitions, etc.
+
+      \theoremstyle{plain}
+      \newtheorem{theorem}{Theorem}[section]
+      \newtheorem{lemma}[theorem]{Lemma}
+      \newtheorem{corollary}[theorem]{Corollary}
+      
+      \theoremstyle{definition}
+      \newtheorem{definition}[theorem]{Definition}
+      
+      \theoremstyle{remark}
+      \newtheorem{remark}[theorem]{Remark}
+
+   % The preamble is also a good place to define new commands and macros.
+   % This part of the preamble is strictly optional according to your taste.
+
+      \newcommand{\R}{{\mathbb R}}
+      \newcommand{\nil}{\varnothing}
+
+   % The following mysterious maneuver gets rid of AMS junk at the top
+   % and bottom of the first page.
+   
+      \makeatletter
+      \def\@setcopyright{}
+      \def\serieslogo@{}
+      \makeatother
+
+  \fontfamily{Arial}
+%  \fontseries{m}
+%  \fontshape{it}
+%  \fontsize{12}{15}
+  \selectfont
+
+
+\title{Electrostatic time dilation.}
+\author{Howard A. Landman}
+\date{v1.1\ \today} % delete this line to display the current date
+
+%%% BEGIN DOCUMENT
+\begin{document}
+\maketitle
+
+%\begin{affiliations}
+% \item Fort Collins, Colorado, USA \ howard@riverrock.org
+%\end{affiliations}
+
+\begin{abstract}
+We propose to test the existence of an electromagnetic time dilation
+by measuring the decay lifetimes of muons inside a charged Van de Graaff generator.
+
+\end{abstract}
+
+%\tableofcontents
+
+\section{Theoretical background}
+
+Several unified theories\cite{Apsel1978,Apsel1979,Apsel1981,Rodrigues1983,Ryff1985,Beil1987,Dubey2015,Ogonowski2012}
+predict a time dilation associated with the electromagnetic 4-potential.
+My own work\cite{Landman2017,Landman2020} confirms the approximate magnitude of this effect (ignoring the magnetic part, which is very tiny) as
+\[ T_d =  e^{qV/mc^2} \approx  1 + \frac{qV}{mc^2} \]
+The philosophical question here is whether EM acceleration is "gravity-like",
+i.e. whether the Equivalence Principle applies to EM.
+This is a yes/no question with only two possible answers.
+If it does, then application of Einstein's 1907 derivation\cite{Einstein1907} forces EM time dilation,
+and gives a magnitude identical to the above.
+If it doesn't, then there can be no EM time dilation.
+Weyl was perhaps the only early theorist to explicitly consider this question, and assumed that it doesn't\cite[pp. 304-305]{Weyl1923};
+most other researchers implicitly assume the same without even discussing it.
+We propose to test whether they were right to do so.
+
+%There is a curious paradox hidden in the above results.
+%$\nu = E/h$ implies that in QM the (quantum phase) frequency of things is linearly proportional to their energy.
+%$T_d = e^{ gz/c^2 } = e^{ mgz/mc^2 }$ implies that in GR
+%the (time-dilated) frequency of things is an exponential function of their energy.
+%Both formulae are widely accepted, but
+%it seems obvious that they cannot both be universally true.
+%Reconciling this apparent contradiction is beyond the scope of the current paper.
+
+\section{Why muons?}
+
+Unlike in the gravitational case,
+%where gravitational mass and inertial mass cancel out,
+here both charge and mass matter,
+or more precisely the dilation is a function of the charge/mass ratio $q/m$.
+Uncharged particles should be completely unaffected.
+For a given non-zero $q$, lighter particles will be dilated more strongly than heavier particles.
+
+Thus, for experimental testing, we are lead to the muon.
+With a mass-energy of $m_\mu c^2 = 105.7\ \textup{MeV}$,
+it is still light enough to have its mean lifetime of $2.2\ \mu \textup{S}$
+affected by a modest potential.
+For example, a potential of 1.057 MV should alter its lifetime by about 1\%.
+Apsel first proposed this kind of experiment in 1979\cite{Apsel1979};
+40 years later it still has never been performed.
+
+Charged pions ($\pi^+$, $\pi^-$) have a charge-mass ratio 0.757 as large as a muon's,
+and would also be reasonable for such experiments, but would require about
+$0.757^{-2} = 1.75$ times as many data points to get the same statistical significance.
+
+\section{Experimental setup}
+
+BEAM: A beam of low energy (around 10-60 MeV/c) $\mu^+$
+is delivered to the detector.
+Surface $\mu^+$ at ~28 MeV/c would be fine.
+Beam diameter just needs to be smaller than the scintillator,
+so anything under about 150 mm should be OK.
+The "muon on request" system might be good, but I need more technical details.
+Otherwise the beam could be continuous with a current of perhaps 100 to 500 $\mu^+$/S.
+The center of the beam (if horizontal) will need to enter the VDGG at approximately 1.2 m above the floor.
+
+SPACE: A gap of at least 0.5 to 1 m must exist between any conductive part of the beam system (or other experimental devices) and the VDGG sphere to prevent arcing. 2 m or greater is recommended.
+
+VDGG: The current Van De Graaff Generator is a 700 kV kit\cite{PP700kV} from Physics Playground, modified to have a sphere made from 2 hemispheres for easy access to the interior.
+The sphere is 507 mm diameter and is made from stainless steel approximately 1.5 mm thick (except where the overlap flange exists near the seam, where it is about double that).
+A foamboard work platform supported by 3D-printed struts is mounted just below the seam;
+all the internal devices sit on that.
+A grounding wand for the sphere will be mounted nearby,
+and must be used to discharge the sphere before any maintenance.
+The VDGG polarity can be reversed by swapping rollers,
+but this requires disassembling the sphere and takes about 1 hour.
+
+SCINTILLATOR: The scintillator unit will be a cylinder of plastic scintillator + PMT + high-voltage circuitry, enclosed in a lightproof metal case.
+At the moment this will probably be the scintillator portion
+of a Teachspin student muon lifetime experiment,
+as we have experience with that and it is adequate.
+It is 16.5 cm diameter by 36 cm tall.
+The scintillator requires a DC power supply (not yet specified).
+
+PULSE-PAIR TIMER: Our current prototype uses a Texas Instruments TDC7201 chip.\cite{TDC7201}
+There may have to be some preprocessing circuitry between the scintillator output and it.
+The chip SPI interface is driven by a Raspberry Pi 0W,
+which does control, data logging, and status reporting via MQTT.
+Current software in Python3 can run about 500 simulated measurements per second.
+The Pi is powered by an Adafruit UPS board with LiPo batteries
+plus a 10 AH or greater USB battery bank,
+so that the bank can be swapped out without powering down the Pi.
+Power consumption is 0.20 A, which should allow about 50 hours runtime.
+
+FIELD METER: An external chopper-stabilized electric field meter will be used to monitor the sphere voltage. It should be re-calibrated to a voltage standard while in the PSI environment. Two such meters are currently being evaluated.
+
+OTHER METERS: Temperature and humidity should also be logged, as they could affect the voltage on the sphere.
+We can even do that inside the sphere by hanging I2L sensors off the Pi.
+
+The above would suffice.
+More external instruments could be used;
+however, communication between internal and external devices
+could NOT be done over metal wires,
+but would have to be via wifi (already demonstrated to work), fiber optics, or something else non-conductive.
+
+Project source code is available on github.\cite{qtd_github}
+The tdc7201 driver is also available on Pypi as a Python 3 module via "python3 -m pip install tdc7201".
+
+\section{Beam time estimate}
+
+(These need to be checked.)
+Under optimistic assumptions (+-700 kV; about 3.7\% of decays lost; 500 $\mu^+$/S)
+it would take about 1.3M $\mu^+$ and about 0.75 hours of beam time to reach 5 sigma
+that positive and negative potentials dilate muons oppositely (one two-tailed test).
+Under more pessimistic assumptions (+500 kV, 0, -500 kV; 13\% of decays lost; 100 $\mu^+$/S)
+it would take about 16.1M $\mu^+$ and about 44.7 hours of beam time to reach 5 sigma
+that each of positive and negative potentials differ from the 0V base case (two one-tailed tests).
+These estimates ignore noise from background radiation, cosmic rays, and beam impurities.
+
+If there is time, it would be good to repeat the entire experiment with negative $\mu^-$
+to show that they are dilated by the same amount but in the opposite direction.
+This would require a similar amount of time on a $\mu^-$ beam.
+
+\begin{thebibliography}{10}
+
+\bibitem{Apsel1978}
+D. Apsel,
+``Gravitational, electromagnetic, and nuclear theory'',
+{\em 	International Journal of Theoretical Physics} v.17 \#8 643-649 (Aug 1978)
+DOI: 	10.1007/BF00673015
+
+\bibitem{Apsel1979}
+D. Apsel,
+``Gravitation and electromagnetism'',
+{\em General Relativity and Gravitation} v.10 \#4 297-306 (Mar 1979)
+DOI: 10.1007/BF00759487
+
+\bibitem{Apsel1981}
+D. Apsel,
+``Time dilations in bound muon decay'',
+{\em General Relativity and Gravitation} v.13 \#6 605-607 (Jun 1981)
+DOI: 10.1007/BF00757247
+
+\bibitem{Rodrigues1983}
+W.A. Rodrigues Jr.,
+``The Standard of Length in the Theory of Relativity and Ehrenfest Paradox'',
+{\em Il Nuovo Cimento} v.74 B \#2 199-211 (11 April 1983)
+
+\bibitem{Ryff1985}
+L.C.B. Ryff,
+``The Lifetime of an Elementary Particle in a Field'',
+{\em General Relativity and Gravitation} v.17 \#6 515-519 (1985)
+
+\bibitem{Beil1987}
+R.G. Beil,
+``Electrodynamics from a Metric'',
+{\em Int. J. of Theoretical Physics} v.26 \#2 189-197 (1987)
+
+%\bibitem{vanHolten1991}
+%J.W. van Holten,
+%``Relativistic Time Dilation in an External Field'',
+%NIKHEF-H/91-05 (1991)
+
+%\bibitem{vanHolten1993}
+%J.W. van Holten,
+%``Relativistic Dynamics of Spin in Strong External Fields'',
+%\url{arXiv:hep-th/9303124v1}, (24 March 1993)
+
+\bibitem{Dubey2015}
+A.K. Dubey, A.K. Sen,
+``Gravitational Redshift in Kerr-Newman Geometry'',
+\url{arXiv:1503.03833v5}, (16 October 2015)
+
+\bibitem{Ogonowski2012}
+P. Ogonowski,
+``Time dilation as field'',
+Journal of Modern Physics, 3, 200-207 (2012)
+
+%\bibitem{Ogonowski2013}
+%P. Ogonowski, P. Skindzier,
+%``Maxwell-like picture of General Relativity and its Planck limit'',
+%\url{https://arxiv.org/pdf/1301.2758.pdf}
+
+\bibitem{Landman2017}
+H. Landman,
+"An elementary approach to quantum time dilation",
+\url{http://www.riverrock.org/~howard/QuantumTime29.pdf}
+
+\bibitem{Landman2020}
+H. Landman,
+"The magnitude of electromagnetic time dilation",
+\url{http://www.riverrock.org/~howard/Magnitude_4_3.pdf}
+
+\bibitem{Einstein1907}
+A. Einstein, ``\"{U}ber das Relativit\"{a}tsprinzip und die aus demselben gezogenenn Folgerungen'',
+{\em Jahrbuch der Radioaktivit\"{a}t und Elektronik} 4, 411-462 (4 December 1907);
+English translation, ``On the relativity principle and the conclusions drawn from it'',
+{\em The Collected Papers}, v.2, 433-484 (1989),
+available at \url{https://einsteinpapers.press.princeton.edu/vol2-trans/319}
+
+\bibitem{Weyl1923}
+H. Weyl,
+{\em Raum-Zeit-Materie} 6th ed.,
+Springer-Verlag (18 Apr 1923)
+
+%\bibitem{PDG2014}
+%K.A. Olive et al. (Particle Data Group),
+%Chin. Phys. C38, 090001 (2014)
+%\url{http://pdg.lbl.gov/2014/listings/rpp2014-list-muon.pdf}
+
+\bibitem{PP700kV}
+\url{https://www.physicsplayground.com/apps/webstore/products/show/1083379}
+
+\bibitem{TDC7201}
+"TDC7201 Time-to-Digital Converter for Time-of-Flight Applications in LIDAR, Range Finders, and ADAS",
+\url{http://www.ti.com/lit/ds/symlink/tdc7201.pdf} (May 2016)
+
+\bibitem{qtd_github}
+\url{https://github.com/HowardALandman/QTD}
+
+\end{thebibliography}
+
+\end{document}
