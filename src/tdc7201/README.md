@@ -73,6 +73,7 @@ This can be useful in a noisy environment.
 The chip starts timing on a pulse on the START pin, and then can record timings for up to 5 pulses on the STOP pin.
 Allowed values are 1, 2, 3, 4, 5.
 The default is 1, which means the measurement will terminate as soon as a single STOP pulse is received.
+If `num_stop==3`, the measurement will terminate after recording 3 STOP pulses or after timing out, whichever comes first.
 * `clock_cntr_stop = N` - If N is non-zero, the chip will ignore STOP pulses for N clock cycles after START.
 * `clock_cntr_ovf = N` - The chip will end measurement ("time out" or "clock counter overflow") after N clock cycles even if `num_stop` STOP pulses have not been received.
 Default (and maximum) is 65535 = 0xFFFF.
@@ -95,14 +96,15 @@ and that `initGPIO()` not be called with `start=None` or `stop=None` respectivel
 
     off()
 
-Asserts reset. This will terminate any measurement in progress, and make the chip unresponsive to SPI.
+Asserts reset. This will terminate any measurement in progress,
+and make the chip unresponsive to SPI until the next call to on()..
 
     clear_status(verbose=False,force=False)
 
 Clears any set interrupt status register bits to prepare for next measurement.
 This isn't supposed to be necessary, but I was having problems without doing it.
 If `verbose==True`, prints detailed step-by-step results for debugging.
-If `force==True`, does a write even if none of the bits appears to be set.
+If `force==True`, tries to clear all IS bits even if some or all of them appear not to be set.
 
     set_SPI_clock(speed)
 
@@ -137,6 +139,7 @@ Low-level routine to read a 24-bit value from a 24-bit chip register.
 
 Read all of the side 1 chip registers (including measurement results) into the tdc.reg1 list.
 (It should be possible to make this read the side 2 registers, but it doesn't yet.)
+This is much faster than looping over the registers in Python.
 
     print_regs1()
 
