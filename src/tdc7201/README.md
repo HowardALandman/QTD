@@ -97,7 +97,7 @@ and that `initGPIO()` not be called with `start=None` or `stop=None` respectivel
     off()
 
 Asserts reset. This will terminate any measurement in progress,
-and make the chip unresponsive to SPI until the next call to on()..
+and make the chip unresponsive to SPI until the next call to on().
 
     clear_status(verbose=False,force=False)
 
