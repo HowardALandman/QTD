@@ -76,7 +76,7 @@ def publish_os_name(client,cmd = "head -1 /etc/os-release"):
     # Get "pretty" OS name
     try:
         os_name = os.popen(cmd).read().split('"')[1]
-        print("OS name =",os_name)
+        #print("OS name =",os_name)
     except:
         os_name = "unknown"
     client.publish(topic="QTD/VDDG/qtd-0w/os_name",payload=os_name,retain=True)
@@ -93,7 +93,7 @@ def publish_cpu_info(client,f = "/proc/cpuinfo"):
             #print(line,end='')
             hw_pair = line.split()
             topic = "QTD/VDDG/qtd-0w/"+hw_pair[0]
-            print(topic)
+            #print(topic)
             client.publish(topic=topic,payload=" ".join(hw_pair[2:]),retain=True)
 
 publish_uname(client)
@@ -124,7 +124,7 @@ publish_tdc7201_driver(client)	# Takes a few seconds.
 #print("Time since reset asserted:", now - reset_start)
 
 # Turn the chip on.
-tdc.on(meas_mode=2,num_stop=5,clock_cntr_stop=1,timeout=0.0005)
+tdc.on(meas_mode=2,num_stop=3,clock_cntr_stop=1,timeout=0.0005)
 #tdc.on(meas_mode=1,num_stop=2,clock_cntr_stop=1,timeout=0.0005)
 client.publish(topic="QTD/VDDG/tdc7201/runstate",payload="ON")
 
