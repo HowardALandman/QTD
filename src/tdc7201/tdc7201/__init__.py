@@ -573,6 +573,7 @@ class TDC7201():
             self.write8(self.CLOCK_CNTR_STOP_MASK_H, sm_h)	# default, but make sure
             self.write8(self.CLOCK_CNTR_STOP_MASK_L, sm_l)
             print("Skipping STOP pulses for", clock_cntr_stop, "clock periods =", clock_cntr_stop*self.clockPeriod, "S")
+            # Maybe should use auto-increment.
             result = (self.read8(self.CLOCK_CNTR_STOP_MASK_H) << 8) | self.read8(self.CLOCK_CNTR_STOP_MASK_L)
             if (result != clock_cntr_stop):
                 print("Couldn't set CLOCK_CNTR_STOP_MASK.")
@@ -605,6 +606,7 @@ class TDC7201():
         ovf_h = (ovf >> 8) & 0xFF
         self.write8(self.CLOCK_CNTR_OVF_H, ovf_h)
         self.write8(self.CLOCK_CNTR_OVF_L, ovf_l)
+        # Maybe should use auto-increment.
         result = (self.read8(self.CLOCK_CNTR_OVF_H) << 8) | self.read8(self.CLOCK_CNTR_OVF_L)
         if (result != ovf):
             print("Couldn't set CLOCK_CNTR_OVF.")
