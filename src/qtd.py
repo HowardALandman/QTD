@@ -63,8 +63,10 @@ def publish_cpu_temp(f_name="/sys/class/thermal/thermal_zone0/temp", __temp=None
         new_temp = int(temp_line)
         if __temp is None:
             __temp = new_temp
+            print("New temp =", __temp)
         else:
             __temp = (__temp + new_temp) / 2
+            print("Averaged temp =", __temp)
         rounded = round(__temp/1000, 1)
         #print("CPU temp =", rounded)
     client.publish(topic="QTD/VDGG/qtd-0w/cpu_temp", payload=rounded)
