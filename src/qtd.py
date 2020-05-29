@@ -86,16 +86,10 @@ def publish_os_name(cmd="head -1 /etc/os-release"):
     """Publish the OS name to the MQTT server."""
     # Get "pretty" OS name
     try:
-<<<<<<< HEAD
-        os_name = os.popen(cmd).read().split('"')[1]
-        #print("OS name =",os_name)
-    except:
-=======
         with os.popen(cmd) as pipe:
             os_name = pipe.read().split('"')[1]
     except IOError:
         print("Running", cmd, "failed.")
->>>>>>> 2e9ad32d476bca8c340a54aa9e8b4009203b7231
         os_name = "unknown"
     print("OS name =", os_name)
     client.publish(topic="QTD/VDDG/qtd-0w/os_name", payload=os_name, retain=True)
@@ -112,13 +106,8 @@ def publish_cpu_info(f_name="/proc/cpuinfo"):
             #print(line, end='')
             hw_pair = line.split()
             topic = "QTD/VDDG/qtd-0w/"+hw_pair[0]
-<<<<<<< HEAD
             #print(topic)
-            client.publish(topic=topic,payload=" ".join(hw_pair[2:]),retain=True)
-=======
-            print(topic)
             client.publish(topic=topic, payload=" ".join(hw_pair[2:]), retain=True)
->>>>>>> 2e9ad32d476bca8c340a54aa9e8b4009203b7231
 
 publish_uname()
 publish_os_name()
@@ -148,15 +137,9 @@ publish_tdc7201_driver()	# Takes a few seconds.
 #print("Time since reset asserted:", NOW - reset_start)
 
 # Turn the chip on.
-<<<<<<< HEAD
-tdc.on(meas_mode=2,num_stop=3,clock_cntr_stop=1,timeout=0.0005)
-#tdc.on(meas_mode=1,num_stop=2,clock_cntr_stop=1,timeout=0.0005)
-client.publish(topic="QTD/VDDG/tdc7201/runstate",payload="ON")
-=======
 tdc.on(meas_mode=2, num_stop=3, clock_cntr_stop=1, timeout=0.0005)
 #tdc.on(meas_mode=1, num_stop=2, clock_cntr_stop=1, timeout=0.0005)
 client.publish(topic="QTD/VDDG/tdc7201/runstate", payload="ON")
->>>>>>> 2e9ad32d476bca8c340a54aa9e8b4009203b7231
 
 # Make sure our internal copy of the register state is up to date.
 #print("Reading chip side #1 register state:")
@@ -194,7 +177,7 @@ while batches != 0:
     print((ITERS/DURATION), "measurements per second")
     #print((DURATION/ITERS), "seconds per measurement")
 
-    publish_cpu_temp(client)
+    publish_cpu_temp()
 
     batches -= 1
 
