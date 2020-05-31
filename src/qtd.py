@@ -47,12 +47,11 @@ def publish_uname():
     client.publish(topic="QTD/VDDG/"+nodename+"/OS",
                    payload=sysname+" "+release+" "+version, retain=True)
 
-def publish_cpu_temp(f_name="/sys/class/thermal/thermal_zone0/temp", __temp=None):
+cpu_temp = None
+#def publish_cpu_temp(f_name="/sys/class/thermal/thermal_zone0/temp", __temp=None):
+def publish_cpu_temp(f_name="/sys/class/thermal/thermal_zone0/temp"):
     """Publish the CPU temperature to the MQTT server."""
-    # The __temp argument is a stupid way to create a persistent variable that
-    # is still private to this method. Do not assign to it as an argument.
-    # In many languages we could just say "static temp" to get that, but
-    # Python doesn't have that and neither "global" nor "nonlocal" are it.
+    global cpu_temp
     try:
         with open(f_name) as cpu_temp_file:
             temp_line = list(cpu_temp_file)[0]
@@ -61,13 +60,13 @@ def publish_cpu_temp(f_name="/sys/class/thermal/thermal_zone0/temp", __temp=None
     else:
         # Smooth
         new_temp = int(temp_line)
-        if __temp is None:
-            __temp = new_temp
-            print("New temp =", __temp)
+        if cpu_temp is None:
+            cpu_temp = new_temp
+            #print("New temp =", cpu_temp/1000)
         else:
-            __temp = (__temp + new_temp) / 2
-            print("Averaged temp =", __temp)
-        rounded = round(__temp/1000, 1)
+            cpu_temp = (3*cpu_temp + new_temp) / 4
+            #print("Averaged temp =", cpu_temp/1000)
+        rounded = round(cpu_temp/1000, 1)
         #print("CPU temp =", rounded)
     client.publish(topic="QTD/VDGG/qtd-0w/cpu_temp", payload=rounded)
 
