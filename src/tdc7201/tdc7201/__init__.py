@@ -25,6 +25,8 @@ import sys
 # random for creating stimuli for testing
 import random
 
+__version__='0.6b1'
+
 # Map of EVM board header pinout.
 # "." means No Connect, parentheses mean probably optional.
 #      +3.3V  1	 21 .		 (DTG_TRIG) 40	20 GND
@@ -856,16 +858,23 @@ class TDC7201():
             #else:
             #    print("ERROR: INT1 is active (low)!")
             #    return
+        # Note that the chip may already be finished by now.
+        # Therefore, GPIO.wait_for_edge() is not guaranteed to see an edge.
         # Wait for INT1. This is inefficient, but OK for now.
         # INT1 is active low.
-        timeout = time.time() + 0.1	#Don't wait longer than a tenth of a second.
+        timeout = time.time() + 0.001	#Don't wait longer than a millisecond.
+        #loops = 0
         while ((GPIO.input(self.INT1)) and (time.time() < timeout)):
+            #loops += 1
             pass
+        #GPIO.wait_for_edge(self.INT1, GPIO.FALLING, timeout=1)
+        #GPIO.wait_for_edge(self.INT1, GPIO.FALLING)
         if GPIO.input(self.INT1):
             print("Timed out waiting for INT1.")
             return 7
         else:
             #print("Got measurement-complete interrupt.")
+            #print("Looped", loops, "times") # typically 0 to 24 times
             pass
         # Read everything in and see what we got.
         #print("Reading chip side #1 register state:")
