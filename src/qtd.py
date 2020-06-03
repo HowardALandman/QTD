@@ -22,12 +22,17 @@ client.connect(MQTT_SERVER_NAME, 1883, 60)
 
 def publish_tdc7201_driver():
     """Publish the version number of the TDC7201 driver to the MQTT server."""
-    command = "python3 -m pip show tdc7201 | grep Version"
     try:
-        with os.popen(command) as pipe:
-            driver = pipe.read().split()[1]
-    except IOError:
-        driver = "unknown"
+        # the fast easy way
+        driver = tdc7201.__version__	# exists in versions 0.6b1 and later
+    except AttributeError:
+        # This is grotesquely slow, but should work with any version
+        command = "python3 -m pip show tdc7201 | grep Version"
+        try:
+            with os.popen(command) as pipe:
+                driver = pipe.read().split()[1]
+        except IOError:
+            driver = "unknown"
     print("TDC7201 driver version =", driver)
     client.publish(topic="QTD/VDGG/tdc7201/driver", payload=driver)
 
