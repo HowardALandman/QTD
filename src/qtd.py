@@ -3,9 +3,24 @@
 
 import time
 import os
+import signal
+import sys
 import json
 import paho.mqtt.client as mqtt
 import tdc7201
+
+def sigint_handler(sig, frame):
+    """Exit as gracefully as possible."""
+    try:
+        tdc.off()
+        client.publish(topic="QTD/VDDG/tdc7201/runstate", payload="OFF")
+        #print("Turned TDC7201 off while exiting.")
+    except NameError:
+        pass
+    #GPIO.cleanup()	# Can't do this here, needs to be in tdc7201.
+    sys.exit(0)
+
+signal.signal(signal.SIGINT, sigint_handler)
 
 MQTT_SERVER_NAME = "mqtt.eclipse.org"
 
