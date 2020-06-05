@@ -9,19 +9,24 @@ import json
 import paho.mqtt.client as mqtt
 import tdc7201
 
+
+# Handle ^C keyboard interrupt.
 def sigint_handler(sig, frame):
     """Exit as gracefully as possible."""
+    payload = "unknown"
     try:
-        tdc.off()
-        client.publish(topic="QTD/VDDG/tdc7201/runstate", payload="OFF")
+        tdc.cleanup()
+        payload = "OFF"
         #print("Turned TDC7201 off while exiting.")
     except NameError:
         pass
-    #GPIO.cleanup()	# Can't do this here, needs to be in tdc7201.
+    mqttc.publish(topic="QTD/VDDG/tdc7201/runstate", payload=payload)
     sys.exit(0)
 
 signal.signal(signal.SIGINT, sigint_handler)
 
+
+# MQTT stuff.
 MQTT_SERVER_NAME = "mqtt.eclipse.org"
 
 def on_connect(mqtt_client, userdata, flags, result_code):
@@ -29,11 +34,18 @@ def on_connect(mqtt_client, userdata, flags, result_code):
     print("Connected to", MQTT_SERVER_NAME, "with result code", result_code)
     # Any subscribes should go here, so they get re-subscribed on a reconnect.
 
-# NEED an on_disconnect() method!
+def on_disconnect(mqtt_client, userdata, rc):
+    print("MQTT disconnected with code", rc, ". Attempting to reconnect.")
+    try:
+        mqttc.reconnect()
+    except socket.error:
+        print("Reconnect failed, exiting.")
+        sys.exit(0)
 
-client = mqtt.Client()
-client.on_connect = on_connect
-client.connect(MQTT_SERVER_NAME, 1883, 60)
+mqttc = mqtt.Client()
+mqttc.on_connect = on_connect
+mqttc.on_disconnect = on_disconnect
+mqttc.connect(MQTT_SERVER_NAME, 1883, 300)
 
 def publish_tdc7201_driver():
     """Publish the version number of the TDC7201 driver to the MQTT server."""
@@ -49,7 +61,7 @@ def publish_tdc7201_driver():
         except IOError:
             driver = "unknown"
     print("TDC7201 driver version =", driver)
-    client.publish(topic="QTD/VDGG/tdc7201/driver", payload=driver)
+    mqttc.publish(topic="QTD/VDGG/tdc7201/driver", payload=driver)
 
 def publish_uname():
     """Publish uname() data to the MQTT server."""
@@ -60,11 +72,11 @@ def publish_uname():
     sysname = uname.sysname
     release = uname.release
     version = uname.version
-    client.publish(topic="QTD/VDDG/"+nodename+"/nodename",
+    mqttc.publish(topic="QTD/VDDG/"+nodename+"/nodename",
                    payload=nodename, retain=True)
-    client.publish(topic="QTD/VDDG/"+nodename+"/machine",
+    mqttc.publish(topic="QTD/VDDG/"+nodename+"/machine",
                    payload=machine, retain=True)
-    client.publish(topic="QTD/VDDG/"+nodename+"/OS",
+    mqttc.publish(topic="QTD/VDDG/"+nodename+"/OS",
                    payload=sysname+" "+release+" "+version, retain=True)
 
 cpu_temp = None
@@ -88,7 +100,7 @@ def publish_cpu_temp(f_name="/sys/class/thermal/thermal_zone0/temp"):
             #print("Averaged temp =", cpu_temp/1000)
         rounded = round(cpu_temp/1000, 1)
         #print("CPU temp =", rounded)
-    client.publish(topic="QTD/VDGG/qtd-0w/cpu_temp", payload=rounded)
+    mqttc.publish(topic="QTD/VDGG/qtd-0w/cpu_temp", payload=rounded)
 
 def publish_gpu_temp(cmd="vcgencmd measure_temp"):
     """Publish the GPU temperature to the MQTT server."""
@@ -101,7 +113,7 @@ def publish_gpu_temp(cmd="vcgencmd measure_temp"):
     else:
         #print("GPU temp =", gpu_temp)
         pass
-    client.publish(topic="QTD/VDGG/qtd-0w/gpu_temp", payload=gpu_temp)
+    mqttc.publish(topic="QTD/VDGG/qtd-0w/gpu_temp", payload=gpu_temp)
 
 def publish_os_name(cmd="head -1 /etc/os-release"):
     """Publish the OS name to the MQTT server."""
@@ -113,7 +125,7 @@ def publish_os_name(cmd="head -1 /etc/os-release"):
         print("Running", cmd, "failed.")
         os_name = "unknown"
     print("OS name =", os_name)
-    client.publish(topic="QTD/VDDG/qtd-0w/os_name", payload=os_name, retain=True)
+    mqttc.publish(topic="QTD/VDDG/qtd-0w/os_name", payload=os_name, retain=True)
 
 def publish_cpu_info(f_name="/proc/cpuinfo"):
     """Publish the Raspberry Pi type name to the MQTT server."""
@@ -128,7 +140,7 @@ def publish_cpu_info(f_name="/proc/cpuinfo"):
             hw_pair = line.split()
             topic = "QTD/VDDG/qtd-0w/"+hw_pair[0]
             #print(topic)
-            client.publish(topic=topic, payload=" ".join(hw_pair[2:]), retain=True)
+            mqttc.publish(topic=topic, payload=" ".join(hw_pair[2:]), retain=True)
 
 publish_uname()
 publish_os_name()
@@ -160,7 +172,7 @@ publish_tdc7201_driver()	# Takes a few seconds.
 # Turn the chip on.
 tdc.on(meas_mode=2, num_stop=3, clock_cntr_stop=1, timeout=0.0005)
 #tdc.on(meas_mode=1, num_stop=2, clock_cntr_stop=1, timeout=0.0005)
-client.publish(topic="QTD/VDDG/tdc7201/runstate", payload="ON")
+mqttc.publish(topic="QTD/VDDG/tdc7201/runstate", payload="ON")
 
 # Make sure our internal copy of the register state is up to date.
 #print("Reading chip side #1 register state:")
@@ -171,14 +183,14 @@ batches = -1	# number of batches, negative means run forever
 #iters = 32768 # measurements per batch
 #iters = 16384 # measurements per batch
 ITERS = 8192 # measurements per batch
-client.publish(topic="QTD/VDDG/tdc7201/batchsize", payload=str(ITERS))
+mqttc.publish(topic="QTD/VDDG/tdc7201/batchsize", payload=str(ITERS))
 #RESULT_NAME = ("0", "1", "2", "3", "4", "5",
 #               "No calibration", "INT1 fall timeout", "TRIG1 fall timeout",
 #               "INT1 early", "TRIG1 rise timeout", "START_MEAS active",
 #               "TRIG1 active", "INT1 active")
 while batches != 0:
     print("batches =", batches)
-    client.loop()
+    mqttc.loop()
     #resultDict = {}
     # Measure average time per measurement.
     THEN = time.time()
@@ -191,7 +203,7 @@ while batches != 0:
     #    resultDict[RESULT_NAME[i]] = result_list[i]
     PAYLOAD = json.dumps(result_list)
     print(PAYLOAD)
-    client.publish(topic="QTD/VDDG/tdc7201/batch", payload=PAYLOAD)
+    mqttc.publish(topic="QTD/VDDG/tdc7201/batch", payload=PAYLOAD)
     NOW = time.time()
     DURATION = NOW - THEN
     #print(ITERS, "measurements in", DURATION, "seconds")
@@ -204,4 +216,4 @@ while batches != 0:
 
 # Turn the chip off.
 tdc.off()
-client.publish(topic="QTD/VDDG/tdc7201/runstate", payload="OFF")
+mqttc.publish(topic="QTD/VDDG/tdc7201/runstate", payload="OFF")
