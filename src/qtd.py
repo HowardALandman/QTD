@@ -103,15 +103,24 @@ def publish_gpu_temp(cmd="vcgencmd measure_temp"):
         pass
     client.publish(topic="QTD/VDGG/qtd-0w/gpu_temp", payload=gpu_temp)
 
-def publish_os_name(cmd="head -1 /etc/os-release"):
+def publish_os_name():
     """Publish the OS name to the MQTT server."""
     # Get "pretty" OS name
     try:
-        with os.popen(cmd) as pipe:
-            os_name = pipe.read().split('"')[1]
+        fname = '/etc/os-release'
+        with open(fname) as f:
+            os_name = f.read().split('"')[1] + ' '
     except IOError:
-        print("Running", cmd, "failed.")
-        os_name = "unknown"
+        print("Couldn't open", fname)
+        os_name = 'unknown '
+    # Get exact version-date.
+    try:
+        fname = "/etc/rpi-issue"
+        with open(fname) as f:
+            os_name += f.read().split()[3]
+    except IOError:
+        print("Couldn't open", fname)
+        os_name += "XXXX-XX-XX"
     print("OS name =", os_name)
     client.publish(topic="QTD/VDDG/qtd-0w/os_name", payload=os_name, retain=True)
 
