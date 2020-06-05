@@ -25,7 +25,7 @@ import sys
 # random for creating stimuli for testing
 import random
 
-__version__='0.6b1'
+__version__='0.6b2'
 
 # Map of EVM board header pinout.
 # "." means No Connect, parentheses mean probably optional.
@@ -898,3 +898,10 @@ class TDC7201():
             speed = self._maxSPIspeed
         print("Setting SPI clock speed to", speed/1000000, "MHz.")
         self._spi.max_speed_hz = speed
+
+    def cleanup():
+        """Turn off TDC7201, close SPI, and free up GPIO."""
+        self.off()
+        self._spi.close()
+        GPIO.cleanup()
+
