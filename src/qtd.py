@@ -3,9 +3,24 @@
 
 import time
 import os
+import signal
+import sys
 import json
 import paho.mqtt.client as mqtt
 import tdc7201
+
+def sigint_handler(sig, frame):
+    """Exit as gracefully as possible."""
+    try:
+        tdc.off()
+        client.publish(topic="QTD/VDDG/tdc7201/runstate", payload="OFF")
+        #print("Turned TDC7201 off while exiting.")
+    except NameError:
+        pass
+    #GPIO.cleanup()	# Can't do this here, needs to be in tdc7201.
+    sys.exit(0)
+
+signal.signal(signal.SIGINT, sigint_handler)
 
 MQTT_SERVER_NAME = "mqtt.eclipse.org"
 
@@ -22,12 +37,17 @@ client.connect(MQTT_SERVER_NAME, 1883, 60)
 
 def publish_tdc7201_driver():
     """Publish the version number of the TDC7201 driver to the MQTT server."""
-    command = "python3 -m pip show tdc7201 | grep Version"
     try:
-        with os.popen(command) as pipe:
-            driver = pipe.read().split()[1]
-    except IOError:
-        driver = "unknown"
+        # the fast easy way
+        driver = tdc7201.__version__	# exists in versions 0.6b1 and later
+    except AttributeError:
+        # This is grotesquely slow, but should work with any version
+        command = "python3 -m pip show tdc7201 | grep Version"
+        try:
+            with os.popen(command) as pipe:
+                driver = pipe.read().split()[1]
+        except IOError:
+            driver = "unknown"
     print("TDC7201 driver version =", driver)
     client.publish(topic="QTD/VDGG/tdc7201/driver", payload=driver)
 
@@ -47,12 +67,11 @@ def publish_uname():
     client.publish(topic="QTD/VDDG/"+nodename+"/OS",
                    payload=sysname+" "+release+" "+version, retain=True)
 
-def publish_cpu_temp(f_name="/sys/class/thermal/thermal_zone0/temp", __temp=None):
+cpu_temp = None
+#def publish_cpu_temp(f_name="/sys/class/thermal/thermal_zone0/temp", __temp=None):
+def publish_cpu_temp(f_name="/sys/class/thermal/thermal_zone0/temp"):
     """Publish the CPU temperature to the MQTT server."""
-    # The __temp argument is a stupid way to create a persistent variable that
-    # is still private to this method. Do not assign to it as an argument.
-    # In many languages we could just say "static temp" to get that, but
-    # Python doesn't have that and neither "global" nor "nonlocal" are it.
+    global cpu_temp
     try:
         with open(f_name) as cpu_temp_file:
             temp_line = list(cpu_temp_file)[0]
@@ -61,13 +80,13 @@ def publish_cpu_temp(f_name="/sys/class/thermal/thermal_zone0/temp", __temp=None
     else:
         # Smooth
         new_temp = int(temp_line)
-        if __temp is None:
-            __temp = new_temp
-            print("New temp =", __temp)
+        if cpu_temp is None:
+            cpu_temp = new_temp
+            #print("New temp =", cpu_temp/1000)
         else:
-            __temp = (__temp + new_temp) / 2
-            print("Averaged temp =", __temp)
-        rounded = round(__temp/1000, 1)
+            cpu_temp = (3*cpu_temp + new_temp) / 4
+            #print("Averaged temp =", cpu_temp/1000)
+        rounded = round(cpu_temp/1000, 1)
         #print("CPU temp =", rounded)
     client.publish(topic="QTD/VDGG/qtd-0w/cpu_temp", payload=rounded)
 
@@ -108,7 +127,7 @@ def publish_cpu_info(f_name="/proc/cpuinfo"):
             #print(line, end='')
             hw_pair = line.split()
             topic = "QTD/VDDG/qtd-0w/"+hw_pair[0]
-            print(topic)
+            #print(topic)
             client.publish(topic=topic, payload=" ".join(hw_pair[2:]), retain=True)
 
 publish_uname()
@@ -139,7 +158,7 @@ publish_tdc7201_driver()	# Takes a few seconds.
 #print("Time since reset asserted:", NOW - reset_start)
 
 # Turn the chip on.
-tdc.on(meas_mode=2, num_stop=5, clock_cntr_stop=1, timeout=0.0005)
+tdc.on(meas_mode=2, num_stop=3, clock_cntr_stop=1, timeout=0.0005)
 #tdc.on(meas_mode=1, num_stop=2, clock_cntr_stop=1, timeout=0.0005)
 client.publish(topic="QTD/VDDG/tdc7201/runstate", payload="ON")
 
@@ -179,7 +198,7 @@ while batches != 0:
     print((ITERS/DURATION), "measurements per second")
     #print((DURATION/ITERS), "seconds per measurement")
 
-    publish_cpu_temp(client)
+    publish_cpu_temp()
 
     batches -= 1
 

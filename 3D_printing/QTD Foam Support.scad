@@ -1,10 +1,11 @@
 // Support structure for 1/4" foamboard QTD experiment base
 height=139;     // 160 to equator, minus 15 for flange, minus 6 for foam thickness
 angle=30;
-r_max = 139;    // Lulzbot Taz bed size is 280 x 280, so r_max <= 140.
+r_max = 138;    // Lulzbot Taz bed size is 280 x 280, so r_max <= 140. 139 was too big (got slightly truncated).
 r_mink = 5;     // Radius of rounding in minkowski.
 r_ring = r_max - r_mink; // Outside radius of ring before minkowski
 r_contact = 63; // radius of "top" surface that contacts sphere support
+fillet = 3;
 
 // Now we need to compute the strut transform parameters.
 // This is a little tricky.
@@ -45,7 +46,7 @@ MR = [[  1,   0, -strut_cx, 0  ],
 // So X=64 needs to scale to X=67
 slot_x_bot = 128;
 slot_x_top = 134;
-slot_y = 20;
+slot_y = 21;    // 20 was a tight fit before acetone vapor bath, jammed after.
 slot_delta_x = (slot_x_top - slot_x_bot) / 2;
 slot_slope = slot_delta_x / height;
 MSL = [[  1,   0, slot_slope, 0  ],
@@ -73,41 +74,53 @@ difference() {
             multmatrix(MSR) translate([-hull_x, hull_y,0]) cylinder(r=10,h=height);
             multmatrix(MSR) translate([-hull_x,-hull_y,0]) cylinder(r=10,h=height);
         }
-        // base
-        minkowski() {
-            union() {
-                // base ring
+        // base + struts, filleted by minkowski
+        difference() {
+            cylinder(r=140,h=height+1);
+            minkowski() {
                 difference() {
-                    cylinder(r=r_ring,h=1,$fa=5);
-                    cylinder(r=r_ring-2,h=10,center=true,$fa=5);
+                    cylinder(r=143,h=height+2);
+                    union() {
+                        // base
+                        minkowski() {
+                            union() {
+                                // base ring
+                                difference() {
+                                    cylinder(r=r_ring,h=1,$fa=5);
+                                    cylinder(r=r_ring-2,h=10,center=true,$fa=5);
+                                }
+                                // base radial struts
+                                for(a = [angle/2 : angle : 180]) {
+                                    rotate([0,0,a]) translate([0,0,0.5]) cube([2*strut_h,1,1],center=true);
+                                }
+                            }
+                            // hemisphere to round everything
+                            intersection() {
+                                sphere(r=r_mink+fillet,center=true,$fa=10);
+                                cylinder(r=r_mink+fillet+1,h=r_mink+fillet+1);
+                            }
+                        }
+                        // Hyperboloid struts
+                        for(a = [angle/2 : angle : 360]) {
+                            rotate([0,0,a]) union() {
+                                // left leaning struts
+                                multmatrix(ML) {
+                                    translate([strut_h,0,0]) cylinder(r=5+fillet,h=height,$fa=10);
+                                }
+                                // right leaning struts
+                                multmatrix(MR) {
+                                    translate([strut_h,0,0]) cylinder(r=5+fillet,h=height,$fa=10);
+                                }
+                                // hemisphere at join
+                                //translate([strut_h,0,0]) intersection() {
+                                //    sphere(r=8,center=true,$fa=10);
+                                //    cylinder(r=11,h=11);
+                                //}
+                            }
+                        }
+                    }
                 }
-                // base radial struts
-                for(a = [angle/2 : angle : 180]) {
-                    rotate([0,0,a]) translate([0,0,0.5]) cube([2*strut_h,1,1],center=true);
-                }
-            }
-            // hemisphere to round everything
-            intersection() {
-                sphere(r=r_mink,center=true,$fa=10);
-                cylinder(r=6,h=6);
-            }
-        }
-        // Hyperboloid struts
-        for(a = [angle/2 : angle : 360]) {
-            rotate([0,0,a]) union() {
-                // left leaning struts
-                multmatrix(ML) {
-                    translate([strut_h,0,0]) cylinder(r=5,h=height,$fa=10);
-                }
-                // right leaning struts
-                multmatrix(MR) {
-                    translate([strut_h,0,0]) cylinder(r=5,h=height,$fa=10);
-                }
-                // hemisphere at join
-                //translate([strut_h,0,0]) intersection() {
-                //    sphere(r=8,center=true,$fa=10);
-                //    cylinder(r=11,h=11);
-                //}
+                sphere(r=fillet,center=true);
             }
         }
     }
