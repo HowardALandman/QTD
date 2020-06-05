@@ -141,13 +141,13 @@
         "legend": "false",
         "xformat": "HH:mm:ss",
         "interpolate": "linear",
-        "nodata": "",
+        "nodata": "waiting for temperature data",
         "dot": false,
-        "ymin": "30",
-        "ymax": "90",
+        "ymin": "",
+        "ymax": "",
         "removeOlder": 1,
         "removeOlderPoints": "",
-        "removeOlderUnit": "3600",
+        "removeOlderUnit": "86400",
         "cutout": 0,
         "useOneColor": false,
         "useUTC": false,
@@ -199,8 +199,7 @@
         "wires": [
             [
                 "28285b45.46e5fc",
-                "c98e7631.b95dc8",
-                "6b1c435.b64833c"
+                "c98e7631.b95dc8"
             ]
         ]
     },
@@ -235,20 +234,6 @@
         "layout": "row-spread",
         "x": 290,
         "y": 200,
-        "wires": []
-    },
-    {
-        "id": "6b1c435.b64833c",
-        "type": "debug",
-        "z": "b5af51ed.68447",
-        "name": "",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "false",
-        "x": 590,
-        "y": 620,
         "wires": []
     },
     {
@@ -347,13 +332,13 @@
         "legend": "false",
         "xformat": "HH:mm:ss",
         "interpolate": "linear",
-        "nodata": "",
+        "nodata": "waiting for measurement data",
         "dot": false,
         "ymin": "",
         "ymax": "",
         "removeOlder": 1,
         "removeOlderPoints": "",
-        "removeOlderUnit": "3600",
+        "removeOlderUnit": "86400",
         "cutout": 0,
         "useOneColor": false,
         "useUTC": false,
