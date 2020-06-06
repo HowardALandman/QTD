@@ -25,7 +25,7 @@ import sys
 # random for creating stimuli for testing
 import random
 
-__version__='0.6b2'
+__version__='0.6b4'
 
 # Map of EVM board header pinout.
 # "." means No Connect, parentheses mean probably optional.
@@ -793,6 +793,7 @@ class TDC7201():
             return 13
         if (GPIO.input(self.TRIG1)):
             print("ERROR: TRIG1 already active (high).")
+            self.clear_status(verbose=True)
             return 12
         # To start measurement, need to set START_MEAS in TDCx_CONFIG1 register.
         # First read current value.
@@ -899,7 +900,7 @@ class TDC7201():
         print("Setting SPI clock speed to", speed/1000000, "MHz.")
         self._spi.max_speed_hz = speed
 
-    def cleanup():
+    def cleanup(self):
         """Turn off TDC7201, close SPI, and free up GPIO."""
         self.off()
         self._spi.close()
