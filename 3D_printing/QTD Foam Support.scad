@@ -1,11 +1,12 @@
 // Support structure for 1/4" foamboard QTD experiment base
 height=139;     // 160 to equator, minus 15 for flange, minus 6 for foam thickness
 angle=30;
-r_max = 138;    // Lulzbot Taz bed size is 280 x 280, so r_max <= 140. 139 was too big (got slightly truncated).
+r_max = 133;    // Lulzbot Taz bed size is nominally 280 x 280, so r_max < 140.
+                // 135 was too big (slicer wouldn't accept). 134 was marginal.
 r_mink = 5;     // Radius of rounding in minkowski.
 r_ring = r_max - r_mink; // Outside radius of ring before minkowski
 r_contact = 63; // radius of "top" surface that contacts sphere support
-fillet = 3;
+fillet = 3;     // radius of rounding in negative minkowski
 
 // Now we need to compute the strut transform parameters.
 // This is a little tricky.
