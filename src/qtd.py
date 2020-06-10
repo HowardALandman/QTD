@@ -189,14 +189,16 @@ tdc.read_regs()
 #tdc.print_regs1()
 
 batches = -1	# number of batches, negative means run forever
-#iters = 32768 # measurements per batch
-#iters = 16384 # measurements per batch
-ITERS = 8192 # measurements per batch
+#ITERS = 32768 # measurements per batch
+ITERS = 16384 # measurements per batch
+#ITERS = 8192 # measurements per batch
 mqttc.publish(topic="QTD/VDDG/tdc7201/batchsize", payload=str(ITERS))
 #RESULT_NAME = ("0", "1", "2", "3", "4", "5",
 #               "No calibration", "INT1 fall timeout", "TRIG1 fall timeout",
 #               "INT1 early", "TRIG1 rise timeout", "START_MEAS active",
 #               "TRIG1 active", "INT1 active")
+cum_results = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+
 while batches != 0:
     print("batches =", batches)
     mqttc.loop()
@@ -208,15 +210,17 @@ while batches != 0:
         result_list[tdc.measure(simulate=True)] += 1
         # Clear interrupt register bits to prepare for next measurement.
         tdc.clear_status()
-    #for i in range(len(result_list)):
-    #    resultDict[RESULT_NAME[i]] = result_list[i]
+    for i in range(len(result_list)):
+        cum_results[i] += result_list[i]
     PAYLOAD = json.dumps(result_list)
     print(PAYLOAD)
     mqttc.publish(topic="QTD/VDDG/tdc7201/batch", payload=PAYLOAD)
+    print(cum_results)
     NOW = time.time()
     DURATION = NOW - THEN
     #print(ITERS, "measurements in", DURATION, "seconds")
     print((ITERS/DURATION), "measurements per second")
+    #print((result_list[2]/DURATION), "valid measurements per second")
     #print((DURATION/ITERS), "seconds per measurement")
 
     publish_cpu_temp()
