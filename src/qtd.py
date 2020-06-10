@@ -63,98 +63,6 @@ def publish_tdc7201_driver():
     print("TDC7201 driver version =", driver)
     mqttc.publish(topic="QTD/VDGG/tdc7201/driver", payload=driver)
 
-def publish_uname():
-    """Publish uname() data to the MQTT server."""
-    # What hardware are we running on?
-    uname = os.uname()
-    nodename = uname.nodename
-    machine = uname.machine
-    sysname = uname.sysname
-    release = uname.release
-    version = uname.version
-    mqttc.publish(topic="QTD/VDDG/"+nodename+"/nodename",
-                   payload=nodename, retain=True)
-    mqttc.publish(topic="QTD/VDDG/"+nodename+"/machine",
-                   payload=machine, retain=True)
-    mqttc.publish(topic="QTD/VDDG/"+nodename+"/OS",
-                   payload=sysname+" "+release+" "+version, retain=True)
-
-cpu_temp = None
-#def publish_cpu_temp(f_name="/sys/class/thermal/thermal_zone0/temp", __temp=None):
-def publish_cpu_temp(f_name="/sys/class/thermal/thermal_zone0/temp"):
-    """Publish the CPU temperature to the MQTT server."""
-    global cpu_temp
-    try:
-        with open(f_name) as cpu_temp_file:
-            temp_line = list(cpu_temp_file)[0]
-    except IOError:
-        print("Couldn't open", cpu_temp_file)
-    else:
-        # Smooth
-        new_temp = int(temp_line)
-        if cpu_temp is None:
-            cpu_temp = new_temp
-            #print("New temp =", cpu_temp/1000)
-        else:
-            cpu_temp = (3*cpu_temp + new_temp) / 4
-            #print("Averaged temp =", cpu_temp/1000)
-        rounded = round(cpu_temp/1000, 1)
-        #print("CPU temp =", rounded)
-    mqttc.publish(topic="QTD/VDGG/qtd-0w/cpu_temp", payload=rounded)
-
-def publish_gpu_temp(cmd="vcgencmd measure_temp"):
-    """Publish the GPU temperature to the MQTT server."""
-    try:
-        with os.popen(cmd) as pipe:
-            gpu_temp = pipe.read()[5:9]
-    except IOError:
-        print("Running", cmd, "failed.")
-        gpu_temp = "Failed"
-    else:
-        #print("GPU temp =", gpu_temp)
-        pass
-    mqttc.publish(topic="QTD/VDGG/qtd-0w/gpu_temp", payload=gpu_temp)
-
-def publish_os_name():
-    """Publish the OS name to the MQTT server."""
-    # Get "pretty" OS name
-    try:
-        fname = '/etc/os-release'
-        with open(fname) as f:
-            os_name = f.read().split('"')[1] + ' '
-    except IOError:
-        print("Couldn't open", fname)
-        os_name = 'unknown '
-    # Get exact version-date.
-    try:
-        fname = "/etc/rpi-issue"
-        with open(fname) as f:
-            os_name += f.read().split()[3]
-    except IOError:
-        print("Couldn't open", fname)
-        os_name += "XXXX-XX-XX"
-    print("OS name =", os_name)
-    mqttc.publish(topic="QTD/VDDG/qtd-0w/os_name", payload=os_name, retain=True)
-
-def publish_cpu_info(f_name="/proc/cpuinfo"):
-    """Publish the Raspberry Pi type name to the MQTT server."""
-    try:
-        with open(f_name) as cpu_info_file:
-            hw_list = list(cpu_info_file)[-4:]
-    except IOError:
-        print("Couldn't open", cpu_info_file)
-    else:
-        for line in hw_list:
-            #print(line, end='')
-            hw_pair = line.split()
-            topic = "QTD/VDDG/qtd-0w/"+hw_pair[0]
-            #print(topic)
-            mqttc.publish(topic=topic, payload=" ".join(hw_pair[2:]), retain=True)
-
-publish_uname()
-publish_os_name()
-publish_cpu_info()
-
 tdc = tdc7201.TDC7201()	# Create TDC object with SPI interface.
 
 # Set RPi pin directions and default values for non-SPI signals.
@@ -222,8 +130,6 @@ while batches != 0:
     print((ITERS/DURATION), "measurements per second")
     #print((result_list[2]/DURATION), "valid measurements per second")
     #print((DURATION/ITERS), "seconds per measurement")
-
-    publish_cpu_temp()
 
     batches -= 1
 
