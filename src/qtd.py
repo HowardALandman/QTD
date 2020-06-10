@@ -14,6 +14,7 @@ import tdc7201
 def sigint_handler(sig, frame):
     """Exit as gracefully as possible."""
     payload = "unknown"
+    print('')
     try:
         tdc.cleanup()
         payload = "OFF"
