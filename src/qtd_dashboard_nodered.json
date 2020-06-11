@@ -2,7 +2,7 @@
     {
         "id": "b5af51ed.68447",
         "type": "tab",
-        "label": "QTD Dashboard",
+        "label": "QTD",
         "disabled": false,
         "info": ""
     },
@@ -60,7 +60,7 @@
         "datatype": "auto",
         "broker": "d2bee063.4e6ed8",
         "x": 150,
-        "y": 460,
+        "y": 680,
         "wires": [
             [
                 "684cf7c.27cad88",
@@ -106,7 +106,7 @@
         "useOldStyle": false,
         "outputs": 1,
         "x": 830,
-        "y": 460,
+        "y": 680,
         "wires": [
             []
         ]
@@ -124,7 +124,7 @@
         "format": "{{msg.payload}}",
         "layout": "row-spread",
         "x": 340,
-        "y": 520,
+        "y": 740,
         "wires": []
     },
     {
@@ -179,7 +179,7 @@
         "outputs": 1,
         "noerr": 0,
         "x": 580,
-        "y": 460,
+        "y": 680,
         "wires": [
             [
                 "167d9572.7e4a8b"
@@ -195,7 +195,7 @@
         "action": "obj",
         "pretty": false,
         "x": 360,
-        "y": 460,
+        "y": 680,
         "wires": [
             [
                 "28285b45.46e5fc",
@@ -279,7 +279,7 @@
         "datatype": "auto",
         "broker": "d2bee063.4e6ed8",
         "x": 110,
-        "y": 400,
+        "y": 600,
         "wires": [
             [
                 "cca75358.b12e9"
@@ -299,7 +299,7 @@
         "format": "{{msg.payload}}",
         "layout": "row-spread",
         "x": 290,
-        "y": 400,
+        "y": 600,
         "wires": []
     },
     {
@@ -311,7 +311,7 @@
         "outputs": 1,
         "noerr": 0,
         "x": 560,
-        "y": 520,
+        "y": 740,
         "wires": [
             [
                 "b2f320db.1fd3a8"
@@ -356,7 +356,110 @@
         "useOldStyle": false,
         "outputs": 1,
         "x": 770,
-        "y": 520,
+        "y": 740,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "630391c8.8ca9f",
+        "type": "mqtt in",
+        "z": "b5af51ed.68447",
+        "name": "Disk space",
+        "topic": "QTD/VDGG/qtd-0w/disk",
+        "qos": "0",
+        "datatype": "auto",
+        "broker": "d2bee063.4e6ed8",
+        "x": 120,
+        "y": 440,
+        "wires": [
+            [
+                "a6bd68ea.191fa8"
+            ]
+        ]
+    },
+    {
+        "id": "a6bd68ea.191fa8",
+        "type": "ui_gauge",
+        "z": "b5af51ed.68447",
+        "name": "Disk Space gauge",
+        "group": "9833553e.53cb98",
+        "order": 6,
+        "width": 0,
+        "height": 0,
+        "gtype": "gage",
+        "title": "SD Card Used",
+        "label": "percent",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "100",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "60",
+        "seg2": "80",
+        "x": 330,
+        "y": 440,
+        "wires": []
+    },
+    {
+        "id": "844de492.fe6cf8",
+        "type": "mqtt in",
+        "z": "b5af51ed.68447",
+        "name": "Load avg",
+        "topic": "QTD/VDGG/qtd-0w/load",
+        "qos": "0",
+        "datatype": "auto",
+        "broker": "d2bee063.4e6ed8",
+        "x": 120,
+        "y": 360,
+        "wires": [
+            [
+                "df464133.18b8d"
+            ]
+        ]
+    },
+    {
+        "id": "df464133.18b8d",
+        "type": "ui_chart",
+        "z": "b5af51ed.68447",
+        "name": "Load avg chart",
+        "group": "9833553e.53cb98",
+        "order": 5,
+        "width": 0,
+        "height": 0,
+        "label": "Load Average",
+        "chartType": "line",
+        "legend": "false",
+        "xformat": "HH:mm:ss",
+        "interpolate": "linear",
+        "nodata": "",
+        "dot": false,
+        "ymin": "",
+        "ymax": "",
+        "removeOlder": 1,
+        "removeOlderPoints": "",
+        "removeOlderUnit": "86400",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+            "#1f77b4",
+            "#aec7e8",
+            "#ff7f0e",
+            "#2ca02c",
+            "#98df8a",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "useOldStyle": false,
+        "outputs": 1,
+        "x": 350,
+        "y": 360,
         "wires": [
             []
         ]
