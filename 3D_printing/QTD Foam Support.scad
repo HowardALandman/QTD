@@ -59,75 +59,79 @@ MSR = [[  1,   0, -slot_slope, 0  ],
       [  0,   0, 1,          0  ],
       [  0,   0, 0,          1  ]] ;
 
+hpf = height + fillet;  // Use increased height for things that will be filleted down.
+
 difference() {
-    union() {
-        // main cylinder is slightly conical to match slope of bracket hull
-        cylinder(r1=r_contact-slot_delta_x,r2=r_contact,h=height,$fa=5);
-        //translate([0,0,height-40]) cylinder(r1=0,r2=69,h=40,$fa=5);
-        cylinder(r1=80,r2=0,h=80,$fa=5);
-        //cylinder(r=135,h=2);
-        // bracket hull
-        hull() {
-            hull_x = slot_x_bot / 2;
-            hull_y = slot_y / 2;
-            multmatrix(MSL) translate([ hull_x, hull_y,0]) cylinder(r=10,h=height);
-            multmatrix(MSL) translate([ hull_x,-hull_y,0]) cylinder(r=10,h=height);
-            multmatrix(MSR) translate([-hull_x, hull_y,0]) cylinder(r=10,h=height);
-            multmatrix(MSR) translate([-hull_x,-hull_y,0]) cylinder(r=10,h=height);
-        }
-        // base + struts, filleted by minkowski
-        difference() {
-            cylinder(r=140,h=height+1);
-            minkowski() {
-                difference() {
-                    cylinder(r=143,h=height+2);
-                    union() {
-                        // base
-                        minkowski() {
-                            union() {
-                                // base ring
-                                difference() {
-                                    cylinder(r=r_ring,h=1,$fa=5);
-                                    cylinder(r=r_ring-2,h=10,center=true,$fa=5);
-                                }
-                                // base radial struts
-                                for(a = [angle/2 : angle : 180]) {
-                                    rotate([0,0,a]) translate([0,0,0.5]) cube([2*strut_h,1,1],center=true);
-                                }
+    // main body as a solid
+    difference() {
+        cylinder(r=140,h=hpf+1);    // Maybe h=height or height+1 would be OK?
+        minkowski() {
+            difference() {
+                cylinder(r=143,h=hpf+2);
+                union() {
+                    // main cylinder is slightly conical to match slope of bracket hull
+                    cylinder(r1=r_contact-slot_delta_x+fillet,r2=r_contact+fillet,h=hpf,$fa=5);
+                    //translate([0,0,height-40]) cylinder(r1=0,r2=69,h=40,$fa=5);
+                    // flare at base
+                    cylinder(r1=80+fillet,r2=0,h=80+fillet,$fa=5);
+                    //cylinder(r=135,h=2);
+                    // bracket hull
+                    hull() {
+                        hull_x = slot_x_bot / 2;
+                        hull_y = slot_y / 2;
+                        multmatrix(MSL) translate([ hull_x, hull_y,0]) cylinder(r=10+fillet,h=hpf);
+                        multmatrix(MSL) translate([ hull_x,-hull_y,0]) cylinder(r=10+fillet,h=hpf);
+                        multmatrix(MSR) translate([-hull_x, hull_y,0]) cylinder(r=10+fillet,h=hpf);
+                        multmatrix(MSR) translate([-hull_x,-hull_y,0]) cylinder(r=10+fillet,h=hpf);
+                    }
+                    // base
+                    minkowski() {
+                        union() {
+                            // base ring
+                            difference() {
+                                cylinder(r=r_ring,h=1,$fa=5);
+                                cylinder(r=r_ring-2,h=10,center=true,$fa=5);
                             }
-                            // hemisphere to round everything
-                            intersection() {
-                                sphere(r=r_mink+fillet,center=true,$fa=10);
-                                cylinder(r=r_mink+fillet+1,h=r_mink+fillet+1);
+                            // base radial struts
+                            for(a = [angle/2 : angle : 180]) {
+                                rotate([0,0,a]) translate([0,0,0.5]) cube([2*strut_h,1,1],center=true);
                             }
                         }
-                        // Hyperboloid struts
-                        for(a = [angle/2 : angle : 360]) {
-                            rotate([0,0,a]) union() {
-                                // left leaning struts
-                                multmatrix(ML) {
-                                    translate([strut_h,0,0]) cylinder(r=5+fillet,h=height,$fa=10);
-                                }
-                                // right leaning struts
-                                multmatrix(MR) {
-                                    translate([strut_h,0,0]) cylinder(r=5+fillet,h=height,$fa=10);
-                                }
-                                // hemisphere at join
-                                //translate([strut_h,0,0]) intersection() {
-                                //    sphere(r=8,center=true,$fa=10);
-                                //    cylinder(r=11,h=11);
-                                //}
+                        // hemisphere to round everything
+                        intersection() {
+                            sphere(r=r_mink+fillet,$fa=10);
+                            cylinder(r=r_mink+fillet+1,h=r_mink+fillet+1);
+                        }
+                    }
+                    // Hyperboloid struts
+                    for(a = [angle/2 : angle : 360]) {
+                        rotate([0,0,a]) union() {
+                            // left leaning struts
+                            multmatrix(ML) {
+                                translate([strut_h,0,0]) cylinder(r=5+fillet,h=height,$fa=10);
                             }
+                            // right leaning struts
+                            multmatrix(MR) {
+                                translate([strut_h,0,0]) cylinder(r=5+fillet,h=height,$fa=10);
+                            }
+                            // hemisphere at join
+                            //translate([strut_h,0,0]) intersection() {
+                            //    sphere(r=8,center=true,$fa=10);
+                            //    cylinder(r=11,h=11);
+                            //}
                         }
                     }
                 }
-                sphere(r=fillet,center=true);
             }
+            sphere(r=fillet);
         }
     }
+    // things to cut out
     union() {
+        // slot for metal straps
         multmatrix(MSL) { cube([slot_x_bot,slot_y,300],center=true); }
         multmatrix(MSR) { cube([slot_x_bot,slot_y,300],center=true); }
+        // central cylindrical hole
+        translate([0,0,10]) cylinder(r1=53-slot_delta_x,r2=53,h=height,$fa=5);
     }
-    translate([0,0,10]) cylinder(r1=53-slot_delta_x,r2=53,h=height,$fa=5);
 }
