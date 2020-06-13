@@ -54,7 +54,6 @@ def publish_uname():
                    payload=sysname+" "+release+" "+version, retain=True)
 
 cpu_temp = None
-#def publish_cpu_temp(f_name="/sys/class/thermal/thermal_zone0/temp", __temp=None):
 def publish_cpu_temp(f_name="/sys/class/thermal/thermal_zone0/temp"):
     """Publish the CPU temperature to the MQTT server."""
     global cpu_temp
@@ -144,6 +143,19 @@ def publish_disk_space():
         #pass
     mqttc.publish(topic="QTD/VDGG/qtd-0w/disk", payload=str(full_pct))
 
+def publish_load_avg(cmd="uptime"):
+    """Publish the load average to the MQTT server."""
+    try:
+        with os.popen(cmd) as pipe:
+            load = pipe.read().split(':')[-1].split(',')[0]
+    except IOError:
+        print("Running", cmd, "failed.")
+        load = "Failed"
+    else:
+        #print("Load average =", load)
+        pass
+    mqttc.publish(topic="QTD/VDGG/qtd-0w/load", payload=load)
+
 publish_uname()
 publish_os_name()
 publish_cpu_info()
@@ -151,5 +163,6 @@ publish_cpu_info()
 while True:
     mqttc.loop()
     publish_cpu_temp()
+    publish_load_avg()
     publish_disk_space()
     time.sleep(60)
