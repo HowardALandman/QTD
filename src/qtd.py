@@ -114,13 +114,33 @@ while batches != 0:
     #resultDict = {}
     # Measure average time per measurement.
     THEN = time.time()
+    timestamp = time.strftime("%Y%m%d%H%M%S")
+    #print(timestamp)
+    data_fname = 'data/' + timestamp + ".txt"
+    data_file = open(data_fname,'w')
+    data_file.write("QTD experiment data file\n")
+    data_file.write("Time : " + str(THEN) + "\n")
+    data_file.write("Date : " + timestamp + "\n")
+    data_file.write("Batch : " + str(abs(batches)) + "\n")	# NOT CORRECT for batches > 0 !
+    data_file.write("Batch_size : " + str(ITERS) + "\n")
     result_list = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     for m in range(ITERS):
-        result_list[tdc.measure(simulate=True)] += 1
+        result = tdc.measure(simulate=True)
+        result_list[result] += 1
+        if result==2:
+            # Record results in microseconds
+            t1 = tdc.TOF1 * 1000000
+            t2 = tdc.TOF2 * 1000000
+            decay = t2 - t1
+            tof_line = str(m) + ' ' + str(t1) + ' ' + str(t2) + ' ' + str(decay) + '\n'
+            data_file.write(tof_line)
         # Clear interrupt register bits to prepare for next measurement.
         tdc.clear_status()
+    data_file.write('Tot : ' + str(result_list) + "\n")
     for i in range(len(result_list)):
         cum_results[i] += result_list[i]
+    data_file.write('Cum : ' + str(cum_results) + "\n")
+    data_file.close()
     PAYLOAD = json.dumps(result_list)
     print(PAYLOAD)
     mqttc.publish(topic="QTD/VDDG/tdc7201/batch", payload=PAYLOAD)
