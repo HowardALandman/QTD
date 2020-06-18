@@ -25,7 +25,7 @@ import sys
 # random for creating stimuli for testing
 import random
 
-__version__='0.7b1'
+__version__ = '0.7b2'
 
 # Map of EVM board header pinout.
 # "." means No Connect, parentheses mean probably optional.
@@ -570,18 +570,14 @@ class TDC7201():
 
         # CLOCK_CNTR_STOP
         if clock_cntr_stop > 0:
-            sm_l = clock_cntr_stop & 0xFF
-            sm_h = (clock_cntr_stop >> 8) & 0xFF
-            self.write8(self.CLOCK_CNTR_STOP_MASK_H, sm_h)	# default, but make sure
-            self.write8(self.CLOCK_CNTR_STOP_MASK_L, sm_l)
+            self.write16(self.CLOCK_CNTR_STOP_MASK_H, clock_cntr_stop)
             print("Skipping STOP pulses for", clock_cntr_stop, "clock periods =", clock_cntr_stop*self.clockPeriod, "S")
-            # Maybe should use auto-increment.
-            result = (self.read8(self.CLOCK_CNTR_STOP_MASK_H) << 8) | self.read8(self.CLOCK_CNTR_STOP_MASK_L)
+            result = self.read16(self.CLOCK_CNTR_STOP_MASK_H)
             if (result != clock_cntr_stop):
                 print("Couldn't set CLOCK_CNTR_STOP_MASK.")
                 print(self.REGNAME[self.CLOCK_CNTR_STOP_MASK], ":", result)
                 print("Desired state:", clock_cntr_stop, "=", hex(clock_cntr_stop), "=", bin(clock_cntr_stop))
-                self._spi.close()
+                self.cleanup()
                 sys.exit()
         # else: Maybe should check that chip register is zero.
         #
@@ -604,12 +600,8 @@ class TDC7201():
             self._spi.close()
             sys.exit()
         print("Setting timeout to", 1000000*timeout, "uS =", ovf, "clock periods.")
-        ovf_l = ovf & 0xFF
-        ovf_h = (ovf >> 8) & 0xFF
-        self.write8(self.CLOCK_CNTR_OVF_H, ovf_h)
-        self.write8(self.CLOCK_CNTR_OVF_L, ovf_l)
-        # Maybe should use auto-increment.
-        result = (self.read8(self.CLOCK_CNTR_OVF_H) << 8) | self.read8(self.CLOCK_CNTR_OVF_L)
+        self.write16(self.CLOCK_CNTR_OVF_H, ovf)
+        result = self.read16(self.CLOCK_CNTR_OVF_H)
         if (result != ovf):
             print("Couldn't set CLOCK_CNTR_OVF.")
             print(self.REGNAME[self.CLOCK_CNTR_OVF], ":", result)
@@ -618,15 +610,31 @@ class TDC7201():
             sys.exit()
 
     def write8(self,reg,val):
+        """Write one 8-bit register."""
         #assert (reg >= self.MINREG8) and (reg <= self.MAXREG8)
-        result = self._spi.xfer([reg|self._WRITE, val&0xFF])
+        self._spi.xfer([reg|self._WRITE, val&0xFF])
 
     def read8(self,reg):
+        """Read one 8-bit register."""
         #assert (reg >= self.MINREG8) and (reg <= self.MAXREG8)
         result = self._spi.xfer([reg, 0x00])
         return result[1]
 
+    def write16(self,reg,val):
+        """Write a 16-bit value to a pair of 8-bit registers."""
+        # There are only 3 register pairs for which this makes sense.
+        #assert (reg == self.COARSE_CNTR_OVF_H) or (reg == self.CLOCK_CNTR_OVF_H) or (reg == self.CLOCK_CNTR_STOP_MASK_H)
+        self._spi.xfer([reg|self._WRITE|self._AI, (val>>8)&0xFF, val&0xFF])
+
+    def read16(self,reg):
+        """Read a pair of 8-bit registers and convert them to a 16-bit value."""
+        # There are only 3 register pairs for which this makes sense.
+        #assert (reg == self.COARSE_CNTR_OVF_H) or (reg == self.CLOCK_CNTR_OVF_H) or (reg == self.CLOCK_CNTR_STOP_MASK_H)
+        result = self._spi.xfer([reg|self._AI, 0x00, 0x00])
+        return (result[1] << 8 | result[2])
+
     def read24(self,reg):
+        """Read one 24-bit register."""
         #assert (reg >= self.MINREG24) and (reg <= self.MAXREG24)
         result = self._spi.xfer([reg, 0x00, 0x00, 0x00])
         # data is MSB-first
@@ -812,21 +820,21 @@ class TDC7201():
         timeout = time.time() + 0.1	#Don't wait longer than a tenth of a second.
         while (not GPIO.input(self.TRIG1)) and (time.time() < timeout):
             pass
-        if GPIO.input(self.TRIG1):
-            #print("Got trigger, issuing start.")
-            pass
-        else:
+        if not GPIO.input(self.TRIG1):
             print("ERROR: Timed out waiting for trigger to rise.")
             return 10
+        #else:
+        #    #print("Got trigger, issuing start.")
+        #    pass
         # Check that INT1 is inactive (high) as expected.
-        if GPIO.input(self.INT1):
-            #print("INT1 is inactive (high) as expected.")
-            pass
-        else:
+        if not GPIO.input(self.INT1):
             print("ERROR: INT1 is active (low) too early!")
             # Try to fix it
             self.clear_status(verbose=True)
             return 9
+        #else:
+        #    #print("INT1 is inactive (high) as expected.")
+        #    pass
         # Last chance to check registers before sending START pulse?
         #print(tdc.REGNAME[tdc.CONFIG2], ":", hex(tdc.read8(tdc.CONFIG2)))
         if simulate and self.START is not None:
@@ -835,12 +843,6 @@ class TDC7201():
             #time.sleep(0.000001)
             GPIO.output(self.START,GPIO.LOW)
             #print("Generated START pulse.")
-        #if GPIO.input(self.INT1):
-        #    #print("INT1 is inactive (high) as expected.")
-        #    pass
-        #else:
-        #    print("ERROR: INT1 is active (low)!")
-        #    return
         # Wait for TRIG1 to fall. This is inefficient, but OK for now.
         timeout = time.time() + 0.1	#Don't wait longer than a tenth of a second.
         while (GPIO.input(self.TRIG1)) and (time.time() < timeout):
@@ -848,9 +850,9 @@ class TDC7201():
         if GPIO.input(self.TRIG1):
             print("Timed out waiting for trigger to fall.")
             return 8
-        else:
-            #print("TRIG1 fell as expected.")
-            pass
+        #else:
+        #    #print("TRIG1 fell as expected.")
+        #    pass
         if simulate and self.STOP is not None:
             # Send 0 to 5 STOP pulses. FOR TESTING ONLY.
             threshold = 0.4
@@ -858,11 +860,6 @@ class TDC7201():
                 if random.random() < threshold:
                     GPIO.output(self.STOP,GPIO.HIGH)
                     GPIO.output(self.STOP,GPIO.LOW)
-            #if GPIO.input(self.INT1):
-            #    print("INT1 is inactive (high) as expected.")
-            #else:
-            #    print("ERROR: INT1 is active (low)!")
-            #    return
         # Note that the chip may already be finished by now.
         # Therefore, GPIO.wait_for_edge() is not guaranteed to see an edge.
         # Wait for INT1. This is inefficient, but OK for now.
@@ -872,15 +869,13 @@ class TDC7201():
         while ((GPIO.input(self.INT1)) and (time.time() < timeout)):
             #loops += 1
             pass
-        #GPIO.wait_for_edge(self.INT1, GPIO.FALLING, timeout=1)
-        #GPIO.wait_for_edge(self.INT1, GPIO.FALLING)
         if GPIO.input(self.INT1):
             print("Timed out waiting for INT1.")
             return 7
-        else:
-            #print("Got measurement-complete interrupt.")
-            #print("Looped", loops, "times") # typically 0 to 24 times
-            pass
+        #else:
+        #    #print("Got measurement-complete interrupt.")
+        #    #print("Looped", loops, "times") # typically 0 to 24 times
+        #    pass
         # Read everything in and see what we got.
         #print("Reading chip side #1 register state:")
         self.read_regs24()

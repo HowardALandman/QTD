@@ -121,19 +121,28 @@ The casual user should be able to get by with only the above methods; the follow
 
     write8(reg,val)
 
-Low-level routine to write a single 8-bit value to an 8-bit chip register.
+Write a single 8-bit value to an 8-bit chip register.
+This only makes sense for 8-bit registers (addresses 0 through 9).
 
     read8(reg)
 
-Low-level routine to read a single 8-bit value from an 8-bit chip register.
+Read a single 8-bit value from an 8-bit chip register.
+This only makes sense for 8-bit registers (addresses 0 through 9).
+
+    read16(reg)
+
+Read a pair of 8-bit registers and return them as a 16-bit value.
+This only makes sense if reg is COARSE_CNTR_OVF_H (4), CLOCK_CNTR_OVF_H (6), or CLOCK_CNTR_STOP_MASK_H (8).
 
     write24(reg,val)
 
-Low-level routine to write a 24-bit value to a 24-bit chip register.
+Write a 24-bit value to a 24-bit chip register.
+This should probably never be used since those contain measurement and calibration results.
 
     read24(reg)
 
-Low-level routine to read a 24-bit value from a 24-bit chip register.
+Read a 24-bit value from a 24-bit chip register.
+This only makes sense for 24-bit registers (addresses 16 through 28).
 
     read_regs8()
 
