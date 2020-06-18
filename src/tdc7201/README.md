@@ -106,7 +106,7 @@ This isn't supposed to be necessary, but I was having problems without doing it.
 If `verbose==True`, prints detailed step-by-step results for debugging.
 If `force==True`, tries to clear all IS bits even if some or all of them appear not to be set.
 
-    set_SPI_clock(speed)
+    set_SPI_clock_speed(speed)
 
 Attempts to set the SPI interface clock speed to `speed` (in Hz).
 Minimum legal value is 50000 (50 kHz), and maximum is 25000000 (25 MHz).
