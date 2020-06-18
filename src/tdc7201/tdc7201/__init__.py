@@ -25,7 +25,7 @@ import sys
 # random for creating stimuli for testing
 import random
 
-__version__='0.6b4'
+__version__='0.7b1'
 
 # Map of EVM board header pinout.
 # "." means No Connect, parentheses mean probably optional.
@@ -632,11 +632,8 @@ class TDC7201():
         # data is MSB-first
         return (result[1] << 16) | (result[2] << 8) | result[3]
 
-    # Read all chip registers, using auto-increment feature.
-    # This is 6 times faster than the non-auto-increment method.
-    def read_regs(self):
-        # Documentation says cannot do 8- and 24-bit registers together.
-        # 8-bit registers
+    def read_regs8(self):
+        """Read all 8-bit registers, using auto-increment feature."""
         result8 = self._spi.xfer([self.MINREG8|self._AI, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00])
         #print("AI read 8-bits =",result8)
         #print("length =",len(result8))
@@ -647,7 +644,9 @@ class TDC7201():
         self.reg1[self.COARSE_CNTR_OVF] = (self.reg1[self.COARSE_CNTR_OVF_H] << 8) | self.reg1[self.COARSE_CNTR_OVF_L]
         self.reg1[self.CLOCK_CNTR_OVF] = (self.reg1[self.CLOCK_CNTR_OVF_H] << 8) | self.reg1[self.CLOCK_CNTR_OVF_L]
         self.reg1[self.CLOCK_CNTR_STOP_MASK] = (self.reg1[self.CLOCK_CNTR_STOP_MASK_H] << 8) | self.reg1[self.CLOCK_CNTR_STOP_MASK_L]
-        # 24-bit registers
+
+    def read_regs24(self):
+        """Read all 24-bit chip registers, using auto-increment feature."""
         result24 = self._spi.xfer([self.MINREG24|self._AI, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00])
         #print("AI read 24-bits =",result24)
         #print("length =",len(result24))
@@ -657,9 +656,14 @@ class TDC7201():
             self.reg1[r] = (result24[i] << 16) | (result24[i+1] << 8) | result24[i+2]
             i += 3
 
+    def read_regs(self):
+        """Read all chip registers, using auto-increment feature."""
+        self.read_regs8()
+        self.read_regs24()
+
     def read_regs1(self):
         print("read_regs1() is deprecated, use read_regs() instead.")
-        read_regs()
+        self.read_regs()
 
     def print_regs1(self):
         for r in range(self.MINREG8,self.MAXREG8+1):
@@ -879,8 +883,7 @@ class TDC7201():
             pass
         # Read everything in and see what we got.
         #print("Reading chip side #1 register state:")
-        self.read_regs()
-        #self.print_regs1()
+        self.read_regs24()
         returnCode = self.compute_TOFs()
         #meas_end = time.time()
         #print("Measurement took", meas_end-meas_start, "S.")

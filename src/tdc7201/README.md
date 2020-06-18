@@ -87,7 +87,7 @@ or the measurement will time out before it begins accepting stop pulses.
 Runs a single measurement, polling the chip INT1 pin until it indicates completion.
 (This should really be an interrupt.)
 Will time out after 0.1 seconds if measurement doesn't complete.
-If it does complete, calls `read_regs()` and `compute_tofs()` so that both raw and processed data are available.
+If it does complete, calls `read_regs24()` and `compute_tofs()` so that both raw and processed data are available.
 If `simulate=True`, then generates START and/or STOP signals to send to the chip
 (for testing when your actual signal source is not yet available);
 this requires that the appropriate RPi pins be connected to START and/or STOP,
@@ -135,11 +135,24 @@ Low-level routine to write a 24-bit value to a 24-bit chip register.
 
 Low-level routine to read a 24-bit value from a 24-bit chip register.
 
+    read_regs8()
+
+Read all of the 8-bit side 1 chip registers into the tdc.reg1 list.
+(It should be possible to make this read the side 2 registers, but it doesn't yet.)
+This is much faster than looping over the registers in Python.
+
+    read_regs24()
+
+Read all of the 24-bit side 1 chip registers (measurement and calibration results) into the tdc.reg1 list.
+(It should be possible to make this read the side 2 registers, but it doesn't yet.)
+This is much faster than looping over the registers in Python.
+
     read_regs()
 
 Read all of the side 1 chip registers (including measurement results) into the tdc.reg1 list.
 (It should be possible to make this read the side 2 registers, but it doesn't yet.)
 This is much faster than looping over the registers in Python.
+Equivalent to read_regs8() plus read_regs24().
 
     print_regs1()
 
