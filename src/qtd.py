@@ -123,6 +123,7 @@ while batches != 0:
     data_file.write("Date : " + timestamp + "\n")
     data_file.write("Batch : " + str(abs(batches)) + "\n")	# NOT CORRECT for batches > 0 !
     data_file.write("Batch_size : " + str(ITERS) + "\n")
+    data_file.write("Config : " + str(tdc.reg1[0:12]) + "\n")
     result_list = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     for m in range(ITERS):
         result = tdc.measure(simulate=True)
@@ -134,6 +135,8 @@ while batches != 0:
             decay = t2 - t1
             tof_line = str(m) + ' ' + str(t1) + ' ' + str(t2) + ' ' + str(decay) + '\n'
             data_file.write(tof_line)
+            # Record raw regiister data, so we can analyze differently later if needed.
+            data_file.write(str(tdc.reg1[0x10:0x1C]) + "\n")
         # Clear interrupt register bits to prepare for next measurement.
         tdc.clear_status()
     data_file.write('Tot : ' + str(result_list) + "\n")
