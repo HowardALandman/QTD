@@ -130,13 +130,15 @@ while batches != 0:
         result_list[result] += 1
         if result==2:
             # Record results in microseconds
-            t1 = tdc.TOF1 * 1000000
-            t2 = tdc.TOF2 * 1000000
-            decay = t2 - t1
-            tof_line = str(m) + ' ' + str(t1) + ' ' + str(t2) + ' ' + str(decay) + '\n'
+            #t1 = tdc.TOF1 * 1000000
+            #t2 = tdc.TOF2 * 1000000
+            #decay = t2 - t1
+            decay = 1000000 * (tdc.tof2 - tdc.tof1)
+            #tof_line = str(m) + ' ' + str(t1) + ' ' + str(t2) + ' ' + str(decay) + '\n'
+            tof_line = str(m) + ' ' + str(decay) + ' ' + str(tdc.reg1[0x10:0x1C]) + '\n'
             data_file.write(tof_line)
-            # Record raw regiister data, so we can analyze differently later if needed.
-            data_file.write(str(tdc.reg1[0x10:0x1C]) + "\n")
+            # Record raw register data, so we can analyze differently later if needed.
+            #data_file.write(str(tdc.reg1[0x10:0x1C]) + "\n")
         # Clear interrupt register bits to prepare for next measurement.
         tdc.clear_status()
     data_file.write('Tot : ' + str(result_list) + "\n")
