@@ -273,8 +273,8 @@ class TDC7201():
            for maximum flexibility.
 
            SPI pins are owned by spidev and must NOT be set using GPIO lib.
-           NOTE that chip CS1 and CS2 are wired to Pi CS0 and CS1 respectively!
-           Don't get confused and think that Pi CS1 drives chip CS1! It doesn't!
+           NOTE that chip CS1 and CS2 are wired to Pi CE0 and CE1 respectively!
+           Don't get confused and think that Pi CE1 drives chip CS1! It doesn't!
            DOUT2 = MISO2 can be shorted to DOUT1 = MISO1, as long as
            CS1 and CS2 are *NEVER* both asserted low at the same time
            but I'm not sure what spidev does about that, so leave it separate.
@@ -356,7 +356,7 @@ class TDC7201():
         # GPIO  22 = header pin 15 (arbitrary)
         if verbose:
             print("Reserved SPI pins (SCLK=", self.sclk, ",MISO=", self.miso, ",MOSI=", self.mosi,
-                  ",CS1(=Pi cs0)=", self.cs1, ",CS2(=Pi cs1)=", self.cs2, ")", sep='')
+                  ",CS1(= Pi ce0)=", self.cs1, ",CS2(= Pi ce1)=", self.cs2, ")", sep='')
         # Initialize the ENABLE pin to low, which resets the tdc7201.
         reserve_pin("ENABLE", enable)
         self.enable = enable # remember it
@@ -692,9 +692,9 @@ class TDC7201():
         #print("AI read 24-bits =", result24)
         #print("length =", len(result24))
         i = 1
-        for r in range(self.MINREG24, self.MAXREG24+1):
+        for reg in range(self.MINREG24, self.MAXREG24+1):
             # Data comes in MSB first.
-            self.reg1[r] = (result24[i] << 16) | (result24[i+1] << 8) | result24[i+2]
+            self.reg1[reg] = (result24[i] << 16) | (result24[i+1] << 8) | result24[i+2]
             i += 3
 
     def read_regs(self):
@@ -703,37 +703,40 @@ class TDC7201():
         self.read_regs24()
 
     def read_regs1(self):
+        """Deprecated, use read_regs instead."""
         print("read_regs1() is deprecated, use read_regs() instead.")
         self.read_regs()
 
     def print_regs1(self):
-        for r in range(self.MINREG8, self.MAXREG8+1):
-            print(self.REGNAME[r], hex(self.reg1[r]))
+        """Print out all the (copies of the) register values."""
+        for reg in range(self.MINREG8, self.MAXREG8+1):
+            print(self.REGNAME[reg], hex(self.reg1[reg]))
         # Use combined registers for brevity.
-        for r in range(self.COARSE_CNTR_OVF, self.CLOCK_CNTR_STOP_MASK+1):
-            print(self.REGNAME[r], self.reg1[r])
-        for r in range(self.MINREG24, self.MAXREG24+1):
-            print(self.REGNAME[r], self.reg1[r])
+        for reg in range(self.COARSE_CNTR_OVF, self.CLOCK_CNTR_STOP_MASK+1):
+            print(self.REGNAME[reg], self.reg1[reg])
+        for reg in range(self.MINREG24, self.MAXREG24+1):
+            print(self.REGNAME[reg], self.reg1[reg])
 
     def tof_mm1(self, time_n):
+        """Compute a Time-Of-Flight assuming measurement mode 1."""
         assert self.meas_mode == self._CF1_MM1
         # Compute time-of-flight from START to a STOP.
         if self.reg1[time_n]:
             return self.norm_lsb*self.reg1[time_n]
-        else:
-            return 0
+        return 0
 
     def tof_mm2(self, time1, time_n, count, avg):
+        """Compute a Time-Of-Flight assuming measurement mode 2."""
         assert self.meas_mode == self._CF1_MM2
         # Compute time-of-flight given Measurement Mode 2 data for two adjacent stops.
         if (self.reg1[time_n] or self.reg1[count]):
             return self.norm_lsb*(self.reg1[time1]-self.reg1[time_n]) + \
                    (self.reg1[count]/avg)*self.clockPeriod
-        else:
-            return 0
+        return 0
 
     # Check if we got any pulses and calculate the TOFs.
     def compute_TOFs(self):
+        """Compute all the Time-Of-Flights."""
         #print("Computing TOFs.")
         self.cal_count = ((self.reg1[self.CALIBRATION2] - self.reg1[self.CALIBRATION1])
                           / (self.cal_pers - 1))
@@ -794,7 +797,7 @@ class TDC7201():
         return pulses
 
     def clear_status(self, verbose=False, force=False):
-        # Clear interrupt register bits to prepare for next measurement.
+        """Clear interrupt register bits to prepare for next measurement."""
         if verbose:
             print("Checking interrupt status register.")
         if force:
@@ -816,7 +819,7 @@ class TDC7201():
                 print("No need to clear.")
 
     def measure(self, simulate=False):
-        meas_start = time.time()
+        """Run one measurement. If simulate=True, also send out fake data to measure."""
         # Check GPIO state doesn't indicate a measurement is happening.
         if not GPIO.input(self.int1):
             print("WARNING: INT1 already active (low).")
@@ -876,7 +879,7 @@ class TDC7201():
         if simulate and self.stop is not None:
             # Send 0 to 5 STOP pulses. FOR TESTING ONLY.
             threshold = 0.4
-            for p in range(5):
+            for pulse in range(5):
                 if random.random() < threshold:
                     GPIO.output(self.stop, GPIO.HIGH)
                     GPIO.output(self.stop, GPIO.LOW)
@@ -899,24 +902,31 @@ class TDC7201():
         # Read everything in and see what we got.
         #print("Reading chip side #1 register state:")
         self.read_regs24()
-        returnCode = self.compute_TOFs()
-        #meas_end = time.time()
-        #print("Measurement took", meas_end-meas_start, "S.")
+        return_code = self.compute_TOFs()
         #self.clear_status()	# clear interrupts
-        return returnCode # 0-5 for number of pulses (< NSTOP implies timeout), 6+ for error
+        return return_code # 0-5 for number of pulses (< NSTOP implies timeout), 6+ for error
 
     def set_SPI_clock_speed(self, speed):
         """Attempt to set the SPI clock speed, within chip limits."""
+
+        # Check against minimum.
         if speed < self._minSPIspeed:
             print("WARNING: SPI clock speed", speed,
                   "is too low, using", self._minSPIspeed, "instead.")
             speed = self._minSPIspeed
-        # 25 MHz is max for the chip, but probably Rpi can't set that exactly.
-        # Highest RPi option below that may be 15.6 MHz.
+
+        # Check against maximum.
+        # 25 MHz is spec max for the chip, but probably Rpi can't set that exactly.
+        # Testing with my board, up to 33 MHz worked OK but 34 MHz failed.
+        abs_max = 33000000	# highest seen to work in actual testing
         if speed > self._maxSPIspeed:
+            if speed > abs_max:
+                print("WARNING: SPI clock speed", speed,
+                      "is way too high, using", abs_max, "instead.")
+                speed = abs_max
             print("WARNING: SPI clock speed", speed,
-                  "is too high, using", self._maxSPIspeed, "instead.")
-            speed = self._maxSPIspeed
+                  "is above maximum rated speed of", self._maxSPIspeed, "Hz.")
+            print("This may improve performance but is not guaranteed to work.")
         print("Setting SPI clock speed to", speed/1000000, "MHz.")
         self._spi.max_speed_hz = speed
 
