@@ -109,12 +109,15 @@ If `force==True`, tries to clear all IS bits even if some or all of them appear 
     set_SPI_clock_speed(speed)
 
 Attempts to set the SPI interface clock speed to `speed` (in Hz).
-Minimum legal value is 50000 (50 kHz), and maximum is 25000000 (25 MHz).
+Minimum legal value is 50000 (50 kHz), spec maximum is 25000000 (25 MHz),
+and highest "overclocked" speed we've seen work is 33000000 (33 MHz).
 The SPI clock is a hardware division of the CPU clock, so there are two important things to note.
 (1) The exact clock speed set may be restricted (by hardware) to only certain values in that range, so you may not get exactly what you ask for.
 (2) The SPI clock will slow down or speed up if the CPU clock does (for example, for thermal management, turbo mode, or due to user over- or under-clocking of the Raspberry Pi).
  The CPU (and the SPI driver, and this module) can not tell what the CPU clock speed is, so there is no way to compensate for this in software.
-Therefore, it's probably a bad idea to set the maximum SPI speed if you know that your CPU will be overclocked, since that might result in a speed that exceeds the chip specs.
+Therefore, it's probably a bad idea to overclock the SPI speed
+if you know that your CPU will also be overclocked,
+since that might result in a speed that doesn't work.
 But all this should mostly be invisible to the user, as it only affects SPI communication speed, and does not affect performance of the TDC7201 measurements (unless the TDC7201 is also being clocked by some submultiple of the Pi clock, which is a really really bad idea).
 
 The casual user should be able to get by with only the above methods; the following low-level methods give more detailed access to the hardware, but you'll need to know what you're doing.
@@ -178,3 +181,12 @@ Compute time-of-flight in seconds using Measurement Mode 2 equations.
     compute_tofs()
 
 Check how many pulses we got, and compute the TOF for each pulse.
+
+    cleanup()
+
+Close the SPI device and free all the GPIO pins.
+
+    exit()
+
+Clean up the SPI and GPIO pins, and then exit.
+
