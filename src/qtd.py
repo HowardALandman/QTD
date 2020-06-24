@@ -72,8 +72,7 @@ tdc = tdc7201.TDC7201()	# Create TDC object with SPI interface.
 tdc.initGPIO(trig2=None, int2=None)
 
 # Setting and checking clock speed.
-tdc.set_SPI_clock_speed(22500000)	# 22.5 MHz
-#tdc.set_SPI_clock_speed(tdc._maxSPIspeed // 2)
+tdc.set_SPI_clock_speed(30000000)	# 30 MHz
 
 # Internal timing
 #print("UNIX time settings:")
@@ -111,13 +110,17 @@ cum_results = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 while batches != 0:
     print("batches =", batches)
     mqttc.loop()
-    #resultDict = {}
     # Measure average time per measurement.
     THEN = time.time()
     timestamp = time.strftime("%Y%m%d%H%M%S")
     #print(timestamp)
     data_fname = 'data/' + timestamp + ".txt"
-    data_file = open(data_fname,'w')
+    try:
+        data_file = open(data_fname,'w')
+    except IOError:
+        print("Couldn't open", data_fname, "for writing.")
+        self.cleanup()
+        sys.exit()
     data_file.write("QTD experiment data file\n")
     data_file.write("Time : " + str(THEN) + "\n")
     data_file.write("Date : " + timestamp + "\n")
@@ -135,7 +138,7 @@ while batches != 0:
             #decay = t2 - t1
             decay = 1000000 * (tdc.tof2 - tdc.tof1)
             #tof_line = str(m) + ' ' + str(t1) + ' ' + str(t2) + ' ' + str(decay) + '\n'
-            tof_line = str(m) + ' ' + str(decay) + ' ' + str(tdc.reg1[0x10:0x1C]) + '\n'
+            tof_line = str(m) + ' ' + str(tdc.reg1[0x10:0x1C]) + str(decay) + ' ' + '\n'
             data_file.write(tof_line)
             # Record raw register data, so we can analyze differently later if needed.
             #data_file.write(str(tdc.reg1[0x10:0x1C]) + "\n")
