@@ -16,6 +16,7 @@
     Written and tested on a Raspberry Pi 3B+ and Raspberry Pi Zero W,
     but should work on any model with a 2x20 pin header..
 """
+# pylint: disable=E1101
 
 import time
 # sys for exit()
@@ -28,7 +29,7 @@ import RPi.GPIO as GPIO
 # print("GPIO version =", GPIO.VERSION)
 import spidev
 
-__version__ = '0.7b3'
+__version__ = '0.7b4'
 
 # Map of EVM board header pinout.
 # "." means No Connect, parentheses mean probably optional.
@@ -500,8 +501,7 @@ class TDC7201():
             print("Desired state:", cf1_state, "=", hex(cf1_state), "=", bin(cf1_state))
             if result == 0:
                 print("Are you sure the TDC7201 is connected to the Pi's SPI interface?")
-            self.cleanup()
-            sys.exit()
+            self.exit()
 
         # Configuration register 2
         cf2_state = 0 # Power-on default is 0b01_000_000
@@ -579,8 +579,7 @@ class TDC7201():
             print("Couldn't set CONFIG2.")
             print(self.REGNAME[self.CONFIG2], ":", result, "=", hex(result), "=", bin(result))
             print("Desired state:", cf2_state, "=", hex(cf2_state), "=", bin(cf2_state))
-            self._spi.close()
-            sys.exit()
+            self.exit()
 
         # CLOCK_CNTR_STOP
         if clock_cntr_stop > 0:
@@ -593,8 +592,7 @@ class TDC7201():
                 print(self.REGNAME[self.CLOCK_CNTR_STOP_MASK], ":", result)
                 print("Desired state:", clock_cntr_stop, "=", hex(clock_cntr_stop),
                       "=", bin(clock_cntr_stop))
-                self.cleanup()
-                sys.exit()
+                self.exit()
         # else: Maybe should check that chip register is zero.
         #
         # Set overflow timeout.
@@ -616,8 +614,7 @@ class TDC7201():
             print("Set clock_cntr_ovf to", hex(ovf))
         if ovf > 0xFFFF:
             print("FATAL: clock_cntr_ovf exceeds max of 0xFFFF.")
-            self.cleanup()
-            sys.exit()
+            self.exit()
         print("Setting timeout to", 1000000*timeout, "uS =", ovf, "clock periods.")
         self.write16(self.CLOCK_CNTR_OVF_H, ovf)
         result = self.read16(self.CLOCK_CNTR_OVF_H)
@@ -625,8 +622,7 @@ class TDC7201():
             print("Couldn't set CLOCK_CNTR_OVF.")
             print(self.REGNAME[self.CLOCK_CNTR_OVF], ":", result)
             print("Desired state:", ovf)
-            self.cleanup()
-            sys.exit()
+            self.exit()
 
     def write8(self, reg, val):
         """Write one 8-bit register."""
@@ -735,7 +731,7 @@ class TDC7201():
         return 0
 
     # Check if we got any pulses and calculate the TOFs.
-    def compute_TOFs(self):
+    def compute_tofs(self):
         """Compute all the Time-Of-Flights."""
         #print("Computing TOFs.")
         self.cal_count = ((self.reg1[self.CALIBRATION2] - self.reg1[self.CALIBRATION1])
@@ -902,7 +898,7 @@ class TDC7201():
         # Read everything in and see what we got.
         #print("Reading chip side #1 register state:")
         self.read_regs24()
-        return_code = self.compute_TOFs()
+        return_code = self.compute_tofs()
         #self.clear_status()	# clear interrupts
         return return_code # 0-5 for number of pulses (< NSTOP implies timeout), 6+ for error
 
@@ -936,3 +932,7 @@ class TDC7201():
         self._spi.close()
         self.chip_select = 0
         GPIO.cleanup()
+
+    def exit(self):
+        self.cleanup()
+        sys.exit()
