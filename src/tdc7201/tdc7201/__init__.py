@@ -29,7 +29,7 @@ import RPi.GPIO as GPIO
 # print("GPIO version =", GPIO.VERSION)
 import spidev
 
-__version__ = '0.7b4'
+__version__ = '0.7b5'
 
 # Map of EVM board header pinout.
 # "." means No Connect, parentheses mean probably optional.
@@ -285,17 +285,20 @@ class TDC7201():
 
            ENABLE high turns chip on, ENABLE low forces complete reset.
 
-           OSC_ENABLE turns on the EVM's clock generator chip.
+           OSC_ENABLE high turns on the EVM's clock generator chip (marked Y1).
            It is a board function, not a chip function.
-           You don't need it if you are supplying an external clock.
+           If OSC_ENABLE is low,
+           then you must supply an external clock, connected to the board's
+           EXT_CLOCK pin.
+           (I think. I haven't tested this.)
 
            The TRIGx signal indicates that the converter is ready to start.
            Typically you would either use it to directly trigger some hardware,
-           or wait for it in your processor before starting a measurement.
+           or wait for it in your processor before sending out your own trigger.
            We assume the latter here, so assign a pin to it.
            Note that measurement does not start until converter gets the START signal.
 
-           The INTx signal indicates that measurement has stopped.
+           The INTx signal going low indicates that measurement has stopped.
            This can be because of success, or timeout; you need to read INT_STATUS
            to determine which.
 
@@ -311,10 +314,12 @@ class TDC7201():
            a cable from TP10 to one of the START SMA connectors mentioned above,
            and the GPIO needs to be declared.
 
-           For STOP, there is no pin on the EVM headers.
-           Testing STOP requires an SMA connector on the support board,
-           wired to the RPi. (Or a real signal.)
-           STOP signals are only used for simulating data.
+           The STOP signals on the EVM board come in through SMA connectors,
+           and therefore do not have pins on the header.
+           The STOP pin is only used for simulating data.
+           If you want to use that feature, then the STOP output pin on the RPi
+           needs to be wired to an SMA conector,
+           and that connector cabled to the appropriate SMA connector on the EVM.
 
            Unused signals may be set to None to save a pin.
         """
@@ -359,12 +364,15 @@ class TDC7201():
             print("Reserved SPI pins (SCLK=", self.sclk, ",MISO=", self.miso, ",MOSI=", self.mosi,
                   ",CS1(= Pi ce0)=", self.cs1, ",CS2(= Pi ce1)=", self.cs2, ")", sep='')
         # Initialize the ENABLE pin to low, which resets the tdc7201.
-        reserve_pin("ENABLE", enable)
         self.enable = enable # remember it
-        GPIO.setup(enable, GPIO.OUT, initial=GPIO.LOW)
-        if verbose:
-            print("Set ENABLE to output on pin", enable)
-            print("Reset asserted (ENABLE = low) on pin", enable)
+        if enable is not None:
+            reserve_pin("ENABLE", enable)
+            GPIO.setup(enable, GPIO.OUT, initial=GPIO.LOW)
+            if verbose:
+                print("Set ENABLE to output on pin", enable)
+                print("Reset asserted (ENABLE = low) on pin", enable)
+        else:
+             print("WARNING: ENABLE is not assigned. Driver will not be able to reset the chip.")
 
         # Both chip selects must start out HIGH (inactive).
         # Not sure we can do that through GPIO lib though.
@@ -376,72 +384,76 @@ class TDC7201():
         # Start the on-board clock generator running.
         # May not be necessary if you supply an external clock.
         self.osc_enable = osc_enable # remember it
-        if osc_enable is None:
-            if verbose:
-                print("OSC_ENABLE not assigned. You must supply an external clock.")
-        else:
+        if osc_enable is not None:
             reserve_pin("OSC_ENABLE", osc_enable)
             GPIO.setup(osc_enable, GPIO.OUT, initial=GPIO.HIGH)
             if verbose:
                 print("Set OSC_ENABLE to output on pin", osc_enable)
                 print("Clock started (OSC_ENABLE = high) on pin", osc_enable)
+        else:
+            print("WARNING: OSC_ENABLE pin is not assigned. You must drive it elsewhere.")
 
         # Set up TRIG1 pin to know when chip is ready to measure.
-        reserve_pin("TRIG1", trig1)
         self.trig1 = trig1 # remember it
-        GPIO.setup(trig1, GPIO.IN)
-        if verbose:
-            print("Set TRIG1 to input on pin", trig1)
+        if trig1 is not None:
+            reserve_pin("TRIG1", trig1)
+            GPIO.setup(trig1, GPIO.IN)
+            if verbose:
+                print("Set TRIG1 to input on pin", trig1)
+        else:
+            print("WARNING: TRIG1 pin is not assigned. Cannot guarantee that side #1 of the chip will be ready before START arrives.")
 
         # Set up INT1 pin for interrupt-driven reads from tdc7201.
         reserve_pin("INT1", int1)
         self.int1 = int1 # remember it
-        GPIO.setup(int1, GPIO.IN)
-        if verbose:
-            print("Set INT1 to input on pin", int1)
+        if int1 is not None:
+            GPIO.setup(int1, GPIO.IN)
+            if verbose:
+                print("Set INT1 to input on pin", int1)
+        else:
+            print("WARNING: INT1 pin is not assigned. Cannot measure using side #1 of the chip.")
 
         # We're not using side #2 of the chip so far, but we wired these.
+
         # Set up TRIG2 pin to know when chip is ready to measure.
         self.trig2 = trig2 # remember it
-        if trig2 is None:
-            if verbose:
-                print("TRIG2 not assigned. Side 2 of the chip may not work.")
-        else:
-            reserve_pin("TRIG2", trig2)
+        reserve_pin("TRIG2", trig2)
+        if trig2 is not None:
             GPIO.setup(trig2, GPIO.IN)
             if verbose:
                 print("Set TRIG2 to input on pin", trig2)
+        else:
+            print("WARNING: TRIG2 pin is not assigned. Cannot guarantee that side #2 of the chip will be ready before START arrives.")
 
         # Set up INT2 pin for interrupt-driven reads from tdc7201.
         self.int2 = int2 # remember it
-        if int2 is None:
-            if verbose:
-                print("INT2 not assigned. Side 2 of the chip may not work.")
-        else:
+        if int2 is not None:
             reserve_pin("INT2", int2)
             GPIO.setup(int2, GPIO.IN)
             if verbose:
                 print("Set INT2 to input on pin", int2)
+        else:
+            if verbose:
+                print("INT2 pin is not assigned. Side 2 of the chip may not work.")
 
         # Set up START and STOP, initially inactive.
         self.start = start # remember it
-        if start is None:
-            if verbose:
-                print("START not assigned. Simulating START/STOP signals may not work.")
-        else:
+        if start is not None:
             reserve_pin("START", start)
             GPIO.setup(start, GPIO.OUT, initial=GPIO.LOW)
             if verbose:
                 print("Set START to output (low) on pin", start)
-        self.stop = stop # remember it
-        if stop is None:
-            if verbose:
-                print("STOP not assigned. Simulating START/STOP signals may not work.")
         else:
+            print("WARNING: START pin is not assigned. Simulating START signals will not work.")
+
+        self.stop = stop # remember it
+        if stop is not None:
             reserve_pin("STOP", stop)
             GPIO.setup(stop, GPIO.OUT, initial=GPIO.LOW)
             if verbose:
                 print("Set STOP to output (low) on pin", stop, ".")
+        else:
+            print("WARNING: STOP pin is not assigned. Simulating STOP signals will not work.")
 
     def off(self):
         """Close SPI, turn TDC7201 off, and wait for reset to take effect."""
@@ -873,9 +885,10 @@ class TDC7201():
         #    #print("TRIG1 fell as expected.")
         #    pass
         if simulate and self.stop is not None:
-            # Send 0 to 5 STOP pulses. FOR TESTING ONLY.
-            threshold = 0.4
-            for pulse in range(5):
+            # Send 0 to NSTOP pulses. FOR TESTING ONLY.
+            n_stop = (self.reg1[self.CONFIG2] & self._CF2_NUM_STOP) + 1
+            threshold = min(n_stop,2) / n_stop
+            for pulse in range(n_stop):
                 if random.random() < threshold:
                     GPIO.output(self.stop, GPIO.HIGH)
                     GPIO.output(self.stop, GPIO.LOW)
