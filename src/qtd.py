@@ -5,6 +5,7 @@ import time
 import os
 import signal
 import sys
+import socket	# just for exception handling
 import json
 import paho.mqtt.client as mqtt
 import tdc7201
@@ -46,7 +47,12 @@ def on_disconnect(mqtt_client, userdata, rc):
 mqttc = mqtt.Client()
 mqttc.on_connect = on_connect
 mqttc.on_disconnect = on_disconnect
-mqttc.connect(MQTT_SERVER_NAME, 1883, 300)
+try:
+    mqttc.connect(MQTT_SERVER_NAME, 1883, 300)
+except socket.gaierror:
+    print("ERROR: getaddrinfo() failed")
+    print("ERROR: Couldn't connect to MQTT server", MQTT_SERVER_NAME, ".")
+    print("MQTT status logging will not work!!!")
 
 def publish_tdc7201_driver():
     """Publish the version number of the TDC7201 driver to the MQTT server."""
@@ -87,7 +93,8 @@ publish_tdc7201_driver()	# Takes a few seconds.
 #print("Time since reset asserted:", NOW - reset_start)
 
 # Turn the chip on.
-tdc.on(meas_mode=2, num_stop=3, clock_cntr_stop=1, timeout=0.0005)
+#tdc.on(meas_mode=2, num_stop=3, clock_cntr_stop=1, timeout=0.000135)
+tdc.on(meas_mode=2, num_stop=3, clock_cntr_stop=1, timeout=0.0002)
 #tdc.on(meas_mode=1, num_stop=2, clock_cntr_stop=1, timeout=0.0005)
 mqttc.publish(topic="QTD/VDDG/tdc7201/runstate", payload="ON")
 
@@ -138,10 +145,10 @@ while batches != 0:
             #decay = t2 - t1
             decay = 1000000 * (tdc.tof2 - tdc.tof1)
             #tof_line = str(m) + ' ' + str(t1) + ' ' + str(t2) + ' ' + str(decay) + '\n'
-            tof_line = str(m) + ' ' + str(tdc.reg1[0x10:0x1C]) + str(decay) + ' ' + '\n'
+            # Record raw register data, so we can analyze differently later if needed,
+            # as well as the computed delay between STOP1 and STOP2.
+            tof_line = str(m) + ' ' + str(tdc.reg1[0x10:0x1C]) + ' ' + str(decay) + '\n'
             data_file.write(tof_line)
-            # Record raw register data, so we can analyze differently later if needed.
-            #data_file.write(str(tdc.reg1[0x10:0x1C]) + "\n")
         # Clear interrupt register bits to prepare for next measurement.
         tdc.clear_status()
     data_file.write('Tot : ' + str(result_list) + "\n")
