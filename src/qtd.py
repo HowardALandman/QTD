@@ -90,7 +90,7 @@ now = time.time()
 #print("Current time (UTC):", time.asctime(time.gmtime(now)))
 print("Current time (local):", time.asctime(time.localtime(now)), time.strftime("%Z"))
 #print("Time since reset asserted:", now - reset_start)
-publish_tdc7201_driver()	# Takes a few seconds.
+publish_tdc7201_driver()
 #time.sleep(0.1)	# ensure a reasonable reset time
 #print("Time since reset asserted:", now - reset_start)
 
@@ -140,7 +140,7 @@ while batches != 0:
     result_list = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     for m in range(ITERS):
         m_str = str(m) + ' '
-        result = tdc.measure(simulate=True, error_prefix=m_str)
+        result = tdc.measure(simulate=True, error_prefix=m_str, log_file=data_file)
         result_list[result] += 1
         if result==2:
             # Record results in microseconds

@@ -826,27 +826,44 @@ class TDC7201():
             if verbose:
                 print("No need to clear.")
 
-    def measure(self, simulate=False, error_prefix=''):
+    def measure(self, simulate=False, error_prefix='', log_file=None):
         """Run one measurement.
            If simulate=True, also send out fake data to measure.
            Prepend error_prefix to every error message.
+           If log_file is given, write errors there.
         """
         # Check GPIO state doesn't indicate a measurement is happening.
         if not GPIO.input(self.int1):
-            print(error_prefix+"WARNING: INT1 already active (low).")
+            err_str = error_prefix + "WARNING: INT1 already active (low)."
+            if log_file:
+                log_file.write(err_str)
+            else:
+                print(err_str)
             # Try to fix it
             self.clear_status(verbose=True)
             return 13
         if GPIO.input(self.trig1):
-            print(error_prefix+"ERROR: TRIG1 already active (high).")
-            self.clear_status(verbose=True)
+            err_str = error_prefix + "ERROR: TRIG1 already active (high)."
+            if log_file:
+                log_file.write(err_str)
+            else:
+                print(err_str)
+            # This is a very serious error that means the chip is wedged.
+            # Clearing the status register does NOT fix it.
+            # Only hope is to reset the chip.
+            self.off()
+            self.on()
             return 12
         # To start measurement, need to set START_MEAS in TDCx_CONFIG1 register.
         # First read current value.
         cf1 = self.read8(self.CONFIG1)
         # Check it's not already set.
         if cf1 & self._CF1_START_MEAS:
-            print(error_prefix+"ERROR: CONFIG1 already has START_MEAS bit set.")
+            err_str = error_prefix + "ERROR: CONFIG1 already has START_MEAS bit set."
+            if log_file:
+                log_file.write(err_str)
+            else:
+                print(err_str)
             return 11
         #print("Starting measurement.")
         self.write8(self.CONFIG1, cf1|self._CF1_START_MEAS)
@@ -855,14 +872,22 @@ class TDC7201():
         while (not GPIO.input(self.trig1)) and (time.time() < timeout):
             pass
         if not GPIO.input(self.trig1):
-            print("error_prefix+ERROR: Timed out waiting for trigger to rise.")
+            err_str = error_prefix + "ERROR: Timed out waiting for trigger to rise."
+            if log_file:
+                log_file.write(err_str)
+            else:
+                print(err_str)
             return 10
         #else:
         #    #print("Got trigger, issuing start.")
         #    pass
         # Check that INT1 is inactive (high) as expected.
         if not GPIO.input(self.int1):
-            print(error_prefix+"ERROR: INT1 is active (low) too early!")
+            err_str = error_prefix + "ERROR: INT1 is active (low) too early!"
+            if log_file:
+                log_file.write(err_str)
+            else:
+                print(err_str)
             # Try to fix it
             self.clear_status(verbose=True)
             return 9
@@ -882,7 +907,11 @@ class TDC7201():
         while (GPIO.input(self.trig1)) and (time.time() < timeout):
             pass
         if GPIO.input(self.trig1):
-            print(error_prefix+"ERROR: Timed out waiting for trigger to fall.")
+            err_str = error_prefix + "ERROR: Timed out waiting for trigger to fall."
+            if log_file:
+                log_file.write(err_str)
+            else:
+                print(err_str)
             return 8
         #else:
         #    #print("TRIG1 fell as expected.")
@@ -905,7 +934,11 @@ class TDC7201():
             #loops += 1
             pass
         if GPIO.input(self.int1):
-            print(error_prefix+"ERROR: Timed out waiting for INT1.")
+            err_str = error_prefix + "ERROR: Timed out waiting for INT1."
+            if log_file:
+                log_file.write(err_str)
+            else:
+                print(err_str)
             return 7
         #else:
         #    #print("Got measurement-complete interrupt.")
@@ -916,7 +949,9 @@ class TDC7201():
         self.read_regs24()
         return_code = self.compute_tofs()
         #self.clear_status()	# clear interrupts
-        return return_code # 0-5 for number of pulses (< NSTOP implies timeout), 6+ for error
+        return return_code # 0-5 for number of pulses (< NSTOP implies timeout),
+                           # 7+ for error,
+                           # 6 currently unassigned
 
     def set_SPI_clock_speed(self, speed):
         """Attempt to set the SPI clock speed, within chip limits."""
