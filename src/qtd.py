@@ -37,6 +37,7 @@ def on_connect(mqtt_client, userdata, flags, result_code):
     # Any subscribes should go here, so they get re-subscribed on a reconnect.
 
 def on_disconnect(mqtt_client, userdata, rc):
+    """MQTT callback for when the client is disconnected from the server."""
     print("MQTT disconnected with code", rc, ". Attempting to reconnect.")
     try:
         mqttc.reconnect()
@@ -50,8 +51,7 @@ mqttc.on_disconnect = on_disconnect
 try:
     mqttc.connect(MQTT_SERVER_NAME, 1883, 300)
 except socket.gaierror:
-    print("ERROR: getaddrinfo() failed")
-    print("ERROR: Couldn't connect to MQTT server", MQTT_SERVER_NAME, ".")
+    print("ERROR: getaddrinfo() failed. Couldn't connect to MQTT server", MQTT_SERVER_NAME+".")
     print("MQTT status logging will not work!!!")
 
 def publish_tdc7201_driver():
@@ -70,6 +70,7 @@ def publish_tdc7201_driver():
     print("TDC7201 driver version =", driver)
     mqttc.publish(topic="QTD/VDGG/tdc7201/driver", payload=driver)
 
+
 tdc = tdc7201.TDC7201()	# Create TDC object with SPI interface.
 
 # Set RPi pin directions and default values for non-SPI signals.
@@ -80,17 +81,18 @@ tdc.initGPIO(trig2=None, int2=None)
 # Setting and checking clock speed.
 tdc.set_SPI_clock_speed(30000000)	# 30 MHz
 
+
 # Internal timing
 #print("UNIX time settings:")
 #print("Epoch (time == 0):", time.asctime(time.gmtime(0)))
-NOW = time.time()
-#print("Time since epoch in seconds:", NOW)
-#print("Current time (UTC):", time.asctime(time.gmtime(NOW)))
-print("Current time (local):", time.asctime(time.localtime(NOW)), time.strftime("%Z"))
-#print("Time since reset asserted:", NOW - reset_start)
+now = time.time()
+#print("Time since epoch in seconds:", now)
+#print("Current time (UTC):", time.asctime(time.gmtime(now)))
+print("Current time (local):", time.asctime(time.localtime(now)), time.strftime("%Z"))
+#print("Time since reset asserted:", now - reset_start)
 publish_tdc7201_driver()	# Takes a few seconds.
 #time.sleep(0.1)	# ensure a reasonable reset time
-#print("Time since reset asserted:", NOW - reset_start)
+#print("Time since reset asserted:", now - reset_start)
 
 # Turn the chip on.
 #tdc.on(meas_mode=2, num_stop=3, clock_cntr_stop=1, timeout=0.000135)
@@ -114,11 +116,12 @@ mqttc.publish(topic="QTD/VDDG/tdc7201/batchsize", payload=str(ITERS))
 #               "TRIG1 active", "INT1 active")
 cum_results = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
+now = time.time()
 while batches != 0:
     print("batches =", batches)
     mqttc.loop()
     # Measure average time per measurement.
-    THEN = time.time()
+    then = now
     timestamp = time.strftime("%Y%m%d%H%M%S")
     #print(timestamp)
     data_fname = 'data/' + timestamp + ".txt"
@@ -129,25 +132,22 @@ while batches != 0:
         self.cleanup()
         sys.exit()
     data_file.write("QTD experiment data file\n")
-    data_file.write("Time : " + str(THEN) + "\n")
+    data_file.write("Time : " + str(then) + "\n")
     data_file.write("Date : " + timestamp + "\n")
     data_file.write("Batch : " + str(abs(batches)) + "\n")	# NOT CORRECT for batches > 0 !
     data_file.write("Batch_size : " + str(ITERS) + "\n")
     data_file.write("Config : " + str(tdc.reg1[0:12]) + "\n")
     result_list = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     for m in range(ITERS):
-        result = tdc.measure(simulate=True)
+        m_str = str(m) + ' '
+        result = tdc.measure(simulate=True, error_prefix=m_str)
         result_list[result] += 1
         if result==2:
             # Record results in microseconds
-            #t1 = tdc.TOF1 * 1000000
-            #t2 = tdc.TOF2 * 1000000
-            #decay = t2 - t1
             decay = 1000000 * (tdc.tof2 - tdc.tof1)
-            #tof_line = str(m) + ' ' + str(t1) + ' ' + str(t2) + ' ' + str(decay) + '\n'
             # Record raw register data, so we can analyze differently later if needed,
             # as well as the computed delay between STOP1 and STOP2.
-            tof_line = str(m) + ' ' + str(tdc.reg1[0x10:0x1C]) + ' ' + str(decay) + '\n'
+            tof_line = m_str + str(tdc.reg1[0x10:0x1C]) + ' ' + str(decay) + '\n'
             data_file.write(tof_line)
         # Clear interrupt register bits to prepare for next measurement.
         tdc.clear_status()
@@ -160,8 +160,8 @@ while batches != 0:
     print(PAYLOAD)
     mqttc.publish(topic="QTD/VDDG/tdc7201/batch", payload=PAYLOAD)
     print(cum_results)
-    NOW = time.time()
-    DURATION = NOW - THEN
+    now = time.time()
+    DURATION = now - then
     #print(ITERS, "measurements in", DURATION, "seconds")
     print((ITERS/DURATION), "measurements per second")
     #print((result_list[2]/DURATION), "valid measurements per second")
