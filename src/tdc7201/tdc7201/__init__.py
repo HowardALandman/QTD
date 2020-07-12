@@ -826,16 +826,19 @@ class TDC7201():
             if verbose:
                 print("No need to clear.")
 
-    def measure(self, simulate=False):
-        """Run one measurement. If simulate=True, also send out fake data to measure."""
+    def measure(self, simulate=False, error_prefix=''):
+        """Run one measurement.
+           If simulate=True, also send out fake data to measure.
+           Prepend error_prefix to every error message.
+        """
         # Check GPIO state doesn't indicate a measurement is happening.
         if not GPIO.input(self.int1):
-            print("WARNING: INT1 already active (low).")
+            print(error_prefix+"WARNING: INT1 already active (low).")
             # Try to fix it
             self.clear_status(verbose=True)
             return 13
         if GPIO.input(self.trig1):
-            print("ERROR: TRIG1 already active (high).")
+            print(error_prefix+"ERROR: TRIG1 already active (high).")
             self.clear_status(verbose=True)
             return 12
         # To start measurement, need to set START_MEAS in TDCx_CONFIG1 register.
@@ -843,7 +846,7 @@ class TDC7201():
         cf1 = self.read8(self.CONFIG1)
         # Check it's not already set.
         if cf1 & self._CF1_START_MEAS:
-            print("ERROR: CONFIG1 already has START_MEAS bit set.")
+            print(error_prefix+"ERROR: CONFIG1 already has START_MEAS bit set.")
             return 11
         #print("Starting measurement.")
         self.write8(self.CONFIG1, cf1|self._CF1_START_MEAS)
@@ -852,14 +855,14 @@ class TDC7201():
         while (not GPIO.input(self.trig1)) and (time.time() < timeout):
             pass
         if not GPIO.input(self.trig1):
-            print("ERROR: Timed out waiting for trigger to rise.")
+            print("error_prefix+ERROR: Timed out waiting for trigger to rise.")
             return 10
         #else:
         #    #print("Got trigger, issuing start.")
         #    pass
         # Check that INT1 is inactive (high) as expected.
         if not GPIO.input(self.int1):
-            print("ERROR: INT1 is active (low) too early!")
+            print(error_prefix+"ERROR: INT1 is active (low) too early!")
             # Try to fix it
             self.clear_status(verbose=True)
             return 9
@@ -879,7 +882,7 @@ class TDC7201():
         while (GPIO.input(self.trig1)) and (time.time() < timeout):
             pass
         if GPIO.input(self.trig1):
-            print("Timed out waiting for trigger to fall.")
+            print(error_prefix+"ERROR: Timed out waiting for trigger to fall.")
             return 8
         #else:
         #    #print("TRIG1 fell as expected.")
@@ -902,7 +905,7 @@ class TDC7201():
             #loops += 1
             pass
         if GPIO.input(self.int1):
-            print("Timed out waiting for INT1.")
+            print(error_prefix+"ERROR: Timed out waiting for INT1.")
             return 7
         #else:
         #    #print("Got measurement-complete interrupt.")
