@@ -120,9 +120,10 @@ def publish_cpu_info(f_name="/proc/cpuinfo"):
         for line in hw_list:
             #print(line, end='')
             hw_pair = line.split()
-            topic = "QTD/VDDG/qtd-0w/"+hw_pair[0]
-            #print(topic)
-            mqttc.publish(topic=topic, payload=" ".join(hw_pair[2:]), retain=True)
+            if len(hw_pair) >= 2:
+                topic = "QTD/VDDG/qtd-0w/"+hw_pair[0]
+                #print(topic)
+                mqttc.publish(topic=topic, payload=" ".join(hw_pair[2:]), retain=True)
 
 def publish_disk_space():
     """Publish root filesystem fullness to the MQTT server."""
