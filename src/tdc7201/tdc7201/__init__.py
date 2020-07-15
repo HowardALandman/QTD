@@ -29,7 +29,7 @@ import RPi.GPIO as GPIO
 # print("GPIO version =", GPIO.VERSION)
 import spidev
 
-__version__ = '0.7b5'
+__version__ = '0.7b6'
 
 # Map of EVM board header pinout.
 # "." means No Connect, parentheses mean probably optional.
@@ -470,7 +470,8 @@ class TDC7201():
            num_stop=1,		# HW reset default
            clock_cntr_stop=0,	# HW reset default
            clock_cntr_ovf=0xFFFF,	# HW reset default
-           timeout=None		# Alternate way to specify clock overflow
+           timeout=None,	# Alternate way to specify clock overflow
+           retain_state=False,	# Use existing state, ignore other arguments
           ):
         """Turn TDC7201 on and set control parameters in chip registers."""
         now = time.time()
@@ -483,26 +484,29 @@ class TDC7201():
         time.sleep(0.01)
 
         # Configuration register 1
-        cf1_state = 0 # The default after power-on or reset
-        if force_cal:
-            cf1_state |= self._CF1_FORCE_CAL
-            print("Set forced calibration.")
-        if falling:
-            cf1_state |= self._CF1_STOP_EDGE
-            cf1_state |= self._CF1_START_EDGE
-            print("Set START and STOP to trigger on falling edge.")
-        if meas_mode == 1:
-            pass
-            #cf1_state |= self._CF1_MM1 # Does nothing since MM1 == 00.
-            #print("Set measurement mode 1.") # default value
-        elif meas_mode == 2:
-            cf1_state |= self._CF1_MM2
-            print("Set measurement mode 2.")
+        if retain_state:
+            cf1_state = self.reg1[self.CONFIG1]
         else:
-            print(meas_mode, "is not a legal measurement mode.")
-            print("Defaulting to measurement mode 1.")
-            cf1_state |= self._CF1_MM1
-            meas_mode = 1
+            cf1_state = 0 # The default after power-on or reset
+            if force_cal:
+                cf1_state |= self._CF1_FORCE_CAL
+                print("Set forced calibration.")
+            if falling:
+                cf1_state |= self._CF1_STOP_EDGE
+                cf1_state |= self._CF1_START_EDGE
+                print("Set START and STOP to trigger on falling edge.")
+            if meas_mode == 1:
+                pass
+                #cf1_state |= self._CF1_MM1 # Does nothing since MM1 == 00.
+                #print("Set measurement mode 1.") # default value
+            elif meas_mode == 2:
+                cf1_state |= self._CF1_MM2
+                print("Set measurement mode 2.")
+            else:
+                print(meas_mode, "is not a legal measurement mode.")
+                print("Defaulting to measurement mode 1.")
+                cf1_state |= self._CF1_MM1
+                meas_mode = 1
         self.write8(self.CONFIG1, cf1_state)
         self.meas_mode = meas_mode
         # Read it back to make sure.
@@ -516,74 +520,77 @@ class TDC7201():
             self.exit()
 
         # Configuration register 2
-        cf2_state = 0 # Power-on default is 0b01_000_000
-        # Always calibrate for AT LEAST as many cycles as requested.
-        # Should probably warn if value is not exact ...
-        if calibration2_periods <= 2:
-            #cf2_state |= self._CF2_CAL_PERS_2 # No effect since equals 0.
-            self.cal_pers = 2
-            print("Set 2-clock-period calibration.")
-        elif calibration2_periods <= 10:
-            cf2_state |= self._CF2_CAL_PERS_10
-            self.cal_pers = 10
-            #print("Set 10-clock-period calibration.") # the hardware default
-        elif calibration2_periods <= 20:
-            cf2_state |= self._CF2_CAL_PERS_20
-            self.cal_pers = 20
-            print("Set 20-clock-period calibration.")
+        if retain_state:
+            cf2_state = self.reg1[self.CONFIG2]
         else:
-            cf2_state |= self._CF2_CAL_PERS_40
-            self.cal_pers = 40
-            print("Set 40-clock-period calibration.")
-        if avg_cycles <= 1:
-            pass
-            #cf2_state |= self._CF2_AVG_CYC_1 # No effect since equals 0.
-            #print("No averaging.") # default on reset
-        elif avg_cycles <= 2:
-            cf2_state |= self._CF2_AVG_CYC_2
-            print("Averaging over 2 measurement cycles.")
-        elif avg_cycles <= 4:
-            cf2_state |= self._CF2_AVG_CYC_4
-            print("Averaging over 4 measurement cycles.")
-        elif avg_cycles <= 8:
-            cf2_state |= self._CF2_AVG_CYC_8
-            print("Averaging over 8 measurement cycles.")
-        elif avg_cycles <= 16:
-            cf2_state |= self._CF2_AVG_CYC_16
-            print("Averaging over 16 measurement cycles.")
-        elif avg_cycles <= 32:
-            cf2_state |= self._CF2_AVG_CYC_32
-            print("Averaging over 32 measurement cycles.")
-        elif avg_cycles <= 64:
-            cf2_state |= self._CF2_AVG_CYC_64
-            print("Averaging over 64 measurement cycles.")
-        elif avg_cycles <= 128:
-            cf2_state |= self._CF2_AVG_CYC_128
-            print("Averaging over 128 measurement cycles.")
-        else:
-            #cf2_state |= self._CF2_AVG_CYC_1 # No effect since equals 0.
-            print(avg_cycles,
-                  "is not a valid number of cycles to average over, defaulting to no averaging.")
-        if num_stop == 1:
-            pass
-            #cf2_state |= self._CF2_NSTOP_1 # No effect since equals 0.
-            #print("Set 1 stop pulse.") # default on reset
-        elif num_stop == 2:
-            cf2_state |= self._CF2_NSTOP_2
-            print("Set 2 stop pulses.")
-        elif num_stop == 3:
-            cf2_state |= self._CF2_NSTOP_3
-            print("Set 3 stop pulses.")
-        elif num_stop == 4:
-            cf2_state |= self._CF2_NSTOP_4
-            print("Set 4 stop pulses.")
-        elif num_stop == 5:
-            cf2_state |= self._CF2_NSTOP_5
-            print("Set 5 stop pulses.")
-        else:
-            # Other codes (for 6, 7, 8) are invalid and give 1.
-            cf2_state |= self._CF2_NSTOP_1
-            print(num_stop, "is not a valid number of stop pulses, defaulting to 1.")
+            cf2_state = 0 # Power-on default is 0b01_000_000
+            # Always calibrate for AT LEAST as many cycles as requested.
+            # Should probably warn if value is not exact ...
+            if calibration2_periods <= 2:
+                #cf2_state |= self._CF2_CAL_PERS_2 # No effect since equals 0.
+                self.cal_pers = 2
+                print("Set 2-clock-period calibration.")
+            elif calibration2_periods <= 10:
+                cf2_state |= self._CF2_CAL_PERS_10
+                self.cal_pers = 10
+                #print("Set 10-clock-period calibration.") # the hardware default
+            elif calibration2_periods <= 20:
+                cf2_state |= self._CF2_CAL_PERS_20
+                self.cal_pers = 20
+                print("Set 20-clock-period calibration.")
+            else:
+                cf2_state |= self._CF2_CAL_PERS_40
+                self.cal_pers = 40
+                print("Set 40-clock-period calibration.")
+            if avg_cycles <= 1:
+                pass
+                #cf2_state |= self._CF2_AVG_CYC_1 # No effect since equals 0.
+                #print("No averaging.") # default on reset
+            elif avg_cycles <= 2:
+                cf2_state |= self._CF2_AVG_CYC_2
+                print("Averaging over 2 measurement cycles.")
+            elif avg_cycles <= 4:
+                cf2_state |= self._CF2_AVG_CYC_4
+                print("Averaging over 4 measurement cycles.")
+            elif avg_cycles <= 8:
+                cf2_state |= self._CF2_AVG_CYC_8
+                print("Averaging over 8 measurement cycles.")
+            elif avg_cycles <= 16:
+                cf2_state |= self._CF2_AVG_CYC_16
+                print("Averaging over 16 measurement cycles.")
+            elif avg_cycles <= 32:
+                cf2_state |= self._CF2_AVG_CYC_32
+                print("Averaging over 32 measurement cycles.")
+            elif avg_cycles <= 64:
+                cf2_state |= self._CF2_AVG_CYC_64
+                print("Averaging over 64 measurement cycles.")
+            elif avg_cycles <= 128:
+                cf2_state |= self._CF2_AVG_CYC_128
+                print("Averaging over 128 measurement cycles.")
+            else:
+                #cf2_state |= self._CF2_AVG_CYC_1 # No effect since equals 0.
+                print(avg_cycles,
+                      "is not a valid number of cycles to average over, defaulting to no averaging.")
+            if num_stop == 1:
+                pass
+                #cf2_state |= self._CF2_NSTOP_1 # No effect since equals 0.
+                #print("Set 1 stop pulse.") # default on reset
+            elif num_stop == 2:
+                cf2_state |= self._CF2_NSTOP_2
+                print("Set 2 stop pulses.")
+            elif num_stop == 3:
+                cf2_state |= self._CF2_NSTOP_3
+                print("Set 3 stop pulses.")
+            elif num_stop == 4:
+                cf2_state |= self._CF2_NSTOP_4
+                print("Set 4 stop pulses.")
+            elif num_stop == 5:
+                cf2_state |= self._CF2_NSTOP_5
+                print("Set 5 stop pulses.")
+            else:
+                # Other codes (for 6, 7, 8) are invalid and give 1.
+                cf2_state |= self._CF2_NSTOP_1
+                print(num_stop, "is not a valid number of stop pulses, defaulting to 1.")
         self.write8(self.CONFIG2, cf2_state)
         # Read it back to make sure.
         result = self.read8(self.CONFIG2)
@@ -594,6 +601,8 @@ class TDC7201():
             self.exit()
 
         # CLOCK_CNTR_STOP
+        if retain_state:
+            clock_cntr_stop = self.reg1[self.CLOCK_CNTR_STOP_MASK]
         if clock_cntr_stop > 0:
             self.write16(self.CLOCK_CNTR_STOP_MASK_H, clock_cntr_stop)
             print("Skipping STOP pulses for", clock_cntr_stop, "clock periods =",
@@ -608,7 +617,10 @@ class TDC7201():
         # else: Maybe should check that chip register is zero.
         #
         # Set overflow timeout.
-        if timeout is None:
+        if retain_state:
+            ovf = self.reg1[self.CLOCK_CNTR_OVF]
+            timeout = clock_cntr_ovf * self.clockPeriod
+        elif timeout is None:
             ovf = clock_cntr_ovf
             timeout = clock_cntr_ovf * self.clockPeriod
         else:
@@ -836,23 +848,23 @@ class TDC7201():
         if not GPIO.input(self.int1):
             err_str = error_prefix + "WARNING: INT1 already active (low)."
             if log_file:
-                log_file.write(err_str)
+                log_file.write(err_str+'\n')
             else:
                 print(err_str)
             # Try to fix it
-            self.clear_status(verbose=True)
+            self.clear_status()
             return 13
         if GPIO.input(self.trig1):
             err_str = error_prefix + "ERROR: TRIG1 already active (high)."
             if log_file:
-                log_file.write(err_str)
+                log_file.write(err_str+'\n')
             else:
                 print(err_str)
             # This is a very serious error that means the chip is wedged.
             # Clearing the status register does NOT fix it.
             # Only hope is to reset the chip.
             self.off()
-            self.on()
+            self.on(retain_state=True)
             return 12
         # To start measurement, need to set START_MEAS in TDCx_CONFIG1 register.
         # First read current value.
@@ -861,7 +873,7 @@ class TDC7201():
         if cf1 & self._CF1_START_MEAS:
             err_str = error_prefix + "ERROR: CONFIG1 already has START_MEAS bit set."
             if log_file:
-                log_file.write(err_str)
+                log_file.write(err_str+'\n')
             else:
                 print(err_str)
             return 11
@@ -874,7 +886,7 @@ class TDC7201():
         if not GPIO.input(self.trig1):
             err_str = error_prefix + "ERROR: Timed out waiting for trigger to rise."
             if log_file:
-                log_file.write(err_str)
+                log_file.write(err_str+'\n')
             else:
                 print(err_str)
             return 10
@@ -885,11 +897,11 @@ class TDC7201():
         if not GPIO.input(self.int1):
             err_str = error_prefix + "ERROR: INT1 is active (low) too early!"
             if log_file:
-                log_file.write(err_str)
+                log_file.write(err_str+'\n')
             else:
                 print(err_str)
             # Try to fix it
-            self.clear_status(verbose=True)
+            self.clear_status()
             return 9
         #else:
         #    #print("INT1 is inactive (high) as expected.")
@@ -909,7 +921,7 @@ class TDC7201():
         if GPIO.input(self.trig1):
             err_str = error_prefix + "ERROR: Timed out waiting for trigger to fall."
             if log_file:
-                log_file.write(err_str)
+                log_file.write(err_str+'\n')
             else:
                 print(err_str)
             return 8
@@ -936,7 +948,7 @@ class TDC7201():
         if GPIO.input(self.int1):
             err_str = error_prefix + "ERROR: Timed out waiting for INT1."
             if log_file:
-                log_file.write(err_str)
+                log_file.write(err_str+'\n')
             else:
                 print(err_str)
             return 7
@@ -953,8 +965,14 @@ class TDC7201():
                            # 7+ for error,
                            # 6 currently unassigned
 
-    def set_SPI_clock_speed(self, speed):
+    def set_SPI_clock_speed(self, speed, force=False):
         """Attempt to set the SPI clock speed, within chip limits."""
+
+        # Force=True bypasses all the sanity checks (for testing).
+        if force:
+            self._spi.max_speed_hz = speed
+            print("WARNING: forcing SPI clock speed to", speed)
+            return
 
         # Check against minimum.
         if speed < self._minSPIspeed:
@@ -964,8 +982,8 @@ class TDC7201():
 
         # Check against maximum.
         # 25 MHz is spec max for the chip, but probably Rpi can't set that exactly.
-        # Testing with my board, up to 33 MHz worked OK but 34 MHz failed.
-        abs_max = 33000000	# highest seen to work in actual testing
+        # Testing with my board, up to 33.3 MHz worked OK but 33.4 MHz failed.
+        abs_max = 33300000	# highest seen to work in actual testing
         if speed > self._maxSPIspeed:
             if speed > abs_max:
                 print("WARNING: SPI clock speed", speed,
