@@ -3,6 +3,7 @@
 
 import time
 import os
+import resource
 import signal
 import sys
 import socket	# just for exception handling
@@ -14,14 +15,14 @@ import tdc7201
 # Handle ^C keyboard interrupt.
 def sigint_handler(sig, frame):
     """Exit as gracefully as possible."""
-    payload = "unknown"
-    print('')
+    print('\nCaught SIGINT')
+    payload = "SIGINT - interrupted (probably by keyboard ^C)"
     try:
         tdc.cleanup()
-        payload = "OFF"
-        #print("Turned TDC7201 off while exiting.")
     except NameError:
         pass
+    else:
+        payload = "OFF"
     mqttc.publish(topic="QTD/VDDG/tdc7201/runstate", payload=payload)
     sys.exit(0)
 
@@ -80,6 +81,7 @@ tdc.initGPIO(trig2=None, int2=None)
 
 # Setting and checking clock speed.
 tdc.set_SPI_clock_speed(30000000)	# 30 MHz
+#tdc.set_SPI_clock_speed(33300000,force=True) # max seen to work on my board
 
 
 # Internal timing
@@ -106,15 +108,14 @@ tdc.read_regs()
 #tdc.print_regs1()
 
 batches = -1	# number of batches, negative means run forever
-#ITERS = 32768 # measurements per batch
-ITERS = 16384 # measurements per batch
-#ITERS = 8192 # measurements per batch
+ITERS = 100000 # measurements per batch
 mqttc.publish(topic="QTD/VDDG/tdc7201/batchsize", payload=str(ITERS))
 #RESULT_NAME = ("0", "1", "2", "3", "4", "5",
 #               "No calibration", "INT1 fall timeout", "TRIG1 fall timeout",
 #               "INT1 early", "TRIG1 rise timeout", "START_MEAS active",
 #               "TRIG1 active", "INT1 active")
 cum_results = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+result_list = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
 now = time.time()
 while batches != 0:
@@ -124,12 +125,12 @@ while batches != 0:
     then = now
     timestamp = time.strftime("%Y%m%d%H%M%S")
     #print(timestamp)
-    data_fname = 'data/' + timestamp + ".txt"
+    data_fname = '/mnt/qtd_data/data/' + timestamp + ".txt"
     try:
         data_file = open(data_fname,'w')
     except IOError:
         print("Couldn't open", data_fname, "for writing.")
-        self.cleanup()
+        tdc.cleanup()
         sys.exit()
     data_file.write("QTD experiment data file\n")
     data_file.write("Time : " + str(then) + "\n")
@@ -137,7 +138,7 @@ while batches != 0:
     data_file.write("Batch : " + str(abs(batches)) + "\n")	# NOT CORRECT for batches > 0 !
     data_file.write("Batch_size : " + str(ITERS) + "\n")
     data_file.write("Config : " + str(tdc.reg1[0:12]) + "\n")
-    result_list = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    #result_list = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     for m in range(ITERS):
         m_str = str(m) + ' '
         result = tdc.measure(simulate=True, error_prefix=m_str, log_file=data_file)
@@ -152,20 +153,26 @@ while batches != 0:
         # Clear interrupt register bits to prepare for next measurement.
         tdc.clear_status()
     data_file.write('Tot : ' + str(result_list) + "\n")
-    for i in range(len(result_list)):
-        cum_results[i] += result_list[i]
-    data_file.write('Cum : ' + str(cum_results) + "\n")
-    data_file.close()
     PAYLOAD = json.dumps(result_list)
     print(PAYLOAD)
     mqttc.publish(topic="QTD/VDDG/tdc7201/batch", payload=PAYLOAD)
-    print(cum_results)
     now = time.time()
     DURATION = now - then
     #print(ITERS, "measurements in", DURATION, "seconds")
-    print((ITERS/DURATION), "measurements per second")
-    #print((result_list[2]/DURATION), "valid measurements per second")
+    #print((ITERS/DURATION), "measurements per second")
     #print((DURATION/ITERS), "seconds per measurement")
+    pulse_pair_rate = result_list[2] / DURATION
+    print(pulse_pair_rate, "valid measurements per second")
+    PAYLOAD = json.dumps([pulse_pair_rate])
+    print(PAYLOAD)
+    mqttc.publish(topic="QTD/VDDG/tdc7201/p2ps", payload=PAYLOAD)
+    for i in range(len(result_list)):
+        cum_results[i] += result_list[i]
+        result_list[i] = 0
+    data_file.write('Cum : ' + str(cum_results) + "\n")
+    data_file.close()
+    print(cum_results)
+    #print('Memory usage: %s (kb)' % resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
 
     batches -= 1
 
