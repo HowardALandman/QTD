@@ -26,10 +26,10 @@ import random
 import RPi.GPIO as GPIO
 # Needs to be 0.5.1 or later for interrupts to work.
 # This code was written and tested on 0.6.3.
-# print("GPIO version =", GPIO.VERSION)
+# print("RPi.GPIO version =", GPIO.VERSION)
 import spidev
 
-__version__ = '0.7b6'
+__version__ = '0.7b7'
 
 # Map of EVM board header pinout.
 # "." means No Connect, parentheses mean probably optional.
@@ -683,15 +683,12 @@ class TDC7201():
         # data is MSB-first
         return (result[1] << 16) | (result[2] << 8) | result[3]
 
+    REG8_TUPLE_WITH_PADDING = (MINREG8|_AI,
+                               0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00)
     def read_regs8(self):
         """Read all 8-bit registers, using auto-increment feature."""
-        result8 = self._spi.xfer([self.MINREG8|self._AI,
-                                  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00])
-        #print("AI read 8-bits =", result8)
-        #print("length =", len(result8))
+        result8 = self._spi.xfer(self.REG8_TUPLE_WITH_PADDING)
         # First (0th) byte is always 0, rest are desired values.
-        #for reg in range(self.MINREG8, self.MAXREG8+1):
-        #    self.reg1[reg] = result8[reg+1]
         self.reg1[0:self.MAXREG8] = result8[1:]
         # 16-bit combinations
         self.reg1[self.COARSE_CNTR_OVF] = (
@@ -701,17 +698,16 @@ class TDC7201():
         self.reg1[self.CLOCK_CNTR_STOP_MASK] = (
             (self.reg1[self.CLOCK_CNTR_STOP_MASK_H] << 8) | self.reg1[self.CLOCK_CNTR_STOP_MASK_L])
 
+    REG24_TUPLE_WITH_PADDING = (MINREG24|_AI,
+                               0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                               0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                               0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                               0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                               0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00)
     def read_regs24(self):
         """Read all 24-bit chip registers, using auto-increment feature."""
-        result24 = self._spi.xfer([self.MINREG24|self._AI,
-                                   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00])
-        #print("AI read 24-bits =", result24)
-        #print("length =", len(result24))
-        i = 1
+        result24 = self._spi.xfer(self.REG24_TUPLE_WITH_PADDING)
+        i = 1	# First (0th) byte is always 0, rest are desired values.
         for reg in range(self.MINREG24, self.MAXREG24+1):
             # Data comes in MSB first.
             self.reg1[reg] = (result24[i] << 16) | (result24[i+1] << 8) | result24[i+2]
