@@ -87,7 +87,7 @@ or the measurement will time out before it begins accepting stop pulses.
 Runs a single measurement, polling the chip INT1 pin until it indicates completion.
 (This should really be an interrupt.)
 Will time out after 0.1 seconds if measurement doesn't complete.
-If it does complete, calls `read_regs()` and `compute_tofs()` so that both raw and processed data are available.
+If it does complete, calls `read_regs24()` and `compute_tofs()` so that both raw and processed data are available.
 If `simulate=True`, then generates START and/or STOP signals to send to the chip
 (for testing when your actual signal source is not yet available);
 this requires that the appropriate RPi pins be connected to START and/or STOP,
@@ -106,40 +106,65 @@ This isn't supposed to be necessary, but I was having problems without doing it.
 If `verbose==True`, prints detailed step-by-step results for debugging.
 If `force==True`, tries to clear all IS bits even if some or all of them appear not to be set.
 
-    set_SPI_clock(speed)
+    set_SPI_clock_speed(speed)
 
 Attempts to set the SPI interface clock speed to `speed` (in Hz).
-Minimum legal value is 50000 (50 kHz), and maximum is 25000000 (25 MHz).
+Minimum legal value is 50000 (50 kHz), spec maximum is 25000000 (25 MHz),
+and highest "overclocked" speed we've seen work is 33000000 (33 MHz).
 The SPI clock is a hardware division of the CPU clock, so there are two important things to note.
 (1) The exact clock speed set may be restricted (by hardware) to only certain values in that range, so you may not get exactly what you ask for.
 (2) The SPI clock will slow down or speed up if the CPU clock does (for example, for thermal management, turbo mode, or due to user over- or under-clocking of the Raspberry Pi).
  The CPU (and the SPI driver, and this module) can not tell what the CPU clock speed is, so there is no way to compensate for this in software.
-Therefore, it's probably a bad idea to set the maximum SPI speed if you know that your CPU will be overclocked, since that might result in a speed that exceeds the chip specs.
+Therefore, it's probably a bad idea to overclock the SPI speed
+if you know that your CPU will also be overclocked,
+since that might result in a speed that doesn't work.
 But all this should mostly be invisible to the user, as it only affects SPI communication speed, and does not affect performance of the TDC7201 measurements (unless the TDC7201 is also being clocked by some submultiple of the Pi clock, which is a really really bad idea).
 
 The casual user should be able to get by with only the above methods; the following low-level methods give more detailed access to the hardware, but you'll need to know what you're doing.
 
     write8(reg,val)
 
-Low-level routine to write a single 8-bit value to an 8-bit chip register.
+Write a single 8-bit value to an 8-bit chip register.
+This only makes sense for 8-bit registers (addresses 0 through 9).
 
     read8(reg)
 
-Low-level routine to read a single 8-bit value from an 8-bit chip register.
+Read a single 8-bit value from an 8-bit chip register.
+This only makes sense for 8-bit registers (addresses 0 through 9).
+
+    read16(reg)
+
+Read a pair of 8-bit registers and return them as a 16-bit value.
+This only makes sense if reg is COARSE_CNTR_OVF_H (4), CLOCK_CNTR_OVF_H (6), or CLOCK_CNTR_STOP_MASK_H (8).
 
     write24(reg,val)
 
-Low-level routine to write a 24-bit value to a 24-bit chip register.
+Write a 24-bit value to a 24-bit chip register.
+This should probably never be used since those contain measurement and calibration results.
 
     read24(reg)
 
-Low-level routine to read a 24-bit value from a 24-bit chip register.
+Read a 24-bit value from a 24-bit chip register.
+This only makes sense for 24-bit registers (addresses 16 through 28).
+
+    read_regs8()
+
+Read all of the 8-bit side 1 chip registers into the tdc.reg1 list.
+(It should be possible to make this read the side 2 registers, but it doesn't yet.)
+This is much faster than looping over the registers in Python.
+
+    read_regs24()
+
+Read all of the 24-bit side 1 chip registers (measurement and calibration results) into the tdc.reg1 list.
+(It should be possible to make this read the side 2 registers, but it doesn't yet.)
+This is much faster than looping over the registers in Python.
 
     read_regs()
 
 Read all of the side 1 chip registers (including measurement results) into the tdc.reg1 list.
 (It should be possible to make this read the side 2 registers, but it doesn't yet.)
 This is much faster than looping over the registers in Python.
+Equivalent to read_regs8() plus read_regs24().
 
     print_regs1()
 
@@ -156,3 +181,12 @@ Compute time-of-flight in seconds using Measurement Mode 2 equations.
     compute_tofs()
 
 Check how many pulses we got, and compute the TOF for each pulse.
+
+    cleanup()
+
+Close the SPI device and free all the GPIO pins.
+
+    exit()
+
+Clean up the SPI and GPIO pins, and then exit.
+

@@ -120,13 +120,14 @@ def publish_cpu_info(f_name="/proc/cpuinfo"):
         for line in hw_list:
             #print(line, end='')
             hw_pair = line.split()
-            topic = "QTD/VDDG/qtd-0w/"+hw_pair[0]
-            #print(topic)
-            mqttc.publish(topic=topic, payload=" ".join(hw_pair[2:]), retain=True)
+            if len(hw_pair) >= 2:
+                topic = "QTD/VDDG/qtd-0w/"+hw_pair[0]
+                #print(topic)
+                mqttc.publish(topic=topic, payload=" ".join(hw_pair[2:]), retain=True)
 
-def publish_disk_space():
-    """Publish root filesystem fullness to the MQTT server."""
-    cmd="df /"
+def publish_disk_space(fs="/",name="root"):
+    """Publish filesystem fullness to the MQTT server."""
+    cmd="df " + fs
     size = None
     used = None
     try:
@@ -135,13 +136,12 @@ def publish_disk_space():
             size = words[1]
             used = words[2]
             full_pct = round((int(used)/int(size))*100.0,3)
-            #print("Disk", full_pct, "percent full")
+            #print("Disk", fs, full_pct, "percent full")
     except IOError:
         print("Running", cmd, "failed.")
-        gpu_temp = "Failed"
     #except ValueError:
         #pass
-    mqttc.publish(topic="QTD/VDGG/qtd-0w/disk", payload=str(full_pct))
+    mqttc.publish(topic="QTD/VDGG/qtd-0w/"+name, payload=str(full_pct))
 
 def publish_load_avg(cmd="uptime"):
     """Publish the load average to the MQTT server."""
@@ -165,4 +165,5 @@ while True:
     publish_cpu_temp()
     publish_load_avg()
     publish_disk_space()
+    publish_disk_space(fs="/mnt/qtd_data", name="data")
     time.sleep(60)

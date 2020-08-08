@@ -12,7 +12,7 @@ setup(name='tdc7201',
       description='Raspberry Pi driver for Texas Instruments TDC7201 Time-to-Digital-Converter chip',
       long_description_content_type='text/markdown',
       long_description=long_description,
-      install_requires=["RPi.GPIO>=0.5","spidev>=3.4"],
+      install_requires=["RPi.GPIO>=0.5","spidev>=3.5"],
       # also requires "time", "sys", and "random",
       # but those are all built-in.
       classifiers=[
