@@ -7,11 +7,172 @@
         "info": ""
     },
     {
+        "id": "d2bee063.4e6ed8",
+        "type": "mqtt-broker",
+        "z": "",
+        "name": "Eclipse",
+        "broker": "mqtt.eclipse.org",
+        "port": "1883",
+        "tls": "",
+        "clientid": "",
+        "usetls": false,
+        "compatmode": false,
+        "keepalive": "120",
+        "cleansession": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "closeTopic": "",
+        "closeQos": "0",
+        "closePayload": "",
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": ""
+    },
+    {
+        "id": "9833553e.53cb98",
+        "type": "ui_group",
+        "z": "",
+        "name": "CPU",
+        "tab": "1de82e72.045f5a",
+        "order": 1,
+        "disp": true,
+        "width": "8",
+        "collapse": false
+    },
+    {
+        "id": "1850e0ab.ffc91f",
+        "type": "ui_group",
+        "z": "",
+        "name": "TDC7201",
+        "tab": "1de82e72.045f5a",
+        "order": 3,
+        "disp": true,
+        "width": 8,
+        "collapse": false
+    },
+    {
+        "id": "1de82e72.045f5a",
+        "type": "ui_tab",
+        "z": "",
+        "name": "Van De Graaff Generator",
+        "icon": "dashboard",
+        "disabled": false,
+        "hidden": false
+    },
+    {
+        "id": "1fbb14f0.21477b",
+        "type": "ui_base",
+        "theme": {
+            "name": "theme-light",
+            "lightTheme": {
+                "default": "#0094CE",
+                "baseColor": "#0094CE",
+                "baseFont": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif",
+                "edited": true,
+                "reset": false
+            },
+            "darkTheme": {
+                "default": "#097479",
+                "baseColor": "#097479",
+                "baseFont": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif",
+                "edited": false
+            },
+            "customTheme": {
+                "name": "Untitled Theme 1",
+                "default": "#4B7930",
+                "baseColor": "#4B7930",
+                "baseFont": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif"
+            },
+            "themeState": {
+                "base-color": {
+                    "default": "#0094CE",
+                    "value": "#0094CE",
+                    "edited": false
+                },
+                "page-titlebar-backgroundColor": {
+                    "value": "#0094CE",
+                    "edited": false
+                },
+                "page-backgroundColor": {
+                    "value": "#fafafa",
+                    "edited": false
+                },
+                "page-sidebar-backgroundColor": {
+                    "value": "#ffffff",
+                    "edited": false
+                },
+                "group-textColor": {
+                    "value": "#1bbfff",
+                    "edited": false
+                },
+                "group-borderColor": {
+                    "value": "#ffffff",
+                    "edited": false
+                },
+                "group-backgroundColor": {
+                    "value": "#ffffff",
+                    "edited": false
+                },
+                "widget-textColor": {
+                    "value": "#111111",
+                    "edited": false
+                },
+                "widget-backgroundColor": {
+                    "value": "#0094ce",
+                    "edited": false
+                },
+                "widget-borderColor": {
+                    "value": "#ffffff",
+                    "edited": false
+                },
+                "base-font": {
+                    "value": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif"
+                }
+            },
+            "angularTheme": {
+                "primary": "indigo",
+                "accents": "blue",
+                "warn": "red",
+                "background": "grey"
+            }
+        },
+        "site": {
+            "name": "Node-RED Dashboard",
+            "hideToolbar": "false",
+            "allowSwipe": "false",
+            "lockMenu": "false",
+            "allowTempTheme": "true",
+            "dateFormat": "DD/MM/YYYY",
+            "sizes": {
+                "sx": 48,
+                "sy": 48,
+                "gx": 6,
+                "gy": 6,
+                "cx": 6,
+                "cy": 6,
+                "px": 0,
+                "py": 0
+            }
+        }
+    },
+    {
+        "id": "af4e26e4.cbb858",
+        "type": "ui_group",
+        "z": "",
+        "name": "Storage",
+        "tab": "1de82e72.045f5a",
+        "order": 2,
+        "disp": true,
+        "width": "8",
+        "collapse": false
+    },
+    {
         "id": "858c3f8.9d0534",
         "type": "mqtt in",
         "z": "b5af51ed.68447",
         "name": "CPU Temp",
-        "topic": "QTD/VDGG/qtd-0w/cpu_temp",
+        "topic": "QTD/VDGG/CPU/cpu_temp",
         "qos": "0",
         "datatype": "auto",
         "broker": "d2bee063.4e6ed8",
@@ -30,22 +191,22 @@
         "z": "b5af51ed.68447",
         "name": "CPU Temp Gauge",
         "group": "9833553e.53cb98",
-        "order": 3,
+        "order": 5,
         "width": 0,
         "height": 0,
         "gtype": "gage",
         "title": "CPU Temperature",
         "label": "°C",
         "format": "{{value}}",
-        "min": 0,
-        "max": "100",
+        "min": "25",
+        "max": "80",
         "colors": [
             "#00b500",
             "#e6e600",
             "#ca3838"
         ],
         "seg1": "50",
-        "seg2": "75",
+        "seg2": "70",
         "x": 470,
         "y": 80,
         "wires": []
@@ -74,7 +235,7 @@
         "z": "b5af51ed.68447",
         "name": "TDC7201 Measurements",
         "group": "1850e0ab.ffc91f",
-        "order": 2,
+        "order": 3,
         "width": 0,
         "height": 0,
         "label": "measurements",
@@ -116,7 +277,7 @@
         "type": "ui_text",
         "z": "b5af51ed.68447",
         "group": "1850e0ab.ffc91f",
-        "order": 3,
+        "order": 2,
         "width": 0,
         "height": 0,
         "name": "Results",
@@ -139,7 +300,7 @@
         "label": "",
         "chartType": "line",
         "legend": "false",
-        "xformat": "HH:mm:ss",
+        "xformat": "HH:mm",
         "interpolate": "linear",
         "nodata": "waiting for temperature data",
         "dot": false,
@@ -208,7 +369,7 @@
         "type": "mqtt in",
         "z": "b5af51ed.68447",
         "name": "RPi Model",
-        "topic": "QTD/VDDG/qtd-0w/Model",
+        "topic": "QTD/VDDG/CPU/Model",
         "qos": "0",
         "datatype": "auto",
         "broker": "d2bee063.4e6ed8",
@@ -241,7 +402,7 @@
         "type": "mqtt in",
         "z": "b5af51ed.68447",
         "name": "RPi OS",
-        "topic": "QTD/VDDG/qtd-0w/os_name",
+        "topic": "QTD/VDDG/CPU/os_name",
         "qos": "0",
         "datatype": "auto",
         "broker": "d2bee063.4e6ed8",
@@ -330,7 +491,7 @@
         "label": "Valid measurements per batch",
         "chartType": "line",
         "legend": "false",
-        "xformat": "HH:mm:ss",
+        "xformat": "HH:mm",
         "interpolate": "linear",
         "nodata": "waiting for measurement data",
         "dot": false,
@@ -365,12 +526,12 @@
         "id": "630391c8.8ca9f",
         "type": "mqtt in",
         "z": "b5af51ed.68447",
-        "name": "Disk space",
-        "topic": "QTD/VDGG/qtd-0w/disk",
+        "name": "Root Disk Space",
+        "topic": "QTD/VDGG/CPU/root",
         "qos": "0",
         "datatype": "auto",
         "broker": "d2bee063.4e6ed8",
-        "x": 120,
+        "x": 140,
         "y": 440,
         "wires": [
             [
@@ -382,13 +543,13 @@
         "id": "a6bd68ea.191fa8",
         "type": "ui_gauge",
         "z": "b5af51ed.68447",
-        "name": "Disk Space gauge",
-        "group": "9833553e.53cb98",
-        "order": 6,
+        "name": "Root Filesystem Gauge",
+        "group": "af4e26e4.cbb858",
+        "order": 2,
         "width": 0,
         "height": 0,
-        "gtype": "gage",
-        "title": "SD Card Used",
+        "gtype": "donut",
+        "title": "32GB SD Card Used",
         "label": "percent",
         "format": "{{value}}",
         "min": 0,
@@ -400,7 +561,7 @@
         ],
         "seg1": "60",
         "seg2": "80",
-        "x": 330,
+        "x": 390,
         "y": 440,
         "wires": []
     },
@@ -409,7 +570,7 @@
         "type": "mqtt in",
         "z": "b5af51ed.68447",
         "name": "Load avg",
-        "topic": "QTD/VDGG/qtd-0w/load",
+        "topic": "QTD/VDGG/CPU/load",
         "qos": "0",
         "datatype": "auto",
         "broker": "d2bee063.4e6ed8",
@@ -427,15 +588,76 @@
         "z": "b5af51ed.68447",
         "name": "Load avg chart",
         "group": "9833553e.53cb98",
-        "order": 5,
+        "order": 3,
         "width": 0,
         "height": 0,
         "label": "Load Average",
         "chartType": "line",
         "legend": "false",
-        "xformat": "HH:mm:ss",
+        "xformat": "HH:mm",
         "interpolate": "linear",
-        "nodata": "",
+        "nodata": "waiting for load average data",
+        "dot": false,
+        "ymin": "0",
+        "ymax": "",
+        "removeOlder": 1,
+        "removeOlderPoints": "",
+        "removeOlderUnit": "86400",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+            "#0000b4",
+            "#000000",
+            "#ff7f0e",
+            "#2ca02c",
+            "#98df8a",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "useOldStyle": false,
+        "outputs": 1,
+        "x": 320,
+        "y": 360,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "4cfacc8f.8f5bd4",
+        "type": "mqtt in",
+        "z": "b5af51ed.68447",
+        "name": "Pulse pairs per second",
+        "topic": "QTD/VDDG/tdc7201/p2ps",
+        "qos": "0",
+        "datatype": "utf8",
+        "broker": "d2bee063.4e6ed8",
+        "x": 160,
+        "y": 820,
+        "wires": [
+            [
+                "63eb0c26.cea844",
+                "787ef271.048eac"
+            ]
+        ]
+    },
+    {
+        "id": "787ef271.048eac",
+        "type": "ui_chart",
+        "z": "b5af51ed.68447",
+        "name": "Pulse pairs chart",
+        "group": "1850e0ab.ffc91f",
+        "order": 6,
+        "width": 0,
+        "height": 0,
+        "label": "Pulse pairs / second",
+        "chartType": "line",
+        "legend": "false",
+        "xformat": "HH:mm",
+        "interpolate": "linear",
+        "nodata": "waiting for measurement data",
         "dot": false,
         "ymin": "",
         "ymax": "",
@@ -458,64 +680,69 @@
         ],
         "useOldStyle": false,
         "outputs": 1,
-        "x": 350,
-        "y": 360,
+        "x": 410,
+        "y": 820,
         "wires": [
             []
         ]
     },
     {
-        "id": "d2bee063.4e6ed8",
-        "type": "mqtt-broker",
-        "z": "",
-        "name": "Eclipse",
-        "broker": "mqtt.eclipse.org",
-        "port": "1883",
-        "tls": "",
-        "clientid": "",
-        "usetls": false,
-        "compatmode": false,
-        "keepalive": "120",
-        "cleansession": true,
-        "birthTopic": "",
-        "birthQos": "0",
-        "birthPayload": "",
-        "closeTopic": "",
-        "closeQos": "0",
-        "closePayload": "",
-        "willTopic": "",
-        "willQos": "0",
-        "willPayload": ""
+        "id": "885f5628.d031a8",
+        "type": "mqtt in",
+        "z": "b5af51ed.68447",
+        "name": "Data Disk Space",
+        "topic": "QTD/VDGG/CPU/data",
+        "qos": "0",
+        "datatype": "auto",
+        "broker": "d2bee063.4e6ed8",
+        "x": 140,
+        "y": 500,
+        "wires": [
+            [
+                "3ac305ab.0d399a"
+            ]
+        ]
     },
     {
-        "id": "9833553e.53cb98",
-        "type": "ui_group",
-        "z": "",
-        "name": "Raspberry Pi",
-        "tab": "1de82e72.045f5a",
+        "id": "3ac305ab.0d399a",
+        "type": "ui_gauge",
+        "z": "b5af51ed.68447",
+        "name": "Data Filesystem Gauge",
+        "group": "af4e26e4.cbb858",
         "order": 1,
-        "disp": true,
-        "width": 8,
-        "collapse": false
+        "width": 0,
+        "height": 0,
+        "gtype": "donut",
+        "title": "256GB USB Drive Used",
+        "label": "percent",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "100",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "60",
+        "seg2": "80",
+        "x": 390,
+        "y": 500,
+        "wires": []
     },
     {
-        "id": "1850e0ab.ffc91f",
-        "type": "ui_group",
-        "z": "",
-        "name": "TDC7201",
-        "tab": "1de82e72.045f5a",
-        "order": 2,
-        "disp": true,
-        "width": 8,
-        "collapse": false
-    },
-    {
-        "id": "1de82e72.045f5a",
-        "type": "ui_tab",
-        "z": "",
-        "name": "Van De Graaff Generator",
-        "icon": "dashboard",
-        "disabled": false,
-        "hidden": false
+        "id": "63eb0c26.cea844",
+        "type": "ui_text",
+        "z": "b5af51ed.68447",
+        "group": "1850e0ab.ffc91f",
+        "order": 5,
+        "width": 0,
+        "height": 0,
+        "name": "Rate Text",
+        "label": "Rate",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "x": 380,
+        "y": 880,
+        "wires": []
     }
 ]
