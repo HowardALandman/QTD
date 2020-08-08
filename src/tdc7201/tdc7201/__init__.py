@@ -626,6 +626,12 @@ class TDC7201():
         result = self._spi.xfer([reg, 0x00])
         return result[1]
 
+    def read16(self,reg):
+        """Read two 8-bit registers and convert them to 16-bit."""
+        #assert (reg >= self.MINREG8) and (reg < self.MAXREG8)
+        result = self._spi.xfer([reg|self._AI, 0x00, 0x00])
+        return (result[1] << 8 | result[2])
+
     def read24(self,reg):
         #assert (reg >= self.MINREG24) and (reg <= self.MAXREG24)
         result = self._spi.xfer([reg, 0x00, 0x00, 0x00])
