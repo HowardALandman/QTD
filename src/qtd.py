@@ -125,7 +125,7 @@ while batches != 0:
     then = now
     timestamp = time.strftime("%Y%m%d%H%M%S")
     #print(timestamp)
-    data_fname = '/mnt/qtd_data/data/' + timestamp + ".txt"
+    data_fname = '/mnt/qtd/data/' + timestamp + ".txt"
     try:
         data_file = open(data_fname,'w')
     except IOError:
@@ -163,9 +163,10 @@ while batches != 0:
     #print((DURATION/ITERS), "seconds per measurement")
     pulse_pair_rate = result_list[2] / DURATION
     print(pulse_pair_rate, "valid measurements per second")
-    PAYLOAD = json.dumps([pulse_pair_rate])
-    print(PAYLOAD)
-    mqttc.publish(topic="QTD/VDDG/tdc7201/p2ps", payload=PAYLOAD)
+    # MQTT "payload" = entire message, but
+    # node-red "payload" = field inside message.
+    # It's confusing.
+    mqttc.publish(topic="QTD/VDDG/tdc7201/p2ps", payload=pulse_pair_rate)
     for i in range(len(result_list)):
         cum_results[i] += result_list[i]
         result_list[i] = 0
