@@ -73,7 +73,7 @@ def publish_cpu_temp(f_name="/sys/class/thermal/thermal_zone0/temp"):
             #print("Averaged temp =", cpu_temp/1000)
         rounded = round(cpu_temp/1000, 1)
         #print("CPU temp =", rounded)
-    mqttc.publish(topic="QTD/VDGG/qtd-0w/cpu_temp", payload=rounded)
+    mqttc.publish(topic="QTD/VDGG/CPU/cpu_temp", payload=rounded)
 
 def publish_gpu_temp(cmd="vcgencmd measure_temp"):
     """Publish the GPU temperature to the MQTT server."""
@@ -86,7 +86,7 @@ def publish_gpu_temp(cmd="vcgencmd measure_temp"):
     else:
         #print("GPU temp =", gpu_temp)
         pass
-    mqttc.publish(topic="QTD/VDGG/qtd-0w/gpu_temp", payload=gpu_temp)
+    mqttc.publish(topic="QTD/VDGG/CPU/gpu_temp", payload=gpu_temp)
 
 def publish_os_name():
     """Publish the OS name to the MQTT server."""
@@ -107,7 +107,7 @@ def publish_os_name():
         print("Couldn't open", fname)
         os_name += "XXXX-XX-XX"
     #print("OS name =", os_name)
-    mqttc.publish(topic="QTD/VDDG/qtd-0w/os_name", payload=os_name, retain=True)
+    mqttc.publish(topic="QTD/VDDG/CPU/os_name", payload=os_name, retain=True)
 
 def publish_cpu_info(f_name="/proc/cpuinfo"):
     """Publish the Raspberry Pi type name to the MQTT server."""
@@ -121,7 +121,7 @@ def publish_cpu_info(f_name="/proc/cpuinfo"):
             #print(line, end='')
             hw_pair = line.split()
             if len(hw_pair) >= 2:
-                topic = "QTD/VDDG/qtd-0w/"+hw_pair[0]
+                topic = "QTD/VDDG/CPU/"+hw_pair[0]
                 #print(topic)
                 mqttc.publish(topic=topic, payload=" ".join(hw_pair[2:]), retain=True)
 
@@ -141,7 +141,7 @@ def publish_disk_space(fs="/",name="root"):
         print("Running", cmd, "failed.")
     #except ValueError:
         #pass
-    mqttc.publish(topic="QTD/VDGG/qtd-0w/"+name, payload=str(full_pct))
+    mqttc.publish(topic="QTD/VDGG/CPU/"+name, payload=str(full_pct))
 
 def publish_load_avg(cmd="uptime"):
     """Publish the load average to the MQTT server."""
@@ -154,7 +154,7 @@ def publish_load_avg(cmd="uptime"):
     else:
         #print("Load average =", load)
         pass
-    mqttc.publish(topic="QTD/VDGG/qtd-0w/load", payload=load)
+    mqttc.publish(topic="QTD/VDGG/CPU/load", payload=load)
 
 publish_uname()
 publish_os_name()
@@ -165,5 +165,5 @@ while True:
     publish_cpu_temp()
     publish_load_avg()
     publish_disk_space()
-    publish_disk_space(fs="/mnt/qtd_data", name="data")
+    publish_disk_space(fs="/mnt/qtd", name="data")
     time.sleep(60)
