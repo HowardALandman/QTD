@@ -29,7 +29,7 @@ import RPi.GPIO as GPIO
 # print("RPi.GPIO version =", GPIO.VERSION)
 import spidev
 
-__version__ = '0.7b7'
+__version__ = '0.7b8'
 
 # Map of EVM board header pinout.
 # "." means No Connect, parentheses mean probably optional.
@@ -459,7 +459,9 @@ class TDC7201():
         """Close SPI, turn TDC7201 off, and wait for reset to take effect."""
         print("Turning off tdc7201.")
         GPIO.output(self.enable, GPIO.LOW)
-        time.sleep(0.1)
+        # There is no specified minimum reset time,
+        # but let's wait at least a microsecond to be safe.
+        time.sleep(0.000001)
 
     def on(self,
            force_cal=True,	# Only this works for now.
