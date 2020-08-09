@@ -35,7 +35,7 @@ Your actual hardware (wiring between RPi and chip) needs to match this setup.
 No arguments are required, but the defaults match my prototype and are somewhat arbitrary.
 You can see all assignments by calling with `verbose=True`.
 Pin numbers follow `GPIO.BOARD` conventions,
-i.e. they are the pin numbers on the 2x20 pin heeader.
+i.e. they are the pin numbers on the 2x20 pin header.
 Only 3 pins (`enable`,`trig1`,`int1`) are absolutely required;
 the others can be skipped by assigning `None` to them.
 If `osc_enable` is `None`, then there will be no signal to turn an external clock on or off; this is OK if you supply the chip clock yourself.
@@ -49,6 +49,11 @@ Note that if you start a measurement, and the chip never sees a START signal, it
 
 Takes the chip out of reset and set up various control parameters.
 
+* `retain_state` -
+Default False.
+If true, will ignore all other arguments, and instead use the same settings
+as from the previous call to `on()`.
+Behavior is undefined if there was no previous call.
 * `force_cal` -
 If `True`, will recalibrate the chip after every attempted measurement.
 This is recommended (and, in this version, required and default).
@@ -62,6 +67,7 @@ Mode 1 is recommended for times less than 2000 nS; mode 2 for greater.
 If `True`, sets the chip to trigger on falling edges of START and STOP.
 The default is `False`, which has it trigger on rising edges.
 * `calibration2_periods` - The number of clock cycles to recalibrate for. The allowed values are 2, 10 (hardware default), 20, and 40.
+If you specify any other value, will round up (if below 40) or down (if above 40) to the next legal value.
 * `avg_cycles` -
 The number of measurements to average over.
 The allowed values are 1, 2, 4, 8, 16, 32, 64, and 128.
@@ -82,7 +88,7 @@ Default (and maximum) is 65535 = 0xFFFF.
 Note that `clock_cntr_ovf` must be greater than `clock_cntr_stop`,
 or the measurement will time out before it begins accepting stop pulses.
 
-    measure(simulate=False)
+    measure(simulate=False,error_prefix='',log_file=None)
 
 Runs a single measurement, polling the chip INT1 pin until it indicates completion.
 (This should really be an interrupt.)
@@ -93,10 +99,15 @@ If `simulate=True`, then generates START and/or STOP signals to send to the chip
 this requires that the appropriate RPi pins be connected to START and/or STOP,
 and that `initGPIO()` not be called with `start=None` or `stop=None` respectively.
 (Simulate does not currently work with averaging.)
+The `error_prefix` string will be prepended to any error messages from this call to `measure()`;
+this allows you to easily identify which call had the problem.
+If `log_file` is an already-open file handle,
+will write any error messages to that file instead of printing them.
 
     off()
 
-Asserts reset. This will terminate any measurement in progress,
+Asserts reset and waits 1 uS for it to take effect.
+This will terminate any measurement in progress,
 and make the chip unresponsive to SPI until the next call to on().
 
     clear_status(verbose=False,force=False)
@@ -106,11 +117,11 @@ This isn't supposed to be necessary, but I was having problems without doing it.
 If `verbose==True`, prints detailed step-by-step results for debugging.
 If `force==True`, tries to clear all IS bits even if some or all of them appear not to be set.
 
-    set_SPI_clock_speed(speed)
+    set_SPI_clock_speed(speed,force=False)
 
 Attempts to set the SPI interface clock speed to `speed` (in Hz).
 Minimum legal value is 50000 (50 kHz), spec maximum is 25000000 (25 MHz),
-and highest "overclocked" speed we've seen work is 33000000 (33 MHz).
+and highest "overclocked" speed we've seen work is 33300000 (33.3 MHz).
 The SPI clock is a hardware division of the CPU clock, so there are two important things to note.
 (1) The exact clock speed set may be restricted (by hardware) to only certain values in that range, so you may not get exactly what you ask for.
 (2) The SPI clock will slow down or speed up if the CPU clock does (for example, for thermal management, turbo mode, or due to user over- or under-clocking of the Raspberry Pi).
@@ -119,6 +130,10 @@ Therefore, it's probably a bad idea to overclock the SPI speed
 if you know that your CPU will also be overclocked,
 since that might result in a speed that doesn't work.
 But all this should mostly be invisible to the user, as it only affects SPI communication speed, and does not affect performance of the TDC7201 measurements (unless the TDC7201 is also being clocked by some submultiple of the Pi clock, which is a really really bad idea).
+If `force=False`, values in the spec range are silent,
+and overclocking up to 33.3 MHz is allowed with a warning.
+If `force=True`, all speeds are allowed with a warning.
+This should only be used for testing, not production.
 
 The casual user should be able to get by with only the above methods; the following low-level methods give more detailed access to the hardware, but you'll need to know what you're doing.
 
@@ -131,6 +146,11 @@ This only makes sense for 8-bit registers (addresses 0 through 9).
 
 Read a single 8-bit value from an 8-bit chip register.
 This only makes sense for 8-bit registers (addresses 0 through 9).
+
+    write16(reg,val)
+
+Write a 16-bit value to a pair of 8-bit registers.
+This only makes sense if reg is COARSE_CNTR_OVF_H (4), CLOCK_CNTR_OVF_H (6), or CLOCK_CNTR_STOP_MASK_H (8).
 
     read16(reg)
 
@@ -184,9 +204,14 @@ Check how many pulses we got, and compute the TOF for each pulse.
 
     cleanup()
 
-Close the SPI device and free all the GPIO pins.
+Put the TDC7201 into reset, close the SPI device, and free all the GPIO pins.
+Should normally only be called just before exiting.
+The tdc object will still exist,
+but you would have to manually reopen tdc._spi and set its parameters,
+plus call `initGPIO()` and `on()`,
+before it would be usable again.
 
     exit()
 
-Clean up the SPI and GPIO pins, and then exit.
+Clean up the SPI and GPIO pins (i.e. call `cleanup()`), and then exit.
 
