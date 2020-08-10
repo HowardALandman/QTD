@@ -94,7 +94,7 @@ Runs a single measurement, polling the chip INT1 pin until it indicates completi
 (This should really be an interrupt.)
 Will time out after 0.1 seconds if measurement doesn't complete.
 If it does complete, calls `read_regs24()` and `compute_tofs()` so that both raw and processed data are available.
-* If `simulate=True`, then generates START and/or STOP signals to send to the chip
+If `simulate=True`, then generates START and/or STOP signals to send to the chip
 (for testing when your actual signal source is not yet available);
 this requires that the appropriate RPi pins be connected to START and/or STOP,
 and that `initGPIO()` not be called with `start=None` or `stop=None` respectively.
