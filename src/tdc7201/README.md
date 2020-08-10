@@ -99,9 +99,9 @@ If it does complete, calls `read_regs24()` and `compute_tofs()` so that both raw
 this requires that the appropriate RPi pins be connected to START and/or STOP,
 and that `initGPIO()` not be called with `start=None` or `stop=None` respectively.
 (Simulate does not currently work with averaging.)
-* The `error_prefix` string will be prepended to any error messages from this call to `measure()`;
+The `error_prefix` string will be prepended to any error messages from this call to `measure()`;
 this allows you to easily identify which call had the problem.
-* If `log_file` is an already-open file handle,
+If `log_file` is an already-open file handle,
 will write any error messages to that file instead of printing them.
 
     off()
@@ -114,8 +114,8 @@ and make the chip unresponsive to SPI until the next call to on().
 
 Clears any set interrupt status register bits to prepare for next measurement.
 This isn't supposed to be necessary, but I was having problems without doing it.
-* If `verbose==True`, prints detailed step-by-step results for debugging.
-* If `force==True`, tries to clear all IS bits even if some or all of them appear not to be set.
+If `verbose==True`, prints detailed step-by-step results for debugging.
+If `force==True`, tries to clear all IS bits even if some or all of them appear not to be set.
 
     set_SPI_clock_speed(speed,force=False)
 
