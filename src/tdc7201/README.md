@@ -50,8 +50,8 @@ Note that if you start a measurement, and the chip never sees a START signal, it
 Takes the chip out of reset and set up various control parameters.
 
 * `retain_state` -
-Default False.
-If true, will ignore all other arguments, and instead use the same settings
+Default `False`.
+If `True`, will ignore all other arguments, and instead use the same settings
 as from the previous call to `on()`.
 Behavior is undefined if there was no previous call.
 * `force_cal` -
@@ -94,14 +94,14 @@ Runs a single measurement, polling the chip INT1 pin until it indicates completi
 (This should really be an interrupt.)
 Will time out after 0.1 seconds if measurement doesn't complete.
 If it does complete, calls `read_regs24()` and `compute_tofs()` so that both raw and processed data are available.
-If `simulate=True`, then generates START and/or STOP signals to send to the chip
+* If `simulate=True`, then generates START and/or STOP signals to send to the chip
 (for testing when your actual signal source is not yet available);
 this requires that the appropriate RPi pins be connected to START and/or STOP,
 and that `initGPIO()` not be called with `start=None` or `stop=None` respectively.
 (Simulate does not currently work with averaging.)
-The `error_prefix` string will be prepended to any error messages from this call to `measure()`;
+* The `error_prefix` string will be prepended to any error messages from this call to `measure()`;
 this allows you to easily identify which call had the problem.
-If `log_file` is an already-open file handle,
+* If `log_file` is an already-open file handle,
 will write any error messages to that file instead of printing them.
 
     off()
@@ -114,8 +114,8 @@ and make the chip unresponsive to SPI until the next call to on().
 
 Clears any set interrupt status register bits to prepare for next measurement.
 This isn't supposed to be necessary, but I was having problems without doing it.
-If `verbose==True`, prints detailed step-by-step results for debugging.
-If `force==True`, tries to clear all IS bits even if some or all of them appear not to be set.
+* If `verbose==True`, prints detailed step-by-step results for debugging.
+* If `force==True`, tries to clear all IS bits even if some or all of them appear not to be set.
 
     set_SPI_clock_speed(speed,force=False)
 
@@ -130,7 +130,7 @@ Therefore, it's probably a bad idea to overclock the SPI speed
 if you know that your CPU will also be overclocked,
 since that might result in a speed that doesn't work.
 But all this should mostly be invisible to the user, as it only affects SPI communication speed, and does not affect performance of the TDC7201 measurements (unless the TDC7201 is also being clocked by some submultiple of the Pi clock, which is a really really bad idea).
-If `force=False`, values in the spec range are silent,
+* If `force=False`, values in the spec range are silent,
 and overclocking up to 33.3 MHz is allowed with a warning.
 If `force=True`, all speeds are allowed with a warning.
 This should only be used for testing, not production.
@@ -150,12 +150,12 @@ This only makes sense for 8-bit registers (addresses 0 through 9).
     write16(reg,val)
 
 Write a 16-bit value to a pair of 8-bit registers.
-This only makes sense if reg is COARSE_CNTR_OVF_H (4), CLOCK_CNTR_OVF_H (6), or CLOCK_CNTR_STOP_MASK_H (8).
+This only makes sense if reg is `COARSE_CNTR_OVF_H` (4), `CLOCK_CNTR_OVF_H` (6), or `CLOCK_CNTR_STOP_MASK_H` (8).
 
     read16(reg)
 
 Read a pair of 8-bit registers and return them as a 16-bit value.
-This only makes sense if reg is COARSE_CNTR_OVF_H (4), CLOCK_CNTR_OVF_H (6), or CLOCK_CNTR_STOP_MASK_H (8).
+This only makes sense if reg is `COARSE_CNTR_OVF_H` (4), `CLOCK_CNTR_OVF_H` (6), or `CLOCK_CNTR_STOP_MASK_H` (8).
 
     write24(reg,val)
 
@@ -184,7 +184,7 @@ This is much faster than looping over the registers in Python.
 Read all of the side 1 chip registers (including measurement results) into the tdc.reg1 list.
 (It should be possible to make this read the side 2 registers, but it doesn't yet.)
 This is much faster than looping over the registers in Python.
-Equivalent to read_regs8() plus read_regs24().
+Equivalent to `read_regs8()` plus `read_regs24()`.
 
     print_regs1()
 
@@ -207,7 +207,7 @@ Check how many pulses we got, and compute the TOF for each pulse.
 Put the TDC7201 into reset, close the SPI device, and free all the GPIO pins.
 Should normally only be called just before exiting.
 The tdc object will still exist,
-but you would have to manually reopen tdc._spi and set its parameters,
+but you would have to manually reopen `tdc._spi` and set its parameters,
 plus call `initGPIO()` and `on()`,
 before it would be usable again.
 
