@@ -29,7 +29,7 @@ import RPi.GPIO as GPIO
 # print("RPi.GPIO version =", GPIO.VERSION)
 import spidev
 
-__version__ = '0.7b9'
+__version__ = '0.8b0'
 
 # Map of EVM board header pinout.
 # "." means No Connect, parentheses mean probably optional.
