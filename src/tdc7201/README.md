@@ -45,7 +45,8 @@ If you are hooked up to real signals to measure, then you can and should set `st
 The `start` pin is only required if you want the Raspberry Pi to generate a START signal; this could be hooked directly to the chip START, or used to trigger some external hardware.
 Note that if you start a measurement, and the chip never sees a START signal, it will hang indefinitely waiting for one.
 
-    on(force_cal=True,meas_mode=2,falling=False,calibration2_periods=10,avg_cycles=1,num_stop=1,clock_cntr_stop=0,clock_cntr_ovf=0xFFFF,timeout=None)
+    on(force_cal=True,meas_mode=2,trig_falling=False,falling=False,
+calibration2_periods=10,avg_cycles=1,num_stop=1,clock_cntr_stop=0,clock_cntr_ovf=0xFFFF,timeout=None)
 
 Takes the chip out of reset and set up various control parameters.
 
@@ -63,6 +64,9 @@ with timeouts and some other results considered unsuccessful.
 * `meas_mode` -
 Sets the measurement mode.
 Mode 1 is recommended for times less than 2000 nS; mode 2 for greater.
+* `trig_falling` -
+If `True`, sets the chip to use falling edge on TRIG to indicate chip is ready.
+The default is `False`, which has it use rising edge on TRIG.
 * `falling` -
 If `True`, sets the chip to trigger on falling edges of START and STOP.
 The default is `False`, which has it trigger on rising edges.
