@@ -29,7 +29,7 @@ import RPi.GPIO as GPIO
 # print("RPi.GPIO version =", GPIO.VERSION)
 import spidev
 
-__version__ = '0.8b1'
+__version__ = '0.8b2'
 
 # Map of EVM board header pinout.
 # "." means No Connect, parentheses mean probably optional.
@@ -466,6 +466,7 @@ class TDC7201():
     def on(self,
            force_cal=True,	# Only this works for now.
            meas_mode=2,
+           trig_falling=False,	# HW reset default
            falling=False,	# HW reset default
            calibration2_periods=10,	# HW reset default
            avg_cycles=1,	# no averaging, HW reset default
@@ -493,6 +494,9 @@ class TDC7201():
             if force_cal:
                 cf1_state |= self._CF1_FORCE_CAL
                 print("Set forced calibration.")
+            if trig_falling:
+                cf1_state |= self._CF1_TRIGG_EDGE
+                print("Set TRIG1 to use falling edge.")
             if falling:
                 cf1_state |= self._CF1_STOP_EDGE
                 cf1_state |= self._CF1_START_EDGE
@@ -852,8 +856,16 @@ class TDC7201():
             # Try to fix it
             self.clear_status()
             return 13
-        if GPIO.input(self.trig1):
-            err_str = error_prefix + "ERROR: TRIG1 already active (high)."
+        # TRIG should be low if rising-edge, high if falling-edge
+        trig_falling = (self.reg1[self.CONFIG1] & self._CF1_TRIGG_EDGE) > 0
+        trig_error = False
+        if GPIO.input(self.trig1) and not trig_falling:
+            err_str = error_prefix + "ERROR: TRIG1 should be low."
+            trig_error = True
+        elif not GPIO.input(self.trig1) and trig_falling:
+            err_str = error_prefix + "ERROR: TRIG1 should be high."
+            trig_error = True
+        if trig_error:
             if log_file:
                 log_file.write(err_str+'\n')
             else:
@@ -875,14 +887,26 @@ class TDC7201():
             else:
                 print(err_str)
             return 11
+        timed_out = False
+        timeout = time.time() + 0.1	#Don't wait longer than a tenth of a second.
         #print("Starting measurement.")
         self.write8(self.CONFIG1, cf1|self._CF1_START_MEAS)
-        # Wait for TRIG1. This is inefficient, but OK for now.
-        timeout = time.time() + 0.1	#Don't wait longer than a tenth of a second.
-        while (not GPIO.input(self.trig1)) and (time.time() < timeout):
-            pass
-        if not GPIO.input(self.trig1):
-            err_str = error_prefix + "ERROR: Timed out waiting for trigger to rise."
+        # Wait for edge on TRIG1.
+        if trig_falling:
+            while (GPIO.input(self.trig1)):
+                if (time.time() > timeout):
+                    timed_out = True
+                    break
+        else:
+            while (not GPIO.input(self.trig1)):
+                if (time.time() > timeout):
+                    timed_out = True
+                    break
+        if timed_out:
+            if trig_falling:
+                err_str = error_prefix + "ERROR: Timed out waiting for TRIG1 to fall."
+            else:
+                err_str = error_prefix + "ERROR: Timed out waiting for TRIG1 to rise."
             if log_file:
                 log_file.write(err_str+'\n')
             else:
@@ -912,20 +936,9 @@ class TDC7201():
             #time.sleep(0.000001)
             GPIO.output(self.start, GPIO.LOW)
             #print("Generated START pulse.")
-        # Wait for TRIG1 to fall. This is inefficient, but OK for now.
-        timeout = time.time() + 0.1	#Don't wait longer than a tenth of a second.
-        while (GPIO.input(self.trig1)) and (time.time() < timeout):
-            pass
-        if GPIO.input(self.trig1):
-            err_str = error_prefix + "ERROR: Timed out waiting for trigger to fall."
-            if log_file:
-                log_file.write(err_str+'\n')
-            else:
-                print(err_str)
-            return 8
-        #else:
-        #    #print("TRIG1 fell as expected.")
-        #    pass
+        # We used to wait here for TRIG to return to inactive state,
+        # but the chip spec doesn't specify the timing of that behavior.
+        # Deleted that check. Hope it's OK.
         if simulate and self.stop is not None:
             # Send 0 to NSTOP pulses. FOR TESTING ONLY.
             n_stop = (self.reg1[self.CONFIG2] & self._CF2_NUM_STOP) + 1
