@@ -45,8 +45,7 @@ If you are hooked up to real signals to measure, then you can and should set `st
 The `start` pin is only required if you want the Raspberry Pi to generate a START signal; this could be hooked directly to the chip START, or used to trigger some external hardware.
 Note that if you start a measurement, and the chip never sees a START signal, it will hang indefinitely waiting for one.
 
-    on(force_cal=True,meas_mode=2,trig_falling=False,falling=False,
-calibration2_periods=10,avg_cycles=1,num_stop=1,clock_cntr_stop=0,clock_cntr_ovf=0xFFFF,timeout=None)
+    on(force_cal=True,meas_mode=2,trig_falling=False,falling=False,calibration2_periods=10,avg_cycles=1,num_stop=1,clock_cntr_stop=0,clock_cntr_ovf=0xFFFF,timeout=None)
 
 Takes the chip out of reset and set up various control parameters.
 
