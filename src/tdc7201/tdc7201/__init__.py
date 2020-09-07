@@ -29,7 +29,7 @@ import RPi.GPIO as GPIO
 # print("RPi.GPIO version =", GPIO.VERSION)
 import spidev
 
-__version__ = '0.8b3'
+__version__ = '0.8b4'
 
 # Map of EVM board header pinout.
 # "." means No Connect, parentheses mean probably optional.
@@ -609,10 +609,11 @@ class TDC7201():
         # CLOCK_CNTR_STOP
         if retain_state:
             clock_cntr_stop = self.reg1[self.CLOCK_CNTR_STOP_MASK]
-        if clock_cntr_stop > 0:
-            self.write16(self.CLOCK_CNTR_STOP_MASK_H, clock_cntr_stop)
+        else:
             print("Skipping STOP pulses for", clock_cntr_stop, "clock periods =",
                   clock_cntr_stop*self.clockPeriod, "S")
+        if clock_cntr_stop > 0:
+            self.write16(self.CLOCK_CNTR_STOP_MASK_H, clock_cntr_stop)
             result = self.read16(self.CLOCK_CNTR_STOP_MASK_H)
             if result != clock_cntr_stop:
                 print("Couldn't set CLOCK_CNTR_STOP_MASK.")
@@ -626,7 +627,7 @@ class TDC7201():
         if retain_state:
             ovf = self.reg1[self.CLOCK_CNTR_OVF]
             timeout = ovf * self.clockPeriod
-            print("Setting overflow timeout from retained state:", ovf, "=", timeout, "S.")
+            #print("Setting overflow timeout from retained state:", ovf, "=", timeout, "S.")
         elif timeout is None:
             ovf = clock_cntr_ovf
             timeout = clock_cntr_ovf * self.clockPeriod
