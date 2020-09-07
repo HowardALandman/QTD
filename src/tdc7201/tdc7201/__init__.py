@@ -29,7 +29,7 @@ import RPi.GPIO as GPIO
 # print("RPi.GPIO version =", GPIO.VERSION)
 import spidev
 
-__version__ = '0.8b2'
+__version__ = '0.8b3'
 
 # Map of EVM board header pinout.
 # "." means No Connect, parentheses mean probably optional.
@@ -625,12 +625,15 @@ class TDC7201():
         # Set overflow timeout.
         if retain_state:
             ovf = self.reg1[self.CLOCK_CNTR_OVF]
-            timeout = clock_cntr_ovf * self.clockPeriod
+            timeout = ovf * self.clockPeriod
+            print("Setting overflow timeout from retained state:", ovf, "=", timeout, "S.")
         elif timeout is None:
             ovf = clock_cntr_ovf
             timeout = clock_cntr_ovf * self.clockPeriod
+            print("Setting overflow timeout from clock_cntr_ovf:", ovf, "=", timeout, "S.")
         else:
             ovf = int(timeout / self.clockPeriod)
+            print("Setting overflow timeout from timeout:", ovf, "=", timeout, "S.")
         if (meas_mode == 2) and (timeout < 0.000002):
             print("WARNING: Timeout < 2000 nS and meas_mode == 2.")
             print("Maybe measurement mode 1 would be better?")
@@ -645,7 +648,7 @@ class TDC7201():
         if ovf > 0xFFFF:
             print("FATAL: clock_cntr_ovf exceeds max of 0xFFFF.")
             self.exit()
-        print("Setting timeout to", 1000000*timeout, "uS =", ovf, "clock periods.")
+        self.reg1[self.CLOCK_CNTR_OVF] = ovf
         self.write16(self.CLOCK_CNTR_OVF_H, ovf)
         result = self.read16(self.CLOCK_CNTR_OVF_H)
         if result != ovf:
@@ -848,7 +851,7 @@ class TDC7201():
         """
         # Check GPIO state doesn't indicate a measurement is happening.
         if not GPIO.input(self.int1):
-            err_str = error_prefix + "WARNING: INT1 already active (low)."
+            err_str = error_prefix + "ERROR 13: INT1 already active (low)."
             if log_file:
                 log_file.write(err_str+'\n')
             else:
@@ -856,68 +859,70 @@ class TDC7201():
             # Try to fix it
             self.clear_status()
             return 13
-        # TRIG should be low if rising-edge, high if falling-edge
-        trig_falling = (self.reg1[self.CONFIG1] & self._CF1_TRIGG_EDGE) > 0
-        trig_error = False
-        if GPIO.input(self.trig1) and not trig_falling:
-            err_str = error_prefix + "ERROR: TRIG1 should be low."
-            trig_error = True
-        elif not GPIO.input(self.trig1) and trig_falling:
-            err_str = error_prefix + "ERROR: TRIG1 should be high."
-            trig_error = True
-        if trig_error:
-            if log_file:
-                log_file.write(err_str+'\n')
-            else:
-                print(err_str)
-            # This is a very serious error that means the chip is wedged.
-            # Clearing the status register does NOT fix it.
-            # Only hope is to reset the chip.
-            self.off()
-            self.on(retain_state=True)
-            return 12
+        # TRIG should be low if rising-edge, high if falling-edge.
+        # Don't check this is trig1 is set to None.
+        if self.trig1:
+            trig_falling = (self.reg1[self.CONFIG1] & self._CF1_TRIGG_EDGE) > 0
+            trig_error = False
+            if GPIO.input(self.trig1) and not trig_falling:
+                err_str = error_prefix + "ERROR 12: TRIG1 should be low."
+                trig_error = True
+            elif not GPIO.input(self.trig1) and trig_falling:
+                err_str = error_prefix + "ERROR 12: TRIG1 should be high."
+                trig_error = True
+            if trig_error:
+                if log_file:
+                    log_file.write(err_str+'\n')
+                else:
+                    print(err_str)
+                # This is a very serious error that means the chip is wedged.
+                # Clearing the status register does NOT fix it.
+                # Only hope is to reset the chip.
+                self.off()
+                self.on(retain_state=True)
+                return 12
         # To start measurement, need to set START_MEAS in TDCx_CONFIG1 register.
         # First read current value.
         cf1 = self.read8(self.CONFIG1)
         # Check it's not already set.
         if cf1 & self._CF1_START_MEAS:
-            err_str = error_prefix + "ERROR: CONFIG1 already has START_MEAS bit set."
+            err_str = error_prefix + "ERROR 11: CONFIG1 already has START_MEAS bit set."
             if log_file:
                 log_file.write(err_str+'\n')
             else:
                 print(err_str)
             return 11
         timed_out = False
-        timeout = time.time() + 0.1	#Don't wait longer than a tenth of a second.
+        timeout = time.time() + 0.001	#Don't wait longer than 1 mS.
         #print("Starting measurement.")
-        self.write8(self.CONFIG1, cf1|self._CF1_START_MEAS)
-        # Wait for edge on TRIG1.
-        if trig_falling:
-            while (GPIO.input(self.trig1)):
-                if (time.time() > timeout):
-                    timed_out = True
-                    break
-        else:
-            while (not GPIO.input(self.trig1)):
-                if (time.time() > timeout):
-                    timed_out = True
-                    break
-        if timed_out:
+        #self.write8(self.CONFIG1, cf1|self._CF1_START_MEAS)
+        self.write8(self.CONFIG1, self.reg1[self.CONFIG1]|self._CF1_START_MEAS)
+        # Wait for edge on TRIG1 (unless trig1 == None).
+        if self.trig1:
             if trig_falling:
-                err_str = error_prefix + "ERROR: Timed out waiting for TRIG1 to fall."
+                #print("Somehow trig_falling got set True!")
+                while (GPIO.input(self.trig1)):
+                    if (time.time() > timeout):
+                        timed_out = True
+                        break
             else:
-                err_str = error_prefix + "ERROR: Timed out waiting for TRIG1 to rise."
-            if log_file:
-                log_file.write(err_str+'\n')
-            else:
-                print(err_str)
-            return 10
-        #else:
-        #    #print("Got trigger, issuing start.")
-        #    pass
+                while (not GPIO.input(self.trig1)):
+                    if (time.time() > timeout):
+                        timed_out = True
+                        break
+            if timed_out:
+                if trig_falling:
+                    err_str = error_prefix + "ERROR 10: Timed out waiting for TRIG1 to fall."
+                else:
+                    err_str = error_prefix + "ERROR 10: Timed out waiting for TRIG1 to rise."
+                if log_file:
+                    log_file.write(err_str+'\n')
+                else:
+                    print(err_str)
+                return 10
         # Check that INT1 is inactive (high) as expected.
         if not GPIO.input(self.int1):
-            err_str = error_prefix + "ERROR: INT1 is active (low) too early!"
+            err_str = error_prefix + "ERROR 9: INT1 is active (low) too early!"
             if log_file:
                 log_file.write(err_str+'\n')
             else:
@@ -930,34 +935,39 @@ class TDC7201():
         #    pass
         # Last chance to check registers before sending START pulse?
         #print(tdc.REGNAME[tdc.CONFIG2], ":", hex(tdc.read8(tdc.CONFIG2)))
-        if simulate and self.start is not None:
-            # We got a trigger, so issue a START pulse.
-            GPIO.output(self.start, GPIO.HIGH)
-            #time.sleep(0.000001)
-            GPIO.output(self.start, GPIO.LOW)
-            #print("Generated START pulse.")
-        # We used to wait here for TRIG to return to inactive state,
-        # but the chip spec doesn't specify the timing of that behavior.
-        # Deleted that check. Hope it's OK.
-        if simulate and self.stop is not None:
-            # Send 0 to NSTOP pulses. FOR TESTING ONLY.
-            n_stop = (self.reg1[self.CONFIG2] & self._CF2_NUM_STOP) + 1
-            threshold = min(n_stop,2) / n_stop
-            for pulse in range(n_stop):
-                if random.random() < threshold:
-                    GPIO.output(self.stop, GPIO.HIGH)
-                    GPIO.output(self.stop, GPIO.LOW)
+        if simulate:
+            if self.start is not None:
+                # We got a trigger, so issue a START pulse.
+                GPIO.output(self.start, GPIO.HIGH)
+                #time.sleep(0.000000005)
+                GPIO.output(self.start, GPIO.LOW)
+                #print("Generated START pulse.")
+            # We used to wait here for TRIG to return to inactive state,
+            # but the chip spec doesn't specify the timing of that behavior.
+            # Deleted that check. Hope it's OK.
+            if self.stop is not None:
+                # Send 0 to NSTOP pulses. FOR TESTING ONLY.
+                n_stop = (self.reg1[self.CONFIG2] & self._CF2_NUM_STOP) + 1
+                upper_limit = 1 << n_stop*2
+                r = random.randrange(upper_limit)
+                while r > 0:
+                    GPIO.output(self.stop, r & 1)
+                    r >>= 1
+                GPIO.output(self.stop, 0)
+#        GPIO.wait_for_edge(self.int1, GPIO.FALLING)
         # Note that the chip may already be finished by now.
         # Therefore, GPIO.wait_for_edge() is not guaranteed to see an edge.
         # Wait for INT1. This is inefficient, but OK for now.
         # INT1 is active low.
         timeout = time.time() + 0.001	#Don't wait longer than a millisecond.
         #loops = 0
-        while ((GPIO.input(self.int1)) and (time.time() < timeout)):
-            #loops += 1
-            pass
-        if GPIO.input(self.int1):
-            err_str = error_prefix + "ERROR: Timed out waiting for INT1."
+        timed_out = False
+        while (GPIO.input(self.int1)):
+            if (time.time() > timeout):
+                timed_out = True
+                break
+        if timed_out:
+            err_str = error_prefix + "ERROR 7: Timed out waiting for INT1."
             if log_file:
                 log_file.write(err_str+'\n')
             else:
@@ -973,8 +983,8 @@ class TDC7201():
         return_code = self.compute_tofs()
         #self.clear_status()	# clear interrupts
         return return_code # 0-5 for number of pulses (< NSTOP implies timeout),
-                           # 7+ for error,
-                           # 6 currently unassigned
+                           # 8 is currently unassigned
+                           # 6-7 and 9-13 for error,
 
     def set_SPI_clock_speed(self, speed, force=False):
         """Attempt to set the SPI clock speed, within chip limits."""
