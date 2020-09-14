@@ -29,7 +29,7 @@ import RPi.GPIO as GPIO
 # print("RPi.GPIO version =", GPIO.VERSION)
 import spidev
 
-__version__ = '0.8b4'
+__version__ = '0.8b5'
 
 # Map of EVM board header pinout.
 # "." means No Connect, parentheses mean probably optional.
@@ -463,7 +463,21 @@ class TDC7201():
         # but let's wait at least a microsecond to be safe.
         time.sleep(0.000001)
 
-    def on(self,
+    def on(self):
+        """Turn TDC7201 on and set control parameters in chip registers."""
+        now = time.time()
+        print("tdc7201 enabled at", now)
+        # Turn on chip enable.
+        GPIO.output(self.enable, GPIO.HIGH)
+        # Wait 2 mS for chip to settle.
+        # SPI available in 0.1 mS.
+        # LDO is mostly settled (within 0.3%) in 0.3 mS,
+        # fully settled in 1.5 mS.
+        # Might be better to use the time configuring.
+        time.sleep(0.002)
+
+    def configure(self,
+           side=1,	# Which side of the chip to configure
            force_cal=True,	# Only this works for now.
            meas_mode=2,
            trig_falling=False,	# HW reset default
@@ -476,16 +490,6 @@ class TDC7201():
            timeout=None,	# Alternate way to specify clock overflow
            retain_state=False,	# Use existing state, ignore other arguments
           ):
-        """Turn TDC7201 on and set control parameters in chip registers."""
-        now = time.time()
-        print("tdc7201 enabled at", now)
-        # Turn on chip enable.
-        GPIO.output(self.enable, GPIO.HIGH)
-        # Wait 10 mS for chip to settle.
-        # Data sheet says only 1.5 mS required, and
-        # SPI available sooner, but we're not in a hurry.
-        time.sleep(0.01)
-
         # Configuration register 1
         if retain_state:
             cf1_state = self.reg1[self.CONFIG1]
@@ -513,17 +517,19 @@ class TDC7201():
                 print("Defaulting to measurement mode 1.")
                 cf1_state |= self._CF1_MM1
                 meas_mode = 1
-        self.write8(self.CONFIG1, cf1_state)
         self.meas_mode = meas_mode
-        # Read it back to make sure.
-        result = self.read8(self.CONFIG1)
-        if result != cf1_state:
-            print("Couldn't set CONFIG1.")
-            print(self.REGNAME[self.CONFIG1], ":", result, "=", hex(result), "=", bin(result))
-            print("Desired state:", cf1_state, "=", hex(cf1_state), "=", bin(cf1_state))
-            if result == 0:
-                print("Are you sure the TDC7201 is connected to the Pi's SPI interface?")
+        # Writing occasionally fails for unknown reasons. Repeat until success.
+        # Should usually only take 1 attempt.
+        self.reg1[self.CONFIG1] = cf1_state
+        self.write8(self.CONFIG1, cf1_state)
+        cf1_read = self.read8(self.CONFIG1)
+        if cf1_read == 0 and cf1_state != 0:
+            print("Are you sure the TDC7201 is connected to the Pi's SPI interface?")
             self.exit()
+        while cf1_read != cf1_state:
+            print("Failed to set CONFIG1.")
+            self.write8(self.CONFIG1, cf1_state)
+            cf1_read = self.read8(self.CONFIG1)
 
         # Configuration register 2
         if retain_state:
@@ -597,14 +603,33 @@ class TDC7201():
                 # Other codes (for 6, 7, 8) are invalid and give 1.
                 cf2_state |= self._CF2_NSTOP_1
                 print(num_stop, "is not a valid number of stop pulses, defaulting to 1.")
+            self.reg1[self.CONFIG2] = cf2_state
+        # Writing occasionally fails for unknown reasons. Repeat until success.
+        # Should usually only take 1 attempt.
         self.write8(self.CONFIG2, cf2_state)
-        # Read it back to make sure.
-        result = self.read8(self.CONFIG2)
-        if result != cf2_state:
-            print("Couldn't set CONFIG2.")
-            print(self.REGNAME[self.CONFIG2], ":", result, "=", hex(result), "=", bin(result))
-            print("Desired state:", cf2_state, "=", hex(cf2_state), "=", bin(cf2_state))
-            self.exit()
+        while self.read8(self.CONFIG2) != cf2_state:
+            print("Failed to set CONFIG2.")
+            self.write8(self.CONFIG2, cf2_state)
+
+        # Interrupt mask
+        if retain_state:
+            im_state = self.reg1[self.INT_MASK]
+        else:
+            if meas_mode == 1:
+                im_state = self._IM_COARSE_OVF | self._IM_MEASUREMENT
+            elif meas_mode == 2:
+                im_state = self._IM_CLOCK_OVF | self._IM_MEASUREMENT
+            else:
+                # error?
+                im_state = 0
+            self.reg1[self.INT_MASK] = im_state
+        self.write8(self.INT_MASK, im_state)
+        # Writing occasionally fails for unknown reasons. Repeat until success.
+        # Should usually only take 1 attempt.
+        self.write8(self.INT_MASK, im_state)
+        while self.read8(self.INT_MASK) != im_state:
+            print("Failed to set INT_MASK.")
+            self.write8(self.INT_MASK, im_state)
 
         # CLOCK_CNTR_STOP
         if retain_state:
@@ -612,17 +637,18 @@ class TDC7201():
         else:
             print("Skipping STOP pulses for", clock_cntr_stop, "clock periods =",
                   clock_cntr_stop*self.clockPeriod, "S")
-        if clock_cntr_stop > 0:
+            self.reg1[self.CLOCK_CNTR_STOP_MASK] = clock_cntr_stop & 0xFFFF
+            if self.reg1[self.CLOCK_CNTR_STOP_MASK] != clock_cntr_stop:
+                print("clock_cntr_stop", clock_cntr_stop, "too large, using", self.reg1[self.CLOCK_CNTR_STOP_MASK])
+            self.reg1[self.CLOCK_CNTR_STOP_MASK_H] = (clock_cntr_stop >> 8) & 0xFF
+            self.reg1[self.CLOCK_CNTR_STOP_MASK_L] = clock_cntr_stop & 0xFF
+        self.write16(self.CLOCK_CNTR_STOP_MASK_H, clock_cntr_stop)
+        # Writing occasionally fails for unknown reasons. Repeat until success.
+        # Should usually only take 1 attempt.
+        while self.read16(self.CLOCK_CNTR_STOP_MASK_H) != clock_cntr_stop:
+            print("Failed to set CLOCK_CNTR_STOP_MASK.")
             self.write16(self.CLOCK_CNTR_STOP_MASK_H, clock_cntr_stop)
-            result = self.read16(self.CLOCK_CNTR_STOP_MASK_H)
-            if result != clock_cntr_stop:
-                print("Couldn't set CLOCK_CNTR_STOP_MASK.")
-                print(self.REGNAME[self.CLOCK_CNTR_STOP_MASK], ":", result)
-                print("Desired state:", clock_cntr_stop, "=", hex(clock_cntr_stop),
-                      "=", bin(clock_cntr_stop))
-                self.exit()
-        # else: Maybe should check that chip register is zero.
-        #
+
         # Set overflow timeout.
         if retain_state:
             ovf = self.reg1[self.CLOCK_CNTR_OVF]
@@ -650,13 +676,14 @@ class TDC7201():
             print("FATAL: clock_cntr_ovf exceeds max of 0xFFFF.")
             self.exit()
         self.reg1[self.CLOCK_CNTR_OVF] = ovf
+        self.reg1[self.CLOCK_CNTR_OVF_H] = (ovf >> 8) & 0xFF
+        self.reg1[self.CLOCK_CNTR_OVF_L] = ovf & 0xFF
         self.write16(self.CLOCK_CNTR_OVF_H, ovf)
-        result = self.read16(self.CLOCK_CNTR_OVF_H)
-        if result != ovf:
-            print("Couldn't set CLOCK_CNTR_OVF.")
-            print(self.REGNAME[self.CLOCK_CNTR_OVF], ":", result)
-            print("Desired state:", ovf)
-            self.exit()
+        # Writing occasionally fails for unknown reasons. Repeat until success.
+        # Should usually only take 1 attempt.
+        while self.read16(self.CLOCK_CNTR_OVF_H) != ovf:
+            print("Failed to set CLOCK_CNTR_OVF_H.")
+            self.write16(self.CLOCK_CNTR_OVF_H, ovf)
 
     def write8(self, reg, val):
         """Write one 8-bit register."""
@@ -848,7 +875,7 @@ class TDC7201():
         """Run one measurement.
            If simulate=True, also send out fake data to measure.
            Prepend error_prefix to every error message.
-           If log_file is given, write errors there.
+           If log_file is given, write errors there, else print them.
         """
         # Check GPIO state doesn't indicate a measurement is happening.
         if not GPIO.input(self.int1):
@@ -880,7 +907,8 @@ class TDC7201():
                 # Clearing the status register does NOT fix it.
                 # Only hope is to reset the chip.
                 self.off()
-                self.on(retain_state=True)
+                self.on()
+                self.configure(retain_state=True)
                 return 12
         # To start measurement, need to set START_MEAS in TDCx_CONFIG1 register.
         # First read current value.
@@ -894,7 +922,9 @@ class TDC7201():
                 print(err_str)
             return 11
         timed_out = False
-        timeout = time.time() + 0.001	#Don't wait longer than 1 mS.
+        # Don't wait more than 1 mS longer than necessary.
+        # THIS IS ONLY CORRECT FOR MM2!
+        timeout = time.time() + (self.clockPeriod * self.reg1[self.CLOCK_CNTR_OVF]) + 0.001
         #print("Starting measurement.")
         #self.write8(self.CONFIG1, cf1|self._CF1_START_MEAS)
         self.write8(self.CONFIG1, self.reg1[self.CONFIG1]|self._CF1_START_MEAS)

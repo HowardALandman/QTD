@@ -77,7 +77,7 @@ tdc = tdc7201.TDC7201()	# Create TDC object with SPI interface.
 # Set RPi pin directions and default values for non-SPI signals.
 # These should stay the same for entire run.
 # This also puts the chip into reset ("off") state.
-tdc.initGPIO(trig2=None, int2=None, start=None, stop=None)
+tdc.initGPIO(trig2=None, int2=None, stop=None)
 
 # Setting and checking clock speed.
 tdc.set_SPI_clock_speed(30000000)	# 30 MHz
@@ -96,10 +96,9 @@ publish_tdc7201_driver()
 #time.sleep(0.1)	# ensure a reasonable reset time
 #print("Time since reset asserted:", now - reset_start)
 
-# Turn the chip on.
-#tdc.on(meas_mode=2, num_stop=3, clock_cntr_stop=1, timeout=0.000135)
-tdc.on(meas_mode=2, num_stop=3, clock_cntr_stop=1, timeout=0.0002)
-#tdc.on(meas_mode=1, num_stop=2, clock_cntr_stop=1, timeout=0.0005)
+# Turn the chip on and configure it.
+tdc.on()
+tdc.configure(side=1, meas_mode=2, num_stop=3, clock_cntr_stop=1, timeout=0.00018)
 mqttc.publish(topic="QTD/VDDG/tdc7201/runstate", payload="ON")
 
 # Make sure our internal copy of the register state is up to date.
@@ -141,7 +140,7 @@ while batches != 0:
     #result_list = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     for m in range(ITERS):
         m_str = str(m) + ' '
-        result = tdc.measure(error_prefix=m_str, log_file=data_file)
+        result = tdc.measure(simulate=True, error_prefix=m_str, log_file=data_file)
         result_list[result] += 1
         if result==2:
             # Record results in microseconds
