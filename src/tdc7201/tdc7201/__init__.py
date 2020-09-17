@@ -29,7 +29,7 @@ import RPi.GPIO as GPIO
 # print("RPi.GPIO version =", GPIO.VERSION)
 import spidev
 
-__version__ = '0.8b5'
+__version__ = '0.8b6'
 
 # Map of EVM board header pinout.
 # "." means No Connect, parentheses mean probably optional.
@@ -688,7 +688,8 @@ class TDC7201():
     def write8(self, reg, val):
         """Write one 8-bit register."""
         #assert (reg >= self.MINREG8) and (reg <= self.MAXREG8)
-        self._spi.xfer([reg|self._WRITE, val&0xFF])
+        #self._spi.xfer([reg|self._WRITE, val&0xFF])
+        self._spi.xfer([reg|self._WRITE, val])
 
     def read8(self, reg):
         """Read one 8-bit register."""
@@ -748,6 +749,8 @@ class TDC7201():
         for reg in range(self.MINREG24, self.MAXREG24+1):
             # Data comes in MSB first.
             self.reg1[reg] = (result24[i] << 16) | (result24[i+1] << 8) | result24[i+2]
+            # Unfortunately, the built in method is MUCH slower.
+            #self.reg1[reg] = int.from_bytes(result24[i:i+2],byteorder='big')
             i += 3
 
     def read_regs(self):
@@ -877,16 +880,16 @@ class TDC7201():
            Prepend error_prefix to every error message.
            If log_file is given, write errors there, else print them.
         """
-        # Check GPIO state doesn't indicate a measurement is happening.
-        if not GPIO.input(self.int1):
-            err_str = error_prefix + "ERROR 13: INT1 already active (low)."
-            if log_file:
-                log_file.write(err_str+'\n')
-            else:
-                print(err_str)
-            # Try to fix it
-            self.clear_status()
-            return 13
+#        # Check GPIO state doesn't indicate a measurement is happening.
+#        if not GPIO.input(self.int1):
+#            err_str = error_prefix + "ERROR 13: INT1 already active (low)."
+#            if log_file:
+#                log_file.write(err_str+'\n')
+#            else:
+#                print(err_str)
+#            # Try to fix it
+#            self.clear_status()
+#            return 13
         # TRIG should be low if rising-edge, high if falling-edge.
         # Don't check this is trig1 is set to None.
         if self.trig1:
@@ -911,16 +914,17 @@ class TDC7201():
                 self.configure(retain_state=True)
                 return 12
         # To start measurement, need to set START_MEAS in TDCx_CONFIG1 register.
-        # First read current value.
-        cf1 = self.read8(self.CONFIG1)
-        # Check it's not already set.
-        if cf1 & self._CF1_START_MEAS:
-            err_str = error_prefix + "ERROR 11: CONFIG1 already has START_MEAS bit set."
-            if log_file:
-                log_file.write(err_str+'\n')
-            else:
-                print(err_str)
-            return 11
+        cf1 = self.reg1[self.CONFIG1]
+#        # First read current value.
+#        cf1 = self.read8(self.CONFIG1)
+#        # Check it's not already set.
+#        if cf1 & self._CF1_START_MEAS:
+#            err_str = error_prefix + "ERROR 11: CONFIG1 already has START_MEAS bit set."
+#            if log_file:
+#                log_file.write(err_str+'\n')
+#            else:
+#                print(err_str)
+#            return 11
         timed_out = False
         # Don't wait more than 1 mS longer than necessary.
         # THIS IS ONLY CORRECT FOR MM2!
