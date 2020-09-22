@@ -77,7 +77,7 @@ tdc = tdc7201.TDC7201()	# Create TDC object with SPI interface.
 # Set RPi pin directions and default values for non-SPI signals.
 # These should stay the same for entire run.
 # This also puts the chip into reset ("off") state.
-tdc.initGPIO(trig2=None, int2=None)
+tdc.initGPIO(trig2=None, int2=None, start=None, stop=None)
 
 # Setting and checking clock speed.
 tdc.set_SPI_clock_speed(30000000)	# 30 MHz
@@ -141,7 +141,7 @@ while batches != 0:
     #result_list = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     for m in range(ITERS):
         m_str = str(m) + ' '
-        result = tdc.measure(simulate=True, error_prefix=m_str, log_file=data_file)
+        result = tdc.measure(error_prefix=m_str, log_file=data_file)
         result_list[result] += 1
         if result==2:
             # Record results in microseconds
