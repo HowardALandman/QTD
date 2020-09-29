@@ -98,7 +98,8 @@ publish_tdc7201_driver()
 
 # Turn the chip on and configure it.
 tdc.on()
-tdc.configure(side=1, meas_mode=2, num_stop=3, clock_cntr_stop=1, timeout=0.00018)
+NUM_STOP = 3	# We check against this later.
+tdc.configure(side=1, meas_mode=2, num_stop=NUM_STOP, clock_cntr_stop=1, timeout=0.000260, calibration2_periods=40)
 mqttc.publish(topic="QTD/VDDG/tdc7201/runstate", payload="ON")
 
 # Make sure our internal copy of the register state is up to date.
@@ -149,8 +150,8 @@ while batches != 0:
             # as well as the computed delay between STOP1 and STOP2.
             tof_line = m_str + str(tdc.reg1[0x10:0x1C]) + ' ' + str(decay) + '\n'
             data_file.write(tof_line)
-        # Clear interrupt register bits to prepare for next measurement.
-        tdc.clear_status()
+        elif result > NUM_STOP and result <= 5:
+            print("ERROR: Too Many Pulses:", result, str(tdc.reg1[0x10:0x1C]))
     data_file.write('Tot : ' + str(result_list) + "\n")
     PAYLOAD = json.dumps(result_list)
     print(PAYLOAD)
