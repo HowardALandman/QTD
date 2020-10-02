@@ -151,7 +151,7 @@ while batches != 0:
             tof_line = m_str + str(tdc.reg1[0x10:0x1C]) + ' ' + str(decay) + '\n'
             data_file.write(tof_line)
         elif result > NUM_STOP and result <= 5:
-            print("ERROR: Too Many Pulses:", result, str(tdc.reg1[0x10:0x1C]))
+            print("ERROR: Too Many Pulses:", result, str(tdc.reg1[0x10:0x1D]))
     data_file.write('Tot : ' + str(result_list) + "\n")
     PAYLOAD = json.dumps(result_list)
     print(PAYLOAD)
