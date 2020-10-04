@@ -464,17 +464,17 @@ class TDC7201():
         time.sleep(0.000001)
 
     def on(self):
-        """Turn TDC7201 on and set control parameters in chip registers."""
+        """Turn TDC7201 on and wait for it to stabilize."""
         now = time.time()
         print("tdc7201 enabled at", now)
         # Turn on chip enable.
         GPIO.output(self.enable, GPIO.HIGH)
-        # Wait 2 mS for chip to settle.
+        # Wait for chip to settle.
         # SPI available in 0.1 mS.
         # LDO is mostly settled (within 0.3%) in 0.3 mS,
         # fully settled in 1.5 mS.
         # Might be better to use the time configuring.
-        time.sleep(0.002)
+        time.sleep(0.0015)
 
     def configure(self,
            side=1,	# Which side of the chip to configure
