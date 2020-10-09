@@ -75,26 +75,18 @@ def publish_tdc7201_driver():
 tdc = tdc7201.TDC7201()	# Create TDC object with SPI interface.
 
 # Set RPi pin directions and default values for non-SPI signals.
-# These should stay the same for entire run.
+# Pin assignments should stay the same for entire run.
 # This also puts the chip into reset ("off") state.
 tdc.initGPIO(trig2=None, int2=None, stop=None)
 
 # Setting and checking clock speed.
-tdc.set_SPI_clock_speed(30000000)	# 30 MHz
-#tdc.set_SPI_clock_speed(33300000,force=True) # max seen to work on my board
-
+tdc.set_SPI_clock_speed(25000000)	# 25 MHz is spec max
 
 # Internal timing
-#print("UNIX time settings:")
-#print("Epoch (time == 0):", time.asctime(time.gmtime(0)))
 now = time.time()
-#print("Time since epoch in seconds:", now)
-#print("Current time (UTC):", time.asctime(time.gmtime(now)))
+print("Current time (UTC):", time.asctime(time.gmtime(now)))
 print("Current time (local):", time.asctime(time.localtime(now)), time.strftime("%Z"))
-#print("Time since reset asserted:", now - reset_start)
 publish_tdc7201_driver()
-#time.sleep(0.1)	# ensure a reasonable reset time
-#print("Time since reset asserted:", now - reset_start)
 
 # Turn the chip on and configure it.
 tdc.on()
