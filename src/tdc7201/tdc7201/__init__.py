@@ -29,7 +29,7 @@ import RPi.GPIO as GPIO
 # print("RPi.GPIO version =", GPIO.VERSION)
 import spidev
 
-__version__ = '0.8b6'
+__version__ = '0.8b7'
 
 # Map of EVM board header pinout.
 # "." means No Connect, parentheses mean probably optional.
@@ -517,17 +517,20 @@ class TDC7201():
                 print("Defaulting to measurement mode 1.")
                 cf1_state |= self._CF1_MM1
                 meas_mode = 1
+            self.reg1[self.CONFIG1] = cf1_state
         self.meas_mode = meas_mode
-        # Writing occasionally fails for unknown reasons. Repeat until success.
-        # Should usually only take 1 attempt.
-        self.reg1[self.CONFIG1] = cf1_state
+        # Write+read occasionally fails when SPI is overclocked.
+        # That is, the value you read back is not what you wrote.
+        # Repeat until success.
+        # Should usually only take 1 attempt, although there are
+        # sometimes clusters of failures immediately after on().
         self.write8(self.CONFIG1, cf1_state)
         cf1_read = self.read8(self.CONFIG1)
         if cf1_read == 0 and cf1_state != 0:
             print("Are you sure the TDC7201 is connected to the Pi's SPI interface?")
             self.exit()
         while cf1_read != cf1_state:
-            print("Failed to set CONFIG1.")
+            print("Failed to set CONFIG1.", format(cf1_state, "08b"), "=>", format(cf1_read, "08b"))
             self.write8(self.CONFIG1, cf1_state)
             cf1_read = self.read8(self.CONFIG1)
 
@@ -604,12 +607,14 @@ class TDC7201():
                 cf2_state |= self._CF2_NSTOP_1
                 print(num_stop, "is not a valid number of stop pulses, defaulting to 1.")
             self.reg1[self.CONFIG2] = cf2_state
-        # Writing occasionally fails for unknown reasons. Repeat until success.
+        # Writing occasionally fails. Repeat until success.
         # Should usually only take 1 attempt.
         self.write8(self.CONFIG2, cf2_state)
-        while self.read8(self.CONFIG2) != cf2_state:
-            print("Failed to set CONFIG2.")
+        cf2_read = self.read8(self.CONFIG2)
+        while cf2_read != cf2_state:
+            print("Failed to set CONFIG2.", format(cf2_state, "08b"), "=>", format(cf2_read, "08b"))
             self.write8(self.CONFIG2, cf2_state)
+            cf2_read = self.read8(self.CONFIG2)
 
         # Interrupt mask
         if retain_state:
@@ -624,7 +629,7 @@ class TDC7201():
                 im_state = 0
             self.reg1[self.INT_MASK] = im_state
         self.write8(self.INT_MASK, im_state)
-        # Writing occasionally fails for unknown reasons. Repeat until success.
+        # Writing occasionally fails. Repeat until success.
         # Should usually only take 1 attempt.
         self.write8(self.INT_MASK, im_state)
         while self.read8(self.INT_MASK) != im_state:
@@ -643,7 +648,7 @@ class TDC7201():
             self.reg1[self.CLOCK_CNTR_STOP_MASK_H] = (clock_cntr_stop >> 8) & 0xFF
             self.reg1[self.CLOCK_CNTR_STOP_MASK_L] = clock_cntr_stop & 0xFF
         self.write16(self.CLOCK_CNTR_STOP_MASK_H, clock_cntr_stop)
-        # Writing occasionally fails for unknown reasons. Repeat until success.
+        # Writing occasionally fails. Repeat until success.
         # Should usually only take 1 attempt.
         while self.read16(self.CLOCK_CNTR_STOP_MASK_H) != clock_cntr_stop:
             print("Failed to set CLOCK_CNTR_STOP_MASK.")
@@ -679,7 +684,7 @@ class TDC7201():
         self.reg1[self.CLOCK_CNTR_OVF_H] = (ovf >> 8) & 0xFF
         self.reg1[self.CLOCK_CNTR_OVF_L] = ovf & 0xFF
         self.write16(self.CLOCK_CNTR_OVF_H, ovf)
-        # Writing occasionally fails for unknown reasons. Repeat until success.
+        # Writing occasionally fails. Repeat until success.
         # Should usually only take 1 attempt.
         while self.read16(self.CLOCK_CNTR_OVF_H) != ovf:
             print("Failed to set CLOCK_CNTR_OVF_H.")
@@ -914,11 +919,13 @@ class TDC7201():
                 self.configure(retain_state=True)
                 return 12
         # To start measurement, need to set START_MEAS in TDCx_CONFIG1 register.
-        cf1 = self.reg1[self.CONFIG1]
+        cf1_state = self.reg1[self.CONFIG1]
+        # All error 11s follow an error 7 in the previous measurement.
+        # If we can fix the error 7s, these should disappear too.
 #        # First read current value.
-#        cf1 = self.read8(self.CONFIG1)
+#        cf1_read = self.read8(self.CONFIG1)
 #        # Check it's not already set.
-#        if cf1 & self._CF1_START_MEAS:
+#        if cf1_read & self._CF1_START_MEAS:
 #            err_str = error_prefix + "ERROR 11: CONFIG1 already has START_MEAS bit set."
 #            if log_file:
 #                log_file.write(err_str+'\n')
@@ -926,14 +933,19 @@ class TDC7201():
 #                print(err_str)
 #            return 11
         timed_out = False
-        # Don't wait more than 1 mS longer than necessary.
-        # THIS IS ONLY CORRECT FOR MM2!
-        timeout = time.time() + (self.clockPeriod * self.reg1[self.CLOCK_CNTR_OVF]) + 0.001
         #print("Starting measurement.")
-        #self.write8(self.CONFIG1, cf1|self._CF1_START_MEAS)
-        self.write8(self.CONFIG1, self.reg1[self.CONFIG1]|self._CF1_START_MEAS)
+        cf1_write = cf1_state | self._CF1_START_MEAS
+        self.write8(self.CONFIG1, cf1_write)
+#        # Double check to help debug error 7s.
+#        # THIS NEVER HAPPENS (except sometimes when SPI is overclocked above 28.5 MHz).
+#        cf1_read = self.read8(self.CONFIG1)
+#        if cf1_read != cf1_write:
+#            print("ERROR 10.5: Measurement start error:", format(cf1_write, "08b"), "=>", format(cf1_read, "08b"))
         # Wait for edge on TRIG1 (unless trig1 == None).
         if self.trig1:
+            # Don't wait more than 0.5 mS.
+            # THIS IS ONLY CORRECT FOR MM2!
+            timeout = time.time() + 0.0005
             if trig_falling:
                 #print("Somehow trig_falling got set True!")
                 while (GPIO.input(self.trig1)):
@@ -955,19 +967,18 @@ class TDC7201():
                 else:
                     print(err_str)
                 return 10
-        # Check that INT1 is inactive (high) as expected.
-        if not GPIO.input(self.int1):
-            err_str = error_prefix + "ERROR 9: INT1 is active (low) too early!"
-            if log_file:
-                log_file.write(err_str+'\n')
-            else:
-                print(err_str)
-            # Try to fix it
-            self.clear_status()
-            return 9
-        #else:
-        #    #print("INT1 is inactive (high) as expected.")
-        #    pass
+# NEVER HAPPENS
+#        # Check that INT1 is inactive (high) as expected.
+#        if not GPIO.input(self.int1):
+#            err_str = error_prefix + "ERROR 9: INT1 is active (low) too early!"
+#            if log_file:
+#                log_file.write(err_str+'\n')
+#            else:
+#                print(err_str)
+#            # Try to fix it
+#            self.clear_status()
+#            return 9
+
         # Last chance to check registers before sending START pulse?
         #print(tdc.REGNAME[tdc.CONFIG2], ":", hex(tdc.read8(tdc.CONFIG2)))
         if simulate:
@@ -977,6 +988,7 @@ class TDC7201():
                 #time.sleep(0.000000005)
                 GPIO.output(self.start, GPIO.LOW)
                 #print("Generated START pulse.")
+            # former error 8 code:
             # We used to wait here for TRIG to return to inactive state,
             # but the chip spec doesn't specify the timing of that behavior.
             # Deleted that check. Hope it's OK.
@@ -994,8 +1006,11 @@ class TDC7201():
         # Therefore, GPIO.wait_for_edge() is not guaranteed to see an edge.
         # Wait for INT1. This is inefficient, but OK for now.
         # INT1 is active low.
-        timeout = time.time() + 0.001	#Don't wait longer than a millisecond.
-        #loops = 0
+        # I tried not having a timeout here, but unfortunately,
+        # about 1 in every 20 million measurements actually does hang forever.
+        # Having the timeout time be fairly long does NOT significantly hurt
+        # performance, since the longer INT1 timings are extremely rare.
+        timeout = time.time() + (self.clockPeriod * self.reg1[self.CLOCK_CNTR_OVF]) + 0.009
         timed_out = False
         while (GPIO.input(self.int1)):
             if (time.time() > timeout):
@@ -1003,15 +1018,16 @@ class TDC7201():
                 break
         if timed_out:
             err_str = error_prefix + "ERROR 7: Timed out waiting for INT1."
+#            # Let's debug this sucker.
+#            cf1_state = self.reg1[self.CONFIG1]
+#            cf1_read = self.read8(self.CONFIG1)
+#            print(error_prefix+"ERROR 7: INT1 timeout:", format(cf1_state, "08b"), "=>", format(cf1_read, "08b"))
             if log_file:
                 log_file.write(err_str+'\n')
             else:
                 print(err_str)
             return 7
-        #else:
-        #    #print("Got measurement-complete interrupt.")
-        #    #print("Looped", loops, "times") # typically 0 to 24 times
-        #    pass
+
         # Read everything in and see what we got.
         #print("Reading chip side #1 register state:")
         self.read_regs24()
@@ -1023,11 +1039,31 @@ class TDC7201():
 
     def set_SPI_clock_speed(self, speed, force=False):
         """Attempt to set the SPI clock speed, within chip limits."""
+        # Spec max for SPI clock is 25 MHz.
+        # However, this can be overclocked a little,
+        # and we want to allow that for research purposes.
+        # On my board, 33.4 MHz and higher fails completely.
+        # 29.0 to 33.3 MHz works almost all the time,
+        # but I see occasional clusters of SPI errors,
+        # especially right after coming out of reset.
+        # These manifest as unreliable write-read, e.g.
+        # you write a single 8-bit register and read it back
+        # and get something different from what you wrote.
+        # The differences tend to look approximately like
+        # read_value = write_value | (write_value >> 1),
+        # for example you might write 01000010 and then
+        # read back 01100011 or maybe 01100010. It is
+        # not clear to me yet whether this corresponds
+        # to write errors, read errors, or some of both;
+        # I suspect some of both. I have never seen a written 1
+        # turn into a read 0, or a written 00 turn into read 01.
+        # Anyway, the above is why I set the limits below the way I do.
 
         # Force=True bypasses all the sanity checks (for testing).
         if force:
             self._spi.max_speed_hz = speed
-            print("WARNING: forcing SPI clock speed to", speed)
+            if speed > self._maxSPIspeed:
+                print("WARNING: forcing SPI clock speed to", speed, "Hz.")
             return
 
         # Check against minimum.
@@ -1037,18 +1073,19 @@ class TDC7201():
             speed = self._minSPIspeed
 
         # Check against maximum.
-        # 25 MHz is spec max for the chip, but probably Rpi can't set that exactly.
-        # Testing with my board, up to 33.3 MHz worked OK but 33.4 MHz failed.
-        abs_max = 33300000	# highest seen to work in actual testing
+        abs_max = 33300000	# highest seen to work at all
+        safe_max = 28500000	# highest seen to work with zero write-read errors
         if speed > self._maxSPIspeed:
             if speed > abs_max:
                 print("WARNING: SPI clock speed", speed,
-                      "is way too high, using", abs_max, "instead.")
+                      "Hz is way too high, using", abs_max, "Hz instead.")
                 speed = abs_max
+            if speed > safe_max:
+                print("WARNING: SPI clock speed", speed,
+                      "Hz may cause occasional write or read errors.")
             print("WARNING: SPI clock speed", speed,
-                  "is above maximum rated speed of", self._maxSPIspeed, "Hz.")
-            print("This may improve performance but is not guaranteed to work.")
-        print("Setting SPI clock speed to", speed/1000000, "MHz.")
+                  "Hz is above maximum rated speed of", self._maxSPIspeed, "Hz.")
+        print("Setting SPI clock speed to", speed/1000000.0, "MHz.")
         self._spi.max_speed_hz = speed
 
     def cleanup(self):
