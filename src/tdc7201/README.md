@@ -14,7 +14,8 @@ import tdc7201
 tdc = tdc7201.TDC7201() # Create TDC object with SPI interface.
 tdc.initGPIO() # Set pin directions and default values for non-SPI signals.
 tdc.set_SPI_clock_speed(12500000)
-tdc.on(meas_mode=2,num_stop=3,clock_cntr_stop=1,timeout=0.0005)
+tdc.on()
+tdc.configure(meas_mode=2,num_stop=3,clock_cntr_stop=1,timeout=0.0005)
 status = tdc.measure(simulate=True)
 tdc.off()
 ```
