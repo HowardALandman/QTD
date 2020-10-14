@@ -154,7 +154,6 @@ while batches != 0:
     #print((ITERS/DURATION), "measurements per second")
     #print((DURATION/ITERS), "seconds per measurement")
     pulse_pair_rate = result_list[2] / DURATION
-    print(pulse_pair_rate, "valid measurements per second")
     # MQTT "payload" = entire message, but
     # node-red "payload" = field inside message.
     # It's confusing.
@@ -166,6 +165,7 @@ while batches != 0:
     data_file.close()
     print(cum_results)
     #print('Memory usage: %s (kb)' % resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
+    print(pulse_pair_rate, "valid measurements per second")
 
     batches -= 1
 

@@ -803,7 +803,7 @@ class TDC7201():
                           / (self.cal_pers - 1))
         #print("cal_count:", self.cal_count)
         if self.cal_count == 0:
-            print("No calibration, therefore can't compute timing.")
+            #print("No calibration, therefore can't compute timing.")
             return 6	# No calibration, therefore can't compute timing.
         self.norm_lsb = self.clockPeriod / self.cal_count
         #print("clockPeriod:", self.clockPeriod)

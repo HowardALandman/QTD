@@ -23,9 +23,8 @@ tdc.off()
 ## Settings
 
 Hardware pin assignments are done in `initGPIO()`, which should only be called once.
-Most other important parameters are set in the `on()` method,
-since the chip can only be reconfigured after it has come out of reset.
-If you want to change parameters, it is cleanest to turn the chip `off()`, and then `on()` again with the new parameters.
+Most other important parameters are set in the `configure()` method;
+note that the chip can only be (re)configured while it is on.
 
 ## Methods
 
