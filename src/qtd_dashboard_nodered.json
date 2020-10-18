@@ -198,15 +198,15 @@
         "title": "CPU Temperature",
         "label": "°C",
         "format": "{{value}}",
-        "min": "25",
-        "max": "80",
+        "min": "30",
+        "max": "70",
         "colors": [
             "#00b500",
             "#e6e600",
             "#ca3838"
         ],
-        "seg1": "50",
-        "seg2": "70",
+        "seg1": "48",
+        "seg2": "54",
         "x": 470,
         "y": 80,
         "wires": []
@@ -254,15 +254,15 @@
         "useOneColor": false,
         "useUTC": false,
         "colors": [
-            "#404040",
+            "#323232",
             "#8c0000",
-            "#22c822",
-            "#afaf00",
-            "#cd5000",
-            "#ff0000",
-            "#ff9896",
-            "#9467bd",
-            "#c5b0d5"
+            "#1ed01e",
+            "#bcbc00",
+            "#d85600",
+            "#ff0808",
+            "#ff80ff",
+            "#814eff",
+            "#0000ff"
         ],
         "useOldStyle": false,
         "outputs": 1,
