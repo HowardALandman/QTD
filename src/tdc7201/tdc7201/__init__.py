@@ -29,7 +29,7 @@ import RPi.GPIO as GPIO
 # print("RPi.GPIO version =", GPIO.VERSION)
 import spidev
 
-__version__ = '0.8b7'
+__version__ = '0.10.0'	# Use SemVer style version numbers
 
 # Map of EVM board header pinout.
 # "." means No Connect, parentheses mean probably optional.
@@ -943,25 +943,18 @@ class TDC7201():
 #            print("ERROR 10.5: Measurement start error:", format(cf1_write, "08b"), "=>", format(cf1_read, "08b"))
         # Wait for edge on TRIG1 (unless trig1 == None).
         if self.trig1:
-            # Don't wait more than 0.5 mS.
-            # THIS IS ONLY CORRECT FOR MM2!
-            timeout = time.time() + 0.0005
+            err_str = None
             if trig_falling:
-                #print("Somehow trig_falling got set True!")
-                while (GPIO.input(self.trig1)):
-                    if (time.time() > timeout):
-                        timed_out = True
-                        break
+                if GPIO.input(self.trig1):	# Don't wait for a falling edge if it's already low!
+                    channel = GPIO.wait_for_edge(self.trig1, GPIO.FALLING, timeout=1)
+                    if channel is None:
+                        err_str = error_prefix + "ERROR 10: Timed out waiting for TRIG1 to fall."
             else:
-                while (not GPIO.input(self.trig1)):
-                    if (time.time() > timeout):
-                        timed_out = True
-                        break
-            if timed_out:
-                if trig_falling:
-                    err_str = error_prefix + "ERROR 10: Timed out waiting for TRIG1 to fall."
-                else:
-                    err_str = error_prefix + "ERROR 10: Timed out waiting for TRIG1 to rise."
+                if not GPIO.input(self.trig1):	# Don't wait for a rising edge if it's already high!
+                    channel = GPIO.wait_for_edge(self.trig1, GPIO.RISING, timeout=1)
+                    if channel is None:
+                        err_str = error_prefix + "ERROR 10: Timed out waiting for TRIG1 to rise."
+            if err_str:
                 if log_file:
                     log_file.write(err_str+'\n')
                 else:
@@ -1001,32 +994,19 @@ class TDC7201():
                     GPIO.output(self.stop, r & 1)
                     r >>= 1
                 GPIO.output(self.stop, 0)
-#        GPIO.wait_for_edge(self.int1, GPIO.FALLING)
-        # Note that the chip may already be finished by now.
-        # Therefore, GPIO.wait_for_edge() is not guaranteed to see an edge.
-        # Wait for INT1. This is inefficient, but OK for now.
-        # INT1 is active low.
-        # I tried not having a timeout here, but unfortunately,
-        # about 1 in every 20 million measurements actually does hang forever.
-        # Having the timeout time be fairly long does NOT significantly hurt
-        # performance, since the longer INT1 timings are extremely rare.
-        timeout = time.time() + (self.clockPeriod * self.reg1[self.CLOCK_CNTR_OVF]) + 0.009
-        timed_out = False
-        while (GPIO.input(self.int1)):
-            if (time.time() > timeout):
-                timed_out = True
-                break
-        if timed_out:
-            err_str = error_prefix + "ERROR 7: Timed out waiting for INT1."
-#            # Let's debug this sucker.
-#            cf1_state = self.reg1[self.CONFIG1]
-#            cf1_read = self.read8(self.CONFIG1)
-#            print(error_prefix+"ERROR 7: INT1 timeout:", format(cf1_state, "08b"), "=>", format(cf1_read, "08b"))
-            if log_file:
-                log_file.write(err_str+'\n')
-            else:
-                print(err_str)
-            return 7
+        # wait_for_edge() is more power-efficient but slightly slower than polling in a Python loop.
+        # Note that delay here is constant over batches and should be moved outside the routine.
+        # Also note that the int(...) part will often be 0.
+        if GPIO.input(self.int1):	# Don't wait for an edge if it's already low!
+            delay = int(self.clockPeriod * self.reg1[self.CLOCK_CNTR_OVF] * 1000) + 1	# in mS
+            channel = GPIO.wait_for_edge(self.int1, GPIO.FALLING, timeout=delay)
+            if channel is None:
+                err_str = error_prefix + "ERROR 7: Timed out waiting for INT1."
+                if log_file:
+                    log_file.write(err_str+'\n')
+                else:
+                    print(err_str)
+                return 7
 
         # Read everything in and see what we got.
         #print("Reading chip side #1 register state:")
@@ -1034,8 +1014,9 @@ class TDC7201():
         return_code = self.compute_tofs()
         #self.clear_status()	# clear interrupts
         return return_code # 0-5 for number of pulses (< NSTOP implies timeout),
-                           # 8 is currently unassigned
-                           # 6-7 and 9-13 for error,
+                           # 6 if unable to compute TOFs
+                           # 7,10,12 for early-return errors above
+                           # 8-9,11,13 currently disabled because not needed
 
     def set_SPI_clock_speed(self, speed, force=False):
         """Attempt to set the SPI clock speed, within chip limits."""

@@ -91,7 +91,7 @@ publish_tdc7201_driver()
 # Turn the chip on and configure it.
 tdc.on()
 NUM_STOP = 3	# We check against this later.
-tdc.configure(side=1, meas_mode=2, num_stop=NUM_STOP, clock_cntr_stop=1, timeout=0.000260, calibration2_periods=40)
+tdc.configure(side=1, meas_mode=2, num_stop=NUM_STOP, clock_cntr_stop=1, timeout=0.000165, calibration2_periods=40)
 mqttc.publish(topic="QTD/VDDG/tdc7201/runstate", payload="ON")
 
 # Make sure our internal copy of the register state is up to date.
