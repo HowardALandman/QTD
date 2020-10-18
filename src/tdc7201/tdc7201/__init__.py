@@ -29,7 +29,7 @@ import RPi.GPIO as GPIO
 # print("RPi.GPIO version =", GPIO.VERSION)
 import spidev
 
-__version__ = '0.9.0'	# Use SemVer style version numbers
+__version__ = '0.10.0'	# Use SemVer style version numbers
 
 # Map of EVM board header pinout.
 # "." means No Connect, parentheses mean probably optional.
@@ -943,25 +943,18 @@ class TDC7201():
 #            print("ERROR 10.5: Measurement start error:", format(cf1_write, "08b"), "=>", format(cf1_read, "08b"))
         # Wait for edge on TRIG1 (unless trig1 == None).
         if self.trig1:
-            # Don't wait more than 0.5 mS.
-            # THIS IS ONLY CORRECT FOR MM2!
-            timeout = time.time() + 0.0005
+            err_str = None
             if trig_falling:
-                #print("Somehow trig_falling got set True!")
-                while (GPIO.input(self.trig1)):
-                    if (time.time() > timeout):
-                        timed_out = True
-                        break
+                if GPIO.input(self.trig1):	# Don't wait for a falling edge if it's already low!
+                    channel = GPIO.wait_for_edge(self.trig1, GPIO.FALLING, timeout=1)
+                    if channel is None:
+                        err_str = error_prefix + "ERROR 10: Timed out waiting for TRIG1 to fall."
             else:
-                while (not GPIO.input(self.trig1)):
-                    if (time.time() > timeout):
-                        timed_out = True
-                        break
-            if timed_out:
-                if trig_falling:
-                    err_str = error_prefix + "ERROR 10: Timed out waiting for TRIG1 to fall."
-                else:
-                    err_str = error_prefix + "ERROR 10: Timed out waiting for TRIG1 to rise."
+                if not GPIO.input(self.trig1):	# Don't wait for a rising edge if it's already high!
+                    channel = GPIO.wait_for_edge(self.trig1, GPIO.RISING, timeout=1)
+                    if channel is None:
+                        err_str = error_prefix + "ERROR 10: Timed out waiting for TRIG1 to rise."
+            if err_str:
                 if log_file:
                     log_file.write(err_str+'\n')
                 else:
