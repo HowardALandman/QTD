@@ -100,15 +100,16 @@ or the measurement will time out before it begins accepting stop pulses.
 
     measure(simulate=False,error_prefix='',log_file=None)
 
-Runs a single measurement, polling the chip INT1 pin until it indicates completion.
-(This should really be an interrupt.)
-Will time out after 0.1 seconds if measurement doesn't complete.
-If it does complete, calls `read_regs24()` and `compute_tofs()` so that both raw and processed data are available.
+Runs a single measurement, waiting for the chip INT1 pin to go mlow indicating completion.
+Will time out after 1 or more milliseconds if measurement doesn't complete.
+(The measure() timeout must be an integer number of mS,
+and is adjusted to be longer than the timeout set for the chip.)
 If `simulate=True`, then generates START and/or STOP signals to send to the chip
 (for testing when your actual signal source is not yet available);
 this requires that the appropriate RPi pins be connected to START and/or STOP,
 and that `initGPIO()` not be called with `start=None` or `stop=None` respectively.
 (Simulate does not currently work with averaging.)
+If it does complete, calls `read_regs24()` and `compute_tofs()` so that both raw and processed data are available.
 The `error_prefix` string will be prepended to any error messages from this call to `measure()`;
 this allows you to easily identify which call had the problem.
 If `log_file` is an already-open file handle,
