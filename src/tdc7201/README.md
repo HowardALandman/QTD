@@ -49,8 +49,7 @@ Note that if you start a measurement, and the chip never sees a START signal, it
 
 Takes the chip out of reset.
 
-    configure(side=1,force_cal=True,meas_mode=2,trig_falling=False,falling=False,
-calibration2_periods=10,avg_cycles=1,num_stop=1,clock_cntr_stop=0,clock_cntr_ovf=0xFFFF,timeout=None)
+    configure(side=1,force_cal=True,meas_mode=2,trig_falling=False,falling=False,calibration2_periods=10,avg_cycles=1,num_stop=1,clock_cntr_stop=0,clock_cntr_ovf=0xFFFF,timeout=None)
 
 Set up various control parameters in the chip configuration registers.
 
