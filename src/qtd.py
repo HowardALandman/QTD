@@ -120,7 +120,7 @@ while batches != 0:
     data_fname = '/mnt/qtd/data/' + timestamp + ".txt"
     try:
         data_file = open(data_fname,'w')
-    except (IOError OSError):
+    except (IOError, OSError):
         print("Couldn't open", data_fname, "for writing.")
         tdc.cleanup()
         sys.exit()
