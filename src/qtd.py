@@ -50,7 +50,7 @@ mqttc = mqtt.Client()
 mqttc.on_connect = on_connect
 mqttc.on_disconnect = on_disconnect
 try:
-    mqttc.connect(MQTT_SERVER_NAME, 1883, 300)
+    mqttc.connect(MQTT_SERVER_NAME, 1883, 600)
 except socket.gaierror:
     print("ERROR: getaddrinfo() failed. Couldn't connect to MQTT server", MQTT_SERVER_NAME+".")
     print("MQTT status logging will not work!!!")
