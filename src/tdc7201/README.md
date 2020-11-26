@@ -101,7 +101,7 @@ or the measurement will time out before it begins accepting stop pulses.
 
 Runs a single measurement, waiting for the chip INT1 pin to go low indicating completion.
 Will time out after 1 or more milliseconds if measurement doesn't complete.
-(The measure() timeout must be an integer number of mS,
+(The `measure()` timeout must be an integer number of mS,
 and is adjusted to be longer than the timeout set for the chip.)
 If `simulate=True`, then generates START and/or STOP signals to send to the chip
 (for testing when your actual signal source is not yet available);
@@ -136,7 +136,7 @@ because it does less work.
 
 Asserts reset and waits 1 uS for it to take effect.
 This will terminate any measurement in progress,
-and make the chip unresponsive to SPI until the next call to on().
+and make the chip unresponsive to SPI until the next call to `on()`.
 
     clear_status(verbose=False,force=False)
 
@@ -197,19 +197,19 @@ This only makes sense for 24-bit registers (addresses 16 through 28).
 
     read_regs8()
 
-Read all of the 8-bit side 1 chip registers into the tdc.reg1 list.
+Read all of the 8-bit side 1 chip registers into the `tdc.reg1` list.
 (It should be possible to make this read the side 2 registers, but it doesn't yet.)
 This is much faster than looping over the registers in Python.
 
     read_regs24()
 
-Read all of the 24-bit side 1 chip registers (measurement and calibration results) into the tdc.reg1 list.
+Read all of the 24-bit side 1 chip registers (measurement and calibration results) into the `tdc.reg1` list.
 (It should be possible to make this read the side 2 registers, but it doesn't yet.)
 This is much faster than looping over the registers in Python.
 
     read_regs()
 
-Read all of the side 1 chip registers (including measurement results) into the tdc.reg1 list.
+Read all of the side 1 chip registers (including measurement results) into the `tdc.reg1` list.
 (It should be possible to make this read the side 2 registers, but it doesn't yet.)
 This is much faster than looping over the registers in Python.
 Equivalent to `read_regs8()` plus `read_regs24()`.
