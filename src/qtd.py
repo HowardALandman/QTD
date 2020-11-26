@@ -137,10 +137,11 @@ while batches != 0:
         result_list[result] += 1
         if result==2:
             # Record results in microseconds
-            decay = 1000000 * (tdc.tof2 - tdc.tof1)
+            #decay = 1000000 * (tdc.tof2 - tdc.tof1)
             # Record raw register data, so we can analyze differently later if needed,
             # as well as the computed delay between STOP1 and STOP2.
-            tof_line = m_str + str(tdc.reg1[0x10:0x1C]) + ' ' + str(decay) + '\n'
+            #tof_line = m_str + str(tdc.reg1[0x10:0x1C]) + ' ' + str(decay) + '\n'
+            tof_line = m_str + str(tdc.reg1[0x10:0x1C]) + '\n'
             data_file.write(tof_line)
         elif result > NUM_STOP and result <= 5:
             print("ERROR: Too Many Pulses:", result, str(tdc.reg1[0x10:0x1D]))
