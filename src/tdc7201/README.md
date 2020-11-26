@@ -108,11 +108,29 @@ If `simulate=True`, then generates START and/or STOP signals to send to the chip
 this requires that the appropriate RPi pins be connected to START and/or STOP,
 and that `initGPIO()` not be called with `start=None` or `stop=None` respectively.
 (Simulate does not currently work with averaging.)
-If it does complete, calls `read_regs24()` and `compute_tofs()` so that both raw and processed data are available.
+If it does complete, calls `read_regs24()` to download the raw register data,
+and then count_pulses().
 The `error_prefix` string will be prepended to any error messages from this call to `measure()`;
 this allows you to easily identify which call had the problem.
 If `log_file` is an already-open file handle,
 will write any error messages to that file instead of printing them.
+Returns 0-5 for number of pulses seen, or 6-13 for various kinds of errors.
+
+    compute_tofs()
+
+Takes the raw register data dowloaded by the last measurement
+and computes the time-of-flight for each pulse seen,
+leaving them in the tdc.tof1 to tdc.tof5 variables.
+Returns 0 to 5 for the number of pulses seen,
+or 6 if an error prevented the computation.
+
+    count_pulses()
+
+Examines the raw register data dowloaded by the last measurement
+and returns 0 to 5 for the number of pulses seen,
+or 6 if an error prevented the computation.
+This is about 8 times faster than compute_tofs(),
+because it does less work.
 
     off()
 

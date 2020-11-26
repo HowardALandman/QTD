@@ -29,7 +29,7 @@ import RPi.GPIO as GPIO
 # print("RPi.GPIO version =", GPIO.VERSION)
 import spidev
 
-__version__ = '0.10.1'	# Use SemVer style version numbers
+__version__ = '0.11.0'	# Use SemVer style version numbers
 
 # Map of EVM board header pinout.
 # "." means No Connect, parentheses mean probably optional.
@@ -780,7 +780,7 @@ class TDC7201():
 
     def tof_mm1(self, time_n):
         """Compute a Time-Of-Flight assuming measurement mode 1."""
-        assert self.meas_mode == self._CF1_MM1
+        #assert self.meas_mode == self._CF1_MM1
         # Compute time-of-flight from START to a STOP.
         if self.reg1[time_n]:
             return self.norm_lsb*self.reg1[time_n]
@@ -788,12 +788,33 @@ class TDC7201():
 
     def tof_mm2(self, time1, time_n, count, avg):
         """Compute a Time-Of-Flight assuming measurement mode 2."""
-        assert self.meas_mode == self._CF1_MM2
+        #assert self.meas_mode == self._CF1_MM2
         # Compute time-of-flight given Measurement Mode 2 data for two adjacent stops.
-        if (self.reg1[time_n] or self.reg1[count]):
+        if self.reg1[time_n] or self.reg1[count]:
             return self.norm_lsb*(self.reg1[time1]-self.reg1[time_n]) + \
                    (self.reg1[count]/avg)*self.clockPeriod
         return 0
+
+    def count_pulses(self):
+        """Count how many pulses we got, without computing TOFs."""
+        pulses = 0
+        if self.meas_mode == self._CF1_MM1:
+            for time_n in (self.TIME1,self.TIME2,self.TIME3,self.TIME4,self.TIME5):
+                if self.reg1[time_n]:
+                    pulses += 1
+                else:
+                    return(pulses)
+        elif self.meas_mode == self._CF1_MM2:
+            for time_n in (self.TIME1,self.TIME2,self.TIME3,self.TIME4,self.TIME5):
+                clock_count_n = time_n + 1
+                #if self.reg1[time_n] or self.reg1[clock_count_n]:
+                if self.reg1[clock_count_n]:
+                    pulses += 1
+                else:
+                    return(pulses)
+        else:
+            print("count_pulses(): Illegal measurement mode", self.meas_mode)
+            return(6)	# "Couldn't compute TOFs" error
 
     # Check if we got any pulses and calculate the TOFs.
     def compute_tofs(self):
@@ -840,7 +861,7 @@ class TDC7201():
             self.tof5 = self.tof_mm2(self.TIME1, self.TIME6, self.CLOCK_COUNT5, avg)
             pulses += bool(self.tof5)
         else:
-            print("Illegal measurement mode", self.meas_mode)
+            print("count_tofs(): Illegal measurement mode", self.meas_mode)
         log_line = "P " + str(pulses)
         if pulses >= 2:
             log_line += " " + str(self.tof2 - self.tof1)
@@ -1011,7 +1032,8 @@ class TDC7201():
         # Read everything in and see what we got.
         #print("Reading chip side #1 register state:")
         self.read_regs24()
-        return_code = self.compute_tofs()
+        #return_code = self.compute_tofs()
+        return_code = self.count_pulses()
         #self.clear_status()	# clear interrupts
         return return_code # 0-5 for number of pulses (< NSTOP implies timeout),
                            # 6 if unable to compute TOFs
