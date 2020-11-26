@@ -99,7 +99,7 @@ or the measurement will time out before it begins accepting stop pulses.
 
     measure(simulate=False,error_prefix='',log_file=None)
 
-Runs a single measurement, waiting for the chip INT1 pin to go mlow indicating completion.
+Runs a single measurement, waiting for the chip INT1 pin to go low indicating completion.
 Will time out after 1 or more milliseconds if measurement doesn't complete.
 (The measure() timeout must be an integer number of mS,
 and is adjusted to be longer than the timeout set for the chip.)
@@ -109,7 +109,7 @@ this requires that the appropriate RPi pins be connected to START and/or STOP,
 and that `initGPIO()` not be called with `start=None` or `stop=None` respectively.
 (Simulate does not currently work with averaging.)
 If it does complete, calls `read_regs24()` to download the raw register data,
-and then count_pulses().
+and then `count_pulses()`.
 The `error_prefix` string will be prepended to any error messages from this call to `measure()`;
 this allows you to easily identify which call had the problem.
 If `log_file` is an already-open file handle,
@@ -120,7 +120,7 @@ Returns 0-5 for number of pulses seen, or 6-13 for various kinds of errors.
 
 Takes the raw register data dowloaded by the last measurement
 and computes the time-of-flight for each pulse seen,
-leaving them in the tdc.tof1 to tdc.tof5 variables.
+leaving them in the `tdc.tof1` to `tdc.tof5` variables.
 Returns 0 to 5 for the number of pulses seen,
 or 6 if an error prevented the computation.
 
@@ -129,7 +129,7 @@ or 6 if an error prevented the computation.
 Examines the raw register data dowloaded by the last measurement
 and returns 0 to 5 for the number of pulses seen,
 or 6 if an error prevented the computation.
-This is about 8 times faster than compute_tofs(),
+This is about 8 times faster than `compute_tofs()`,
 because it does less work.
 
     off()
