@@ -1,0 +1,23 @@
+IIC bus device address map
+--------------------------
+
+     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
+00:          -- -- -- -- -- -- -- -- -- -- -- -- -- 
+10: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+20: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+30: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+40: -- -- -- -- -- -- -- -- 48 RR RR RR -- -- -- -- 
+50: RR -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+60: 60 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+70: -- -- -- -- -- -- -- --                         
+
+0x00-0x02 : unavailable
+0x03-0x47 : unused
+0x48      : Adafruit ADS1115 16-bit 4-channel ADC with programmable gain
+0x49-0x4B : reserved for up to 3 more ADS1115
+0x4C-0x4F : unused
+0x50      : reserved for Raspberry Pi HAT
+0x51-0x5F : unused
+0x60      : Adafruit Si5351A clock generator breakout board
+0x61-0x77 : unused
+0x78-0x7F : unavailable
