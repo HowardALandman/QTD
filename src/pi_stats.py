@@ -17,7 +17,8 @@ signal.signal(signal.SIGINT, sigint_handler)
 
 
 # MQTT stuff.
-MQTT_SERVER_NAME = "mqtt.eclipse.org"
+#MQTT_SERVER_NAME = "mqtt.eclipse.org"
+MQTT_SERVER_NAME = "test.mosquitto.org"
 
 def on_connect(mqtt_client, userdata, flags, result_code):
     """MQTT callback for when the client receives a CONNACK response from the server."""
