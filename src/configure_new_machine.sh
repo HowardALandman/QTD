@@ -45,6 +45,14 @@ sudo python3 -m pip install paho.mqtt
 # (optional) for compiling or debugging
 sudo python3 -m pip install guppy3
 sudo python3 -m pip install Cython
+# Adafruit CircuitPython for driving Si5351 and other peripherals.
+#sudo python3 -m pip install --upgrade adafruit-python-shell
+#wget https://raw.githubusercontent.com/adafruit/Raspberry-Pi-Installer-Scripts/master/raspi-blinka.py
+#sudo python3 raspi-blinka.py
+sudo apt install -y i2c-tools	# probably unnecessary
+sudo python3 -m pip install --upgrade RPi.GPIO	# probably unnecessary
+sudo python3 -m pip install --upgrade adafruit-blinka
+sudo python3 -m pip install --upgrade adafruit-circuitpython-si5351
 
 # Make src directory.
 mkdir src
