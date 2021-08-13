@@ -35,7 +35,7 @@
         "z": "",
         "name": "CPU",
         "tab": "1de82e72.045f5a",
-        "order": 1,
+        "order": 2,
         "disp": true,
         "width": "8",
         "collapse": false
@@ -46,7 +46,7 @@
         "z": "",
         "name": "TDC7201",
         "tab": "1de82e72.045f5a",
-        "order": 3,
+        "order": 4,
         "disp": true,
         "width": 8,
         "collapse": false
@@ -162,9 +162,42 @@
         "z": "",
         "name": "Storage",
         "tab": "1de82e72.045f5a",
-        "order": 2,
+        "order": 3,
         "disp": true,
         "width": "8",
+        "collapse": false
+    },
+    {
+        "id": "a18950a1.abc8d8",
+        "type": "mqtt-broker",
+        "z": "",
+        "name": "Mosquitto",
+        "broker": "test.mosquitto.org",
+        "port": "1883",
+        "clientid": "",
+        "usetls": false,
+        "compatmode": false,
+        "keepalive": "60",
+        "cleansession": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "closeTopic": "",
+        "closeQos": "0",
+        "closePayload": "",
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": ""
+    },
+    {
+        "id": "d8f4cad3.f936",
+        "type": "ui_group",
+        "z": "",
+        "name": "Voltage",
+        "tab": "1de82e72.045f5a",
+        "order": 1,
+        "disp": true,
+        "width": "6",
         "collapse": false
     },
     {
@@ -175,7 +208,7 @@
         "topic": "QTD/VDGG/CPU/cpu_temp",
         "qos": "0",
         "datatype": "auto",
-        "broker": "d2bee063.4e6ed8",
+        "broker": "a18950a1.abc8d8",
         "x": 120,
         "y": 80,
         "wires": [
@@ -198,15 +231,15 @@
         "title": "CPU Temperature",
         "label": "°C",
         "format": "{{value}}",
-        "min": "30",
-        "max": "70",
+        "min": "20",
+        "max": "80",
         "colors": [
             "#00b500",
             "#e6e600",
             "#ca3838"
         ],
-        "seg1": "48",
-        "seg2": "54",
+        "seg1": "40",
+        "seg2": "60",
         "x": 470,
         "y": 80,
         "wires": []
@@ -219,7 +252,7 @@
         "topic": "QTD/VDDG/tdc7201/batch",
         "qos": "0",
         "datatype": "auto",
-        "broker": "d2bee063.4e6ed8",
+        "broker": "a18950a1.abc8d8",
         "x": 150,
         "y": 680,
         "wires": [
@@ -372,7 +405,7 @@
         "topic": "QTD/VDDG/CPU/Model",
         "qos": "0",
         "datatype": "auto",
-        "broker": "d2bee063.4e6ed8",
+        "broker": "a18950a1.abc8d8",
         "x": 120,
         "y": 200,
         "wires": [
@@ -405,7 +438,7 @@
         "topic": "QTD/VDDG/CPU/os_name",
         "qos": "0",
         "datatype": "auto",
-        "broker": "d2bee063.4e6ed8",
+        "broker": "a18950a1.abc8d8",
         "x": 110,
         "y": 280,
         "wires": [
@@ -438,7 +471,7 @@
         "topic": "QTD/VDGG/tdc7201/driver",
         "qos": "0",
         "datatype": "auto",
-        "broker": "d2bee063.4e6ed8",
+        "broker": "a18950a1.abc8d8",
         "x": 110,
         "y": 600,
         "wires": [
@@ -530,7 +563,7 @@
         "topic": "QTD/VDGG/CPU/root",
         "qos": "0",
         "datatype": "auto",
-        "broker": "d2bee063.4e6ed8",
+        "broker": "a18950a1.abc8d8",
         "x": 140,
         "y": 440,
         "wires": [
@@ -573,7 +606,7 @@
         "topic": "QTD/VDGG/CPU/load",
         "qos": "0",
         "datatype": "auto",
-        "broker": "d2bee063.4e6ed8",
+        "broker": "a18950a1.abc8d8",
         "x": 120,
         "y": 360,
         "wires": [
@@ -633,7 +666,7 @@
         "topic": "QTD/VDDG/tdc7201/p2ps",
         "qos": "0",
         "datatype": "utf8",
-        "broker": "d2bee063.4e6ed8",
+        "broker": "a18950a1.abc8d8",
         "x": 160,
         "y": 820,
         "wires": [
@@ -694,7 +727,7 @@
         "topic": "QTD/VDGG/CPU/data",
         "qos": "0",
         "datatype": "auto",
-        "broker": "d2bee063.4e6ed8",
+        "broker": "a18950a1.abc8d8",
         "x": 140,
         "y": 500,
         "wires": [
@@ -744,5 +777,185 @@
         "x": 380,
         "y": 880,
         "wires": []
+    },
+    {
+        "id": "7d325e52.58ac9",
+        "type": "mqtt in",
+        "z": "b5af51ed.68447",
+        "name": "3.3V Rail",
+        "topic": "QTD/VDGG/CPU/3v3",
+        "qos": "0",
+        "datatype": "auto",
+        "broker": "a18950a1.abc8d8",
+        "x": 120,
+        "y": 960,
+        "wires": [
+            [
+                "feb6c5c6.28d9f"
+            ]
+        ]
+    },
+    {
+        "id": "feb6c5c6.28d9f",
+        "type": "ui_chart",
+        "z": "b5af51ed.68447",
+        "name": "3.3V chart",
+        "group": "d8f4cad3.f936",
+        "order": 4,
+        "width": 0,
+        "height": 0,
+        "label": "3.3V",
+        "chartType": "line",
+        "legend": "false",
+        "xformat": "HH:mm",
+        "interpolate": "linear",
+        "nodata": "waiting for voltage data",
+        "dot": false,
+        "ymin": "",
+        "ymax": "",
+        "removeOlder": 1,
+        "removeOlderPoints": "",
+        "removeOlderUnit": "86400",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+            "#000000",
+            "#2c2ca0",
+            "#ff7f0e",
+            "#2ca02c",
+            "#98df8a",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "useOldStyle": false,
+        "outputs": 1,
+        "x": 310,
+        "y": 960,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "f2b74e40.6e24c8",
+        "type": "mqtt in",
+        "z": "b5af51ed.68447",
+        "name": "5.0V Rail",
+        "topic": "QTD/VDGG/CPU/5v0",
+        "qos": "0",
+        "datatype": "auto",
+        "broker": "a18950a1.abc8d8",
+        "x": 120,
+        "y": 1040,
+        "wires": [
+            [
+                "cff51d8c.91f9f"
+            ]
+        ]
+    },
+    {
+        "id": "cff51d8c.91f9f",
+        "type": "ui_chart",
+        "z": "b5af51ed.68447",
+        "name": "5.0V chart",
+        "group": "d8f4cad3.f936",
+        "order": 4,
+        "width": 0,
+        "height": 0,
+        "label": "5.0V",
+        "chartType": "line",
+        "legend": "false",
+        "xformat": "HH:mm",
+        "interpolate": "linear",
+        "nodata": "waiting for voltage data",
+        "dot": false,
+        "ymin": "",
+        "ymax": "",
+        "removeOlder": 1,
+        "removeOlderPoints": "",
+        "removeOlderUnit": "86400",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+            "#000000",
+            "#2c2ca0",
+            "#ff7f0e",
+            "#2ca02c",
+            "#98df8a",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "useOldStyle": false,
+        "outputs": 1,
+        "x": 310,
+        "y": 1040,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "4418c0aa.57084",
+        "type": "mqtt in",
+        "z": "b5af51ed.68447",
+        "name": "3.7V Battery",
+        "topic": "QTD/VDGG/CPU/3v7",
+        "qos": "0",
+        "datatype": "auto",
+        "broker": "a18950a1.abc8d8",
+        "x": 130,
+        "y": 1120,
+        "wires": [
+            [
+                "d6a1f0d2.4068d8"
+            ]
+        ]
+    },
+    {
+        "id": "d6a1f0d2.4068d8",
+        "type": "ui_chart",
+        "z": "b5af51ed.68447",
+        "name": "3.7V chart",
+        "group": "d8f4cad3.f936",
+        "order": 4,
+        "width": 0,
+        "height": 0,
+        "label": "3.7V Battery",
+        "chartType": "line",
+        "legend": "false",
+        "xformat": "HH:mm",
+        "interpolate": "linear",
+        "nodata": "waiting for voltage data",
+        "dot": false,
+        "ymin": "",
+        "ymax": "",
+        "removeOlder": 1,
+        "removeOlderPoints": "",
+        "removeOlderUnit": "86400",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+            "#000000",
+            "#2c2ca0",
+            "#ff7f0e",
+            "#2ca02c",
+            "#98df8a",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "useOldStyle": false,
+        "outputs": 1,
+        "x": 310,
+        "y": 1120,
+        "wires": [
+            []
+        ]
     }
 ]
