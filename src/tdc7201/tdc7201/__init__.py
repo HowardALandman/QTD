@@ -29,7 +29,7 @@ import RPi.GPIO as GPIO
 # print("RPi.GPIO version =", GPIO.VERSION)
 import spidev
 
-__version__ = '0.11.2'	# Use SemVer style version numbers
+__version__ = '0.11.3'	# Use SemVer style version numbers
 
 # Map of EVM board header pinout.
 # "." means No Connect, parentheses mean probably optional.
@@ -200,8 +200,8 @@ class TDC7201():
     # Within spidev, you need to close one side and then open the other to switch.
 
     # TDC7201 clock, for calculating actual TOFs
-    clockFrequency = 8000000		# usually 8 MHz, though 16 is better
-    clockPeriod = 1.0 / clockFrequency	# usually 125 nS
+    clockFrequency = None		# 8 MHz for EVM clock
+    clockPeriod = None			# 125 nS for EVM clock
 
     _minSPIspeed = 50000
     _maxSPIspeed = 25000000
@@ -210,12 +210,15 @@ class TDC7201():
     def __init__(self):
         # Instance variables
         self._spi = spidev.SpiDev()
-        self.reg1 = [None for i in range(self.MAXREG24+1)]
-        #self.reg2 = [None for i in range(self.MAXREG24+1)]
+        self.reg = [None for i in range(3)]
+        self.reg[1] = [None for i in range(self.MAXREG24+1)]
+        self.reg[2] = [None for i in range(self.MAXREG24+1)]
+        self.ext_clock_frequency = None
         # Open SPI to side 1 of the chip
         # Later we should write routines.
         try:
             self._spi.open(0, 0)	# Open SPI port 0, RPi CS0 = chip CS1.
+            self.side = 1	# chip side 1 = RPi side 0
         except FileNotFoundError:
             print("Unable to open SPI device. Is SPI enabled?")
             print("You can use 'lsmod | grep spi' to check if any SPI kernel modules are loaded.")
@@ -231,10 +234,14 @@ class TDC7201():
         if self._spi.bits_per_word != 8:
             print("Setting bits per word to 8")
             self._spi.bits_per_word = 8
-        #print("SPI chip select high? (should be False):", self._spi.cshigh)
-        if self._spi.cshigh:
-            print("Setting chip selects to active low")
-            self._spi.cshigh = False
+        # Some kind of bug in SPI driver where cshigh appears to be True
+        # even though it's False.
+        # Just ignore this for now;
+        # other things will die later if it's not right.
+        ##print("SPI chip select high? (should be False):", self._spi.cshigh)
+        #if self._spi.cshigh:
+        #    print("Setting chip selects to active low")
+        #    self._spi.cshigh = False
         #print("SPI loopback? (should be False):", self._spi.loop)
         if self._spi.loop:
             print("Setting loopback to False")
@@ -252,6 +259,13 @@ class TDC7201():
         if self._spi.threewire:
             print("Setting 3-wire to False")
             self._spi.threewire = False
+
+    def set_side(self, side):
+        # For now, unless side has changed, don't do anything.
+        if side != self.side:
+            self._spi.close()
+            self._spi.open(0, side-1)	# RPi CS0 = chip CS1, RPi CS1 = chip CS2.
+            self.side = side
 
     def initGPIO(self,
                  enable=12,	# GPIO 18 = header pin 12
@@ -385,8 +399,11 @@ class TDC7201():
         # May not be necessary if you supply an external clock.
         self.osc_enable = osc_enable # remember it
         if osc_enable is not None:
+            # Need an option to set OSC_ENABLE low and use external clock.
             reserve_pin("OSC_ENABLE", osc_enable)
             GPIO.setup(osc_enable, GPIO.OUT, initial=GPIO.HIGH)
+            self.clockFrequency = 8000000			# 8 MHz
+            self.clockPeriod = 1.0 / self.clockFrequency	# 125 nS
             if verbose:
                 print("Set OSC_ENABLE to output on pin", osc_enable)
                 print("Clock started (OSC_ENABLE = high) on pin", osc_enable)
@@ -490,9 +507,11 @@ class TDC7201():
            timeout=None,	# Alternate way to specify clock overflow
            retain_state=False,	# Use existing state, ignore other arguments
           ):
+        # Pick side of chip to configure.
+        self.set_side(side)
         # Configuration register 1
         if retain_state:
-            cf1_state = self.reg1[self.CONFIG1]
+            cf1_state = self.reg[side][self.CONFIG1]
         else:
             cf1_state = 0 # The default after power-on or reset
             if force_cal:
@@ -517,7 +536,7 @@ class TDC7201():
                 print("Defaulting to measurement mode 1.")
                 cf1_state |= self._CF1_MM1
                 meas_mode = 1
-            self.reg1[self.CONFIG1] = cf1_state
+            self.reg[side][self.CONFIG1] = cf1_state
         self.meas_mode = meas_mode
         # Write+read occasionally fails when SPI is overclocked.
         # That is, the value you read back is not what you wrote.
@@ -536,7 +555,7 @@ class TDC7201():
 
         # Configuration register 2
         if retain_state:
-            cf2_state = self.reg1[self.CONFIG2]
+            cf2_state = self.reg[side][self.CONFIG2]
         else:
             cf2_state = 0 # Power-on default is 0b01_000_000
             # Always calibrate for AT LEAST as many cycles as requested.
@@ -606,7 +625,7 @@ class TDC7201():
                 # Other codes (for 6, 7, 8) are invalid and give 1.
                 cf2_state |= self._CF2_NSTOP_1
                 print(num_stop, "is not a valid number of stop pulses, defaulting to 1.")
-            self.reg1[self.CONFIG2] = cf2_state
+            self.reg[side][self.CONFIG2] = cf2_state
         # Writing occasionally fails. Repeat until success.
         # Should usually only take 1 attempt.
         self.write8(self.CONFIG2, cf2_state)
@@ -618,7 +637,7 @@ class TDC7201():
 
         # Interrupt mask
         if retain_state:
-            im_state = self.reg1[self.INT_MASK]
+            im_state = self.reg[side][self.INT_MASK]
         else:
             if meas_mode == 1:
                 im_state = self._IM_COARSE_OVF | self._IM_MEASUREMENT
@@ -627,7 +646,7 @@ class TDC7201():
             else:
                 # error?
                 im_state = 0
-            self.reg1[self.INT_MASK] = im_state
+            self.reg[side][self.INT_MASK] = im_state
         self.write8(self.INT_MASK, im_state)
         # Writing occasionally fails. Repeat until success.
         # Should usually only take 1 attempt.
@@ -638,15 +657,15 @@ class TDC7201():
 
         # CLOCK_CNTR_STOP
         if retain_state:
-            clock_cntr_stop = self.reg1[self.CLOCK_CNTR_STOP_MASK]
+            clock_cntr_stop = self.reg[side][self.CLOCK_CNTR_STOP_MASK]
         else:
             print("Skipping STOP pulses for", clock_cntr_stop, "clock periods =",
                   clock_cntr_stop*self.clockPeriod, "S")
-            self.reg1[self.CLOCK_CNTR_STOP_MASK] = clock_cntr_stop & 0xFFFF
-            if self.reg1[self.CLOCK_CNTR_STOP_MASK] != clock_cntr_stop:
-                print("clock_cntr_stop", clock_cntr_stop, "too large, using", self.reg1[self.CLOCK_CNTR_STOP_MASK])
-            self.reg1[self.CLOCK_CNTR_STOP_MASK_H] = (clock_cntr_stop >> 8) & 0xFF
-            self.reg1[self.CLOCK_CNTR_STOP_MASK_L] = clock_cntr_stop & 0xFF
+            self.reg[side][self.CLOCK_CNTR_STOP_MASK] = clock_cntr_stop & 0xFFFF
+            if self.reg[side][self.CLOCK_CNTR_STOP_MASK] != clock_cntr_stop:
+                print("clock_cntr_stop", clock_cntr_stop, "too large, using", self.reg[side][self.CLOCK_CNTR_STOP_MASK])
+            self.reg[side][self.CLOCK_CNTR_STOP_MASK_H] = (clock_cntr_stop >> 8) & 0xFF
+            self.reg[side][self.CLOCK_CNTR_STOP_MASK_L] = clock_cntr_stop & 0xFF
         self.write16(self.CLOCK_CNTR_STOP_MASK_H, clock_cntr_stop)
         # Writing occasionally fails. Repeat until success.
         # Should usually only take 1 attempt.
@@ -656,7 +675,7 @@ class TDC7201():
 
         # Set overflow timeout.
         if retain_state:
-            ovf = self.reg1[self.CLOCK_CNTR_OVF]
+            ovf = self.reg[side][self.CLOCK_CNTR_OVF]
             timeout = ovf * self.clockPeriod
             #print("Setting overflow timeout from retained state:", ovf, "=", timeout, "S.")
         elif timeout is None:
@@ -680,15 +699,17 @@ class TDC7201():
         if ovf > 0xFFFF:
             print("FATAL: clock_cntr_ovf exceeds max of 0xFFFF.")
             self.exit()
-        self.reg1[self.CLOCK_CNTR_OVF] = ovf
-        self.reg1[self.CLOCK_CNTR_OVF_H] = (ovf >> 8) & 0xFF
-        self.reg1[self.CLOCK_CNTR_OVF_L] = ovf & 0xFF
+        self.reg[side][self.CLOCK_CNTR_OVF] = ovf
+        self.reg[side][self.CLOCK_CNTR_OVF_H] = (ovf >> 8) & 0xFF
+        self.reg[side][self.CLOCK_CNTR_OVF_L] = ovf & 0xFF
         self.write16(self.CLOCK_CNTR_OVF_H, ovf)
         # Writing occasionally fails. Repeat until success.
         # Should usually only take 1 attempt.
         while self.read16(self.CLOCK_CNTR_OVF_H) != ovf:
             print("Failed to set CLOCK_CNTR_OVF_H.")
             self.write16(self.CLOCK_CNTR_OVF_H, ovf)
+        # Calculate interrupt wait time here, because it doesn't change over batches.
+        self.interrupt_wait_time = 1 + int(self.clockPeriod * self.reg[side][self.CLOCK_CNTR_OVF] * 1000)	# in mS
 
     def write8(self, reg, val):
         """Write one 8-bit register."""
@@ -732,14 +753,14 @@ class TDC7201():
         """Read all 8-bit registers, using auto-increment feature."""
         result8 = self._spi.xfer(self.REG8_TUPLE_WITH_PADDING)
         # First (0th) byte is always 0, rest are desired values.
-        self.reg1[0:self.MAXREG8] = result8[1:]
+        self.reg[self.side][0:self.MAXREG8] = result8[1:]
         # 16-bit combinations
-        self.reg1[self.COARSE_CNTR_OVF] = (
-            (self.reg1[self.COARSE_CNTR_OVF_H] << 8) | self.reg1[self.COARSE_CNTR_OVF_L])
-        self.reg1[self.CLOCK_CNTR_OVF] = (
-            (self.reg1[self.CLOCK_CNTR_OVF_H] << 8) | self.reg1[self.CLOCK_CNTR_OVF_L])
-        self.reg1[self.CLOCK_CNTR_STOP_MASK] = (
-            (self.reg1[self.CLOCK_CNTR_STOP_MASK_H] << 8) | self.reg1[self.CLOCK_CNTR_STOP_MASK_L])
+        self.reg[self.side][self.COARSE_CNTR_OVF] = (
+            (self.reg[self.side][self.COARSE_CNTR_OVF_H] << 8) | self.reg[self.side][self.COARSE_CNTR_OVF_L])
+        self.reg[self.side][self.CLOCK_CNTR_OVF] = (
+            (self.reg[self.side][self.CLOCK_CNTR_OVF_H] << 8) | self.reg[self.side][self.CLOCK_CNTR_OVF_L])
+        self.reg[self.side][self.CLOCK_CNTR_STOP_MASK] = (
+            (self.reg[self.side][self.CLOCK_CNTR_STOP_MASK_H] << 8) | self.reg[self.side][self.CLOCK_CNTR_STOP_MASK_L])
 
     REG24_TUPLE_WITH_PADDING = (MINREG24|_AI,
                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -753,9 +774,9 @@ class TDC7201():
         i = 1	# First (0th) byte is always 0, rest are desired values.
         for reg in range(self.MINREG24, self.MAXREG24+1):
             # Data comes in MSB first.
-            self.reg1[reg] = (result24[i] << 16) | (result24[i+1] << 8) | result24[i+2]
+            self.reg[self.side][reg] = (result24[i] << 16) | (result24[i+1] << 8) | result24[i+2]
             # Unfortunately, the built in method is MUCH slower.
-            #self.reg1[reg] = int.from_bytes(result24[i:i+2],byteorder='big')
+            #self.reg[self.side][reg] = int.from_bytes(result24[i:i+2],byteorder='big')
             i += 3
 
     def read_regs(self):
@@ -771,28 +792,28 @@ class TDC7201():
     def print_regs1(self):
         """Print out all the (copies of the) register values."""
         for reg in range(self.MINREG8, self.MAXREG8+1):
-            print(self.REGNAME[reg], hex(self.reg1[reg]))
+            print(self.REGNAME[reg], hex(self.reg[self.side][reg]))
         # Use combined registers for brevity.
         for reg in range(self.COARSE_CNTR_OVF, self.CLOCK_CNTR_STOP_MASK+1):
-            print(self.REGNAME[reg], self.reg1[reg])
+            print(self.REGNAME[reg], self.reg[self.side][reg])
         for reg in range(self.MINREG24, self.MAXREG24+1):
-            print(self.REGNAME[reg], self.reg1[reg])
+            print(self.REGNAME[reg], self.reg[self.side][reg])
 
     def tof_mm1(self, time_n):
         """Compute a Time-Of-Flight assuming measurement mode 1."""
         #assert self.meas_mode == self._CF1_MM1
         # Compute time-of-flight from START to a STOP.
-        if self.reg1[time_n]:
-            return self.norm_lsb*self.reg1[time_n]
+        if self.reg[self.side][time_n]:
+            return self.norm_lsb*self.reg[self.side][time_n]
         return 0
 
     def tof_mm2(self, time1, time_n, count, avg):
         """Compute a Time-Of-Flight assuming measurement mode 2."""
         #assert self.meas_mode == self._CF1_MM2
         # Compute time-of-flight given Measurement Mode 2 data for two adjacent stops.
-        if self.reg1[time_n] or self.reg1[count]:
-            return self.norm_lsb*(self.reg1[time1]-self.reg1[time_n]) + \
-                   (self.reg1[count]/avg)*self.clockPeriod
+        if self.reg[self.side][time_n] or self.reg[self.side][count]:
+            return self.norm_lsb*(self.reg[self.side][time1]-self.reg[self.side][time_n]) + \
+                   (self.reg[self.side][count]/avg)*self.clockPeriod
         return 0
 
     def count_pulses(self):
@@ -800,15 +821,15 @@ class TDC7201():
         pulses = 0
         if self.meas_mode == self._CF1_MM1:
             for time_n in (self.TIME1,self.TIME2,self.TIME3,self.TIME4,self.TIME5):
-                if self.reg1[time_n]:
+                if self.reg[self.side][time_n]:
                     pulses += 1
                 else:
                     return(pulses)
         elif self.meas_mode == self._CF1_MM2:
             for time_n in (self.TIME1,self.TIME2,self.TIME3,self.TIME4,self.TIME5):
                 clock_count_n = time_n + 1
-                #if self.reg1[time_n] or self.reg1[clock_count_n]:
-                if self.reg1[clock_count_n]:
+                #if self.reg[self.side][time_n] or self.reg[self.side][clock_count_n]:
+                if self.reg[self.side][clock_count_n]:
                     pulses += 1
                 else:
                     return(pulses)
@@ -820,7 +841,7 @@ class TDC7201():
     def compute_tofs(self):
         """Compute all the Time-Of-Flights."""
         #print("Computing TOFs.")
-        self.cal_count = ((self.reg1[self.CALIBRATION2] - self.reg1[self.CALIBRATION1])
+        self.cal_count = ((self.reg[self.side][self.CALIBRATION2] - self.reg[self.side][self.CALIBRATION1])
                           / (self.cal_pers - 1))
         #print("cal_count:", self.cal_count)
         if self.cal_count == 0:
@@ -846,7 +867,7 @@ class TDC7201():
             pulses += bool(self.tof5)
         elif self.meas_mode == self._CF1_MM2:
             # Average cycles
-            log_avg = (self.reg1[self.CONFIG2] & self._CF2_AVG_CYCLES) >> 3
+            log_avg = (self.reg[self.side][self.CONFIG2] & self._CF2_AVG_CYCLES) >> 3
             #print("log_avg =", log_avg)
             avg = 1 << log_avg
             #print("avg =", avg)
@@ -893,7 +914,7 @@ class TDC7201():
             # Write a 1 to each set bit to clear it.
             self.write8(self.INT_STATUS, int_stat)
             int_stat = self.read8(self.INT_STATUS)
-            self.reg1[self.INT_STATUS] = int_stat # Update internal copy.
+            self.reg[self.side][self.INT_STATUS] = int_stat # Update internal copy.
             if verbose:
                 print("After clearing we got", bin(int_stat))
         else:
@@ -919,7 +940,7 @@ class TDC7201():
         # TRIG should be low if rising-edge, high if falling-edge.
         # Don't check this is trig1 is set to None.
         if self.trig1:
-            trig_falling = (self.reg1[self.CONFIG1] & self._CF1_TRIGG_EDGE) > 0
+            trig_falling = (self.reg[self.side][self.CONFIG1] & self._CF1_TRIGG_EDGE) > 0
             trig_error = False
             if GPIO.input(self.trig1) and not trig_falling:
                 err_str = error_prefix + "ERROR 12: TRIG1 should be low."
@@ -940,7 +961,7 @@ class TDC7201():
                 self.configure(retain_state=True)
                 return 12
         # To start measurement, need to set START_MEAS in TDCx_CONFIG1 register.
-        cf1_state = self.reg1[self.CONFIG1]
+        cf1_state = self.reg[self.side][self.CONFIG1]
         # All error 11s follow an error 7 in the previous measurement.
         # If we can fix the error 7s, these should disappear too.
 #        # First read current value.
@@ -982,16 +1003,16 @@ class TDC7201():
                     print(err_str)
                 return 10
 # NEVER HAPPENS
-#        # Check that INT1 is inactive (high) as expected.
-#        if not GPIO.input(self.int1):
-#            err_str = error_prefix + "ERROR 9: INT1 is active (low) too early!"
-#            if log_file:
-#                log_file.write(err_str+'\n')
-#            else:
-#                print(err_str)
-#            # Try to fix it
-#            self.clear_status()
-#            return 9
+        # Check that INT1 is inactive (high) as expected.
+        if not GPIO.input(self.int1):
+            err_str = error_prefix + "ERROR 9: INT1 is active (low) too early!"
+            if log_file:
+                log_file.write(err_str+'\n')
+            else:
+                print(err_str)
+            # Try to fix it
+            self.clear_status()
+            return 9
 
         # Last chance to check registers before sending START pulse?
         #print(tdc.REGNAME[tdc.CONFIG2], ":", hex(tdc.read8(tdc.CONFIG2)))
@@ -1008,7 +1029,7 @@ class TDC7201():
             # Deleted that check. Hope it's OK.
             if self.stop is not None:
                 # Send 0 to NSTOP pulses. FOR TESTING ONLY.
-                n_stop = (self.reg1[self.CONFIG2] & self._CF2_NUM_STOP) + 1
+                n_stop = (self.reg[self.side][self.CONFIG2] & self._CF2_NUM_STOP) + 1
                 upper_limit = 1 << n_stop*2
                 r = random.randrange(upper_limit)
                 while r > 0:
@@ -1016,11 +1037,10 @@ class TDC7201():
                     r >>= 1
                 GPIO.output(self.stop, 0)
         # wait_for_edge() is more power-efficient but slightly slower than polling in a Python loop.
-        # Note that delay here is constant over batches and should be moved outside the routine.
         # Also note that the int(...) part will often be 0.
         if GPIO.input(self.int1):	# Don't wait for an edge if it's already low!
-            delay = int(self.clockPeriod * self.reg1[self.CLOCK_CNTR_OVF] * 1000) + 1	# in mS
-            channel = GPIO.wait_for_edge(self.int1, GPIO.FALLING, timeout=delay)
+            #delay = int(self.clockPeriod * self.reg[self.side][self.CLOCK_CNTR_OVF] * 1000) + 1	# in mS
+            channel = GPIO.wait_for_edge(self.int1, GPIO.FALLING, timeout=self.interrupt_wait_time)
             if channel is None:
                 err_str = error_prefix + "ERROR 7: Timed out waiting for INT1."
                 if log_file:
