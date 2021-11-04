@@ -72,13 +72,12 @@ def publish_tdc7201_driver():
     print("TDC7201 driver version =", driver)
     mqttc.publish(topic="QTD/VDGG/tdc7201/driver", payload=driver)
 
-
 tdc = tdc7201.TDC7201()	# Create TDC object with SPI interface.
 
 # Set RPi pin directions and default values for non-SPI signals.
 # Pin assignments should stay the same for entire run.
 # This also puts the chip into reset ("off") state.
-tdc.initGPIO(trig2=None, int2=None, stop=None)
+tdc.initGPIO()
 
 # Setting and checking clock speed.
 tdc.set_SPI_clock_speed(25000000)	# 25 MHz is spec max
@@ -92,7 +91,7 @@ publish_tdc7201_driver()
 # Turn the chip on and configure it.
 tdc.on()
 NUM_STOP = 3	# We check against this later.
-tdc.configure(side=1, meas_mode=2, num_stop=NUM_STOP, clock_cntr_stop=1, timeout=0.000165, calibration2_periods=40)
+tdc.configure(side=1, meas_mode=2, num_stop=NUM_STOP, clock_cntr_stop=0, timeout=0.000165, calibration2_periods=40)
 mqttc.publish(topic="QTD/VDDG/tdc7201/runstate", payload="ON")
 
 # Make sure our internal copy of the register state is up to date.
@@ -121,16 +120,17 @@ while batches != 0:
     data_fname = '/mnt/qtd/data/' + timestamp + ".txt"
     try:
         data_file = open(data_fname,'w')
+        data_file.write("QTD experiment data file\n")
+        data_file.write("Time : " + str(then) + "\n")
+        data_file.write("Date : " + timestamp + "\n")
+        data_file.write("Batch : " + str(abs(batches)) + "\n")	# NOT CORRECT for batches > 0 !
+        data_file.write("Batch_size : " + str(ITERS) + "\n")
+        data_file.write("Config : " + str(tdc.reg1[0:12]) + "\n")
     except (IOError, OSError):
         print("Couldn't open", data_fname, "for writing.")
-        tdc.cleanup()
-        sys.exit()
-    data_file.write("QTD experiment data file\n")
-    data_file.write("Time : " + str(then) + "\n")
-    data_file.write("Date : " + timestamp + "\n")
-    data_file.write("Batch : " + str(abs(batches)) + "\n")	# NOT CORRECT for batches > 0 !
-    data_file.write("Batch_size : " + str(ITERS) + "\n")
-    data_file.write("Config : " + str(tdc.reg1[0:12]) + "\n")
+        #tdc.cleanup()
+        #sys.exit()
+        data_file = None
     #result_list = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     for m in range(ITERS):
         m_str = str(m) + ' '
@@ -143,10 +143,12 @@ while batches != 0:
             # as well as the computed delay between STOP1 and STOP2.
             #tof_line = m_str + str(tdc.reg1[0x10:0x1C]) + ' ' + str(decay) + '\n'
             tof_line = m_str + str(tdc.reg1[0x10:0x1C]) + '\n'
-            data_file.write(tof_line)
+            if data_file:
+                data_file.write(tof_line)
         elif result > NUM_STOP and result <= 5:
             print("ERROR: Too Many Pulses:", result, str(tdc.reg1[0x10:0x1D]))
-    data_file.write('Tot : ' + str(result_list) + "\n")
+    if data_file:
+        data_file.write('Tot : ' + str(result_list) + "\n")
     PAYLOAD = json.dumps(result_list)
     print(PAYLOAD)
     mqttc.publish(topic="QTD/VDDG/tdc7201/batch", payload=PAYLOAD)
@@ -163,8 +165,10 @@ while batches != 0:
     for i in range(len(result_list)):
         cum_results[i] += result_list[i]
         result_list[i] = 0
-    data_file.write('Cum : ' + str(cum_results) + "\n")
-    data_file.close()
+    if data_file:
+        data_file.write('Cum : ' + str(cum_results) + "\n")
+        data_file.close()
+        data_file = None
     print(cum_results)
     #print('Memory usage: %s (kb)' % resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
     print(pulse_pair_rate, "valid measurements per second")
