@@ -5,8 +5,8 @@ import time
 import os
 import signal
 import sys
+import socket
 import paho.mqtt.client as mqtt
-
 
 # Handle ^C keyboard interrupt.
 def sigint_handler(sig, frame):
@@ -15,6 +15,50 @@ def sigint_handler(sig, frame):
 
 signal.signal(signal.SIGINT, sigint_handler)
 
+# I2C bus devices
+import board
+import busio
+import adafruit_si5351
+import adafruit_ads1x15.ads1115 as ADS
+from adafruit_ads1x15.analog_in import AnalogIn
+i2c = busio.I2C(board.SCL, board.SDA)
+#
+# Si5351 clock generator, i2c address 0x60
+# Used to generate 16 MHz clock for the tdc7201.
+try:
+    si5351 = adafruit_si5351.SI5351(i2c)	# may throw ValueError
+    print('Si5351: Device found.')
+    # Only needs to be initialized once, so may as well do it here.
+    # Generate 16 MHz clock by 25 MHz x 16 / 25.
+    print('Si5351: Input clock assumed to be 25 MHz.')
+    # Configure multiplier (to PLL A).
+    si5351.pll_a.configure_integer(16)
+    print('Si5351: PLL A multiplier set to 16.')
+    print('Si5351: PLL A set to {0} MHz'.format(si5351.pll_a.frequency / 1000000))
+    # Configure divider (from PLL A).
+    si5351.clock_1.configure_integer(si5351.pll_a, 25)
+    print('Si5351: Clock 1 set to divide PLL A by 25.')
+    print('Si5351: Clock 1 set to {0} MHz'.format(si5351.clock_1.frequency / 1000000))
+    # Turn outputs on.
+    si5351.outputs_enabled = True
+    print('Si5351: Clock outputs enabled')
+except ValueError:
+    print('Si5351: ERROR: Device not found.')
+    si5351 = None
+
+# ads1115 4-channel 16-bit ADC, i2c address 0x48
+# Used to monitor supply voltages
+try:
+    ads1115 = ADS.ADS1115(i2c)	# may throw ValueError
+    print('ads1115: Device found.')
+    #ads1115.mode = Mode.SINGLE	# in Adafruit code, but doesn't work
+    ads1115.gain = 1
+    voltage5v0 = AnalogIn(ads1115, ADS.P0)	# RPi 5V rail
+    voltage3v7 = AnalogIn(ads1115, ADS.P1)	# lithium battery 3.7V
+    voltage3v3 = AnalogIn(ads1115, ADS.P2)	# RPi 3.3V rail
+except ValueError:
+    print('ads1115: ERROR: Device not found.')
+    ads1115 = None
 
 # MQTT stuff.
 #MQTT_SERVER_NAME = "mqtt.eclipse.org"
@@ -157,6 +201,29 @@ def publish_load_avg(cmd="uptime"):
         pass
     mqttc.publish(topic="QTD/VDGG/CPU/load", payload=load)
 
+def publish_voltages():
+    if ads1115 is None:
+        #print("No ads1115 found.")
+        return None
+    try:
+        v = voltage5v0.voltage	# May throw OSError if i2c bus problem.
+        mqttc.publish(topic="QTD/VDGG/CPU/5v0", payload='{:.5f}'.format(v))
+    except OSError:
+        # Measurement failed due to bus error?
+        print("5v0 measurement failed due to OSError.")
+    try:
+        v = voltage3v7.voltage	# May throw OSError if i2c bus problem.
+        mqttc.publish(topic="QTD/VDGG/CPU/3v7", payload='{:.5f}'.format(v))
+    except OSError:
+        # Measurement failed due to bus error?
+        print("3v7 measurement failed due to OSError.")
+    try:
+        v = voltage3v3.voltage	# May throw OSError if i2c bus problem.
+        mqttc.publish(topic="QTD/VDGG/CPU/3v3", payload='{:.5f}'.format(v))
+    except OSError:
+        # Measurement failed due to bus error?
+        print("3v3 measurement failed due to OSError.")
+
 publish_uname()
 publish_os_name()
 publish_cpu_info()
@@ -167,4 +234,5 @@ while True:
     publish_load_avg()
     publish_disk_space()
     publish_disk_space(fs="/mnt/qtd", name="data")
+    publish_voltages()
     time.sleep(60)
