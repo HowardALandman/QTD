@@ -64,10 +64,25 @@ cd src
 git config --global user.email "howard@riverrock.org"
 git config --global user.name "Howard A. Landman"
 vi ~/.gitconfig
+# Configure node-red to pretty-print flow file.
+# This works better with git and diff.
+vi ~/.node-red/settings.js
+# Uncomment the "flowFilePretty: true" line.
 
 # Clone the project.
 git clone https://github.com/HowardALandman/QTD
 
+# tdc7201 library
+# If you won't be developing/altering the library,
+# then you can just install from Pypi.
+# Just for yourself: python3 -m pip install tdc7201
+# For all users: sudo python3 -m pip install tdc7201
+# If you are doing development, then
+# you may need to uninstall previous versions first.
+# Remove /home/pi/.local/lib/python3.7/site-packages/tdc7201*
+python3 -m pip uninstall tdc7201
+# Remove /usr/local/lib/python3.7/dist-packages/tdc7201*
+sudo python3 -m pip uninstall tdc7201
 # Install tdc7201 library in development mode.
 cd QTD/src/tdc7201/
 sudo python3 setup.py develop -b build -e
