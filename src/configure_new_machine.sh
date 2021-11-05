@@ -21,6 +21,12 @@ sudo apt install gdb
 sudo apt install python-dbg python3-dbg python3-debuginfo python3-dev
 sudo apt install valgrind
 
+# R language
+sudo apt install r-base
+
+# Octave (Matlab clone)
+sudo apt install octave
+
 # Allow core dumps.
 ulimit -c unlimited
 
